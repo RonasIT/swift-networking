@@ -5,6 +5,8 @@
 
 import Alamofire
 
+public typealias GeneralRequest = Request<GeneralResponse>
+
 public final class Request<ResponseType>: BaseRequest<ResponseType> {
 
     typealias EncodingCompletionHandler = (SessionManager.MultipartFormDataEncodingResult) -> Void
@@ -45,7 +47,7 @@ public final class Request<ResponseType>: BaseRequest<ResponseType> {
         }
     }
 
-    func cancel() {
+    public func cancel() {
         request.cancel()
     }
 }
