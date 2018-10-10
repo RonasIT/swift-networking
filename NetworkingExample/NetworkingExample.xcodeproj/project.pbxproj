@@ -185,7 +185,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1000;
 				LastUpgradeCheck = 1000;
-				ORGANIZATIONNAME = OrganizationName;
+				ORGANIZATIONNAME = "Ronas IT";
 				TargetAttributes = {
 					6D3EF79021676A2F00251869 = {
 						CreatedOnToolsVersion = 10.0;
