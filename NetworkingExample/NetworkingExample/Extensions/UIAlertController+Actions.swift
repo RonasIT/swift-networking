@@ -12,7 +12,7 @@ extension UIAlertController {
         add(actions)
     }
 
-    func addAction(title: String?, style: UIAlertAction.Style = .default, handler: ((UIAlertAction) -> Void)? = nil) {
+    func addAction(withTitle title: String?, style: UIAlertAction.Style = .default, handler: ((UIAlertAction) -> Void)? = nil) {
         let action = UIAlertAction(title: title, style: style, handler: handler)
         add(action)
     }
@@ -27,5 +27,15 @@ extension UIAlertController {
 
     func add(_ actions: [UIAlertAction]) {
         actions.forEach(addAction)
+    }
+}
+
+extension UIViewController {
+
+    func presentAlertController(for error: Error) {
+        let actions = [UIAlertAction(title: "OK", style: .default, handler: nil)]
+        let alertController = UIAlertController(title: "Error", message: error.localizedDescription,
+                                                preferredStyle: .alert, actions: actions)
+        present(alertController, animated: true)
     }
 }

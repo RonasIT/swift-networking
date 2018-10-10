@@ -8,21 +8,26 @@ import Alamofire
 import Networking
 
 enum AnythingEndpoint: Endpoint {
-    case fetchData(Contact)
-    case postData(Contact)
+    case fetchSlideshow
+    case postContact(Contact)
 
     var baseURL: URL {
         return URL(string: "https://httpbin.org/")!
     }
 
     var path: String {
-        return "anything"
+        switch self {
+        case .fetchSlideshow:
+            return "json"
+        case .postContact:
+            return "anything"
+        }
     }
 
     var method: HTTPMethod {
         switch self {
-        case .fetchData:  return .get
-        case .postData:   return .post
+        case .fetchSlideshow: return .get
+        case .postContact:    return .post
         }
     }
 
@@ -32,10 +37,10 @@ enum AnythingEndpoint: Endpoint {
 
     var parameters: Parameters? {
         switch self {
-        case .fetchData(let contact):
+        case .postContact(let contact):
             return try? contact.asDictionary()
-        case .postData(let contact):
-            return try? contact.asDictionary()
+        default:
+            return nil
         }
     }
 

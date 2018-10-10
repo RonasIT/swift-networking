@@ -8,7 +8,7 @@ import Networking
 protocol ApiServiceProtocol {
 
     @discardableResult
-    func fetchContact(success: @escaping (Contact) -> Void, failure: Failure?) -> Request<GeneralResponse>?
+    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> Request<GeneralResponse>?
 
     @discardableResult
     func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: Failure?) -> Request<GeneralResponse>?

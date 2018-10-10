@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-        let viewController: MainViewController = UIStoryboard.main.viewController(withID: "MainViewController")
+        let viewController: MainViewController = UIStoryboard.main.mainViewController
         let rootViewController = UINavigationController(rootViewController: viewController)
 
         window = UIWindow(frame: UIScreen.main.bounds)

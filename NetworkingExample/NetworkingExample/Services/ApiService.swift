@@ -8,10 +8,9 @@ import Networking
 final class ApiService: NetworkService, ApiServiceProtocol {
 
     @discardableResult
-    func fetchContact(success: @escaping (Contact) -> Void, failure: Failure?) -> Request<GeneralResponse>? {
-        let contact = Contact(id: "235", name: "Michael", url: URL(string: "https://www.michaelexample.com")!)
-        return request(for: AnythingEndpoint.fetchData(contact), success: { (result: AnythingResponse) in
-            success(result.args)
+    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> Request<GeneralResponse>? {
+        return request(for: AnythingEndpoint.fetchSlideshow, success: { (result: SlideshowResponse) in
+            success(result.slideshow)
         }, failure: { error in
             failure?(error)
         })
@@ -19,14 +18,18 @@ final class ApiService: NetworkService, ApiServiceProtocol {
 
     @discardableResult
     func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: Failure?) -> Request<GeneralResponse>? {
-        return request(for: AnythingEndpoint.fetchData(contact), success: { (result: AnythingResponse) in
-            success(result.args)
+        return request(for: AnythingEndpoint.postContact(contact), success: { (result: ContactResponse) in
+            success(result.form)
         }, failure: { error in
             failure?(error)
         })
     }
 }
 
-private final class AnythingResponse: Decodable {
-    let args: Contact
+private final class SlideshowResponse: Decodable {
+    let slideshow: Slideshow
+}
+
+private final class ContactResponse: Decodable {
+    let form: Contact
 }

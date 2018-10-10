@@ -4,8 +4,6 @@
 //
 
 import UIKit
-import Networking
-import Alamofire
 
 final class MainViewController: UIViewController {
 
@@ -13,17 +11,11 @@ final class MainViewController: UIViewController {
         super.viewDidLoad()
     }
 
-    private func showDetails(for method: HTTPMethod) {
-        let viewController: DetailViewController = UIStoryboard.main.viewController(withID: "DetailViewController")
-        viewController.method = method
-        navigationController?.pushViewController(viewController, animated: true)
-    }
-
     @IBAction func getButtonPressed(_ sender: UIButton) {
-        showDetails(for: .get)
+        navigationController?.pushViewController(UIStoryboard.main.slideshowViewController, animated: true)
     }
 
     @IBAction func postButtonPressed(_ sender: UIButton) {
-        showDetails(for: .post)
+        navigationController?.pushViewController(UIStoryboard.main.contactViewController, animated: true)
     }
 }

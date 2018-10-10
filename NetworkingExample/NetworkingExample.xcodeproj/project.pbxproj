@@ -13,11 +13,14 @@
 		6D3EF79C21676A3000251869 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D3EF79B21676A3000251869 /* Assets.xcassets */; };
 		6D3EF79F21676A3000251869 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6D3EF79D21676A3000251869 /* LaunchScreen.storyboard */; };
 		6D3EF7B521676F4B00251869 /* Networking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D3EF7B421676F4B00251869 /* Networking.framework */; };
+		6D873D48216E29D400AF9B9E /* Slideshow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D873D47216E29D400AF9B9E /* Slideshow.swift */; };
+		6D873D4A216E2B3A00AF9B9E /* SlideshowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D873D49216E2B3A00AF9B9E /* SlideshowViewController.swift */; };
+		6D873D4C216E2FC800AF9B9E /* SlideCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D873D4B216E2FC800AF9B9E /* SlideCollectionViewCell.swift */; };
 		6DAAF0D8216C92FA0003B3A7 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0D7216C92FA0003B3A7 /* ApiService.swift */; };
 		6DAAF0DA216C931D0003B3A7 /* ApiServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0D9216C931D0003B3A7 /* ApiServiceProtocol.swift */; };
 		6DAAF0DC216C93D10003B3A7 /* AnythingEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0DB216C93D10003B3A7 /* AnythingEndpoint.swift */; };
 		6DAAF0E0216C96D40003B3A7 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DAAF0DF216C96D40003B3A7 /* Alamofire.framework */; };
-		6DAAF0E3216CA9230003B3A7 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0E2216CA9230003B3A7 /* DetailViewController.swift */; };
+		6DAAF0E3216CA9230003B3A7 /* ContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0E2216CA9230003B3A7 /* ContactViewController.swift */; };
 		6DAAF0E5216CAA540003B3A7 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0E4216CAA540003B3A7 /* ActivityView.swift */; };
 		6DAAF0E7216CACEB0003B3A7 /* UIStoryboard+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0E6216CACEB0003B3A7 /* UIStoryboard+Additions.swift */; };
 		6DAAF0F0216CBC730003B3A7 /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0EF216CBC730003B3A7 /* Contact.swift */; };
@@ -34,11 +37,14 @@
 		6D3EF79E21676A3000251869 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6D3EF7A021676A3000251869 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6D3EF7B421676F4B00251869 /* Networking.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Networking.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D873D47216E29D400AF9B9E /* Slideshow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Slideshow.swift; sourceTree = "<group>"; };
+		6D873D49216E2B3A00AF9B9E /* SlideshowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideshowViewController.swift; sourceTree = "<group>"; };
+		6D873D4B216E2FC800AF9B9E /* SlideCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideCollectionViewCell.swift; sourceTree = "<group>"; };
 		6DAAF0D7216C92FA0003B3A7 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
 		6DAAF0D9216C931D0003B3A7 /* ApiServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiServiceProtocol.swift; sourceTree = "<group>"; };
 		6DAAF0DB216C93D10003B3A7 /* AnythingEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnythingEndpoint.swift; sourceTree = "<group>"; };
 		6DAAF0DF216C96D40003B3A7 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = ../Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
-		6DAAF0E2216CA9230003B3A7 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
+		6DAAF0E2216CA9230003B3A7 /* ContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactViewController.swift; sourceTree = "<group>"; };
 		6DAAF0E4216CAA540003B3A7 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		6DAAF0E6216CACEB0003B3A7 /* UIStoryboard+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStoryboard+Additions.swift"; sourceTree = "<group>"; };
 		6DAAF0EF216CBC730003B3A7 /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
@@ -83,6 +89,7 @@
 				6DAAF0E8216CAE3A0003B3A7 /* ViewControllers */,
 				6DAAF0E9216CAE470003B3A7 /* Views */,
 				6DAAF0EC216CAE680003B3A7 /* Services */,
+				6D873D46216E29BC00AF9B9E /* Models */,
 				6DAAF0ED216CAE870003B3A7 /* Extensions */,
 				6D3EF79B21676A3000251869 /* Assets.xcassets */,
 				6D37C1E9216C79FF0056CBFE /* Main.storyboard */,
@@ -101,11 +108,21 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		6D873D46216E29BC00AF9B9E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6DAAF0EF216CBC730003B3A7 /* Contact.swift */,
+				6D873D47216E29D400AF9B9E /* Slideshow.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		6DAAF0E8216CAE3A0003B3A7 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
 				6D3EF79621676A2F00251869 /* MainViewController.swift */,
-				6DAAF0E2216CA9230003B3A7 /* DetailViewController.swift */,
+				6DAAF0E2216CA9230003B3A7 /* ContactViewController.swift */,
+				6D873D49216E2B3A00AF9B9E /* SlideshowViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -114,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				6DAAF0E4216CAA540003B3A7 /* ActivityView.swift */,
+				6D873D4B216E2FC800AF9B9E /* SlideCollectionViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -124,7 +142,6 @@
 				6DAAF0D9216C931D0003B3A7 /* ApiServiceProtocol.swift */,
 				6DAAF0D7216C92FA0003B3A7 /* ApiService.swift */,
 				6DAAF0DB216C93D10003B3A7 /* AnythingEndpoint.swift */,
-				6DAAF0EF216CBC730003B3A7 /* Contact.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -237,13 +254,16 @@
 				6DAAF0F4216CC67C0003B3A7 /* Codable+Additions.swift in Sources */,
 				6DAAF0E7216CACEB0003B3A7 /* UIStoryboard+Additions.swift in Sources */,
 				6DAAF0DA216C931D0003B3A7 /* ApiServiceProtocol.swift in Sources */,
+				6D873D48216E29D400AF9B9E /* Slideshow.swift in Sources */,
+				6D873D4C216E2FC800AF9B9E /* SlideCollectionViewCell.swift in Sources */,
 				6DAAF0D8216C92FA0003B3A7 /* ApiService.swift in Sources */,
 				6D3EF79721676A2F00251869 /* MainViewController.swift in Sources */,
 				6DAAF0F2216CC4E50003B3A7 /* UIAlertController+Actions.swift in Sources */,
-				6DAAF0E3216CA9230003B3A7 /* DetailViewController.swift in Sources */,
+				6DAAF0E3216CA9230003B3A7 /* ContactViewController.swift in Sources */,
 				6DAAF0E5216CAA540003B3A7 /* ActivityView.swift in Sources */,
 				6DAAF0DC216C93D10003B3A7 /* AnythingEndpoint.swift in Sources */,
 				6D3EF79521676A2F00251869 /* AppDelegate.swift in Sources */,
+				6D873D4A216E2B3A00AF9B9E /* SlideshowViewController.swift in Sources */,
 				6DAAF0F0216CBC730003B3A7 /* Contact.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

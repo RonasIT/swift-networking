@@ -9,7 +9,7 @@ final class ActivityView: UIView {
 
     private(set) lazy var indicator: UIActivityIndicatorView = {
         let view = UIActivityIndicatorView()
-        view.style = .whiteLarge
+        view.style = .gray
         return view
     }()
 
@@ -24,7 +24,6 @@ final class ActivityView: UIView {
     }
 
     private func setup() {
-        backgroundColor = UIColor.black.withAlphaComponent(0.6)
         addSubview(indicator)
     }
 

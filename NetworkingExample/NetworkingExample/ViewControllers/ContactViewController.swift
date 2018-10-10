@@ -7,30 +7,20 @@ import UIKit
 import Networking
 import Alamofire
 
-final class DetailViewController: UIViewController {
+final class ContactViewController: UIViewController {
 
     @IBOutlet var activityView: ActivityView!
     @IBOutlet var tableView: UITableView!
 
     private let apiService: ApiServiceProtocol = ApiService()
     private var request: GeneralRequest?
-    var method: HTTPMethod!
-
     private var contact: Contact?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: String(describing: UITableViewCell.self))
-
-        switch method! {
-        case .get:
-            fetchContact()
-        case .post:
-            postContact(Contact(id: "345", name: "James", url: URL(string: "https://www.jamesexample.com")!))
-        default:
-            break
-        }
+        postContact(Contact(id: "345", name: "James", url: URL(string: "https://www.jamesexample.com")!))
     }
 
     private func presentAlert(for error: Error) {
@@ -50,34 +40,22 @@ final class DetailViewController: UIViewController {
         activityView.indicator.stopAnimating()
     }
 
-    private func fetchContact() {
+    private func postContact(_ contact: Contact) {
         startLoading()
-        request = apiService.fetchContact(success: { result in
-            self.stopLoading()
-            self.contact = result
-            self.tableView.reloadData()
-        }) { error in
-            self.stopLoading()
-            self.presentAlert(for: error)
-        }
-    }
-
-    func postContact(_ contact: Contact) {
-        startLoading()
-        request = apiService.postContact(contact, success: { result in
-            self.stopLoading()
-            self.contact = result
-            self.tableView.reloadData()
-        }) { error in
-            self.stopLoading()
-            self.presentAlert(for: error)
-        }
+        request = apiService.postContact(contact, success: { [weak self] result in
+                self?.stopLoading()
+                self?.contact = result
+                self?.tableView.reloadData()
+            }) { [weak self] error in
+                self?.stopLoading()
+                self?.presentAlertController(for: error)
+            }
     }
 }
 
 // MARK: - UITableViewDataSource
 
-extension DetailViewController: UITableViewDataSource {
+extension ContactViewController: UITableViewDataSource {
 
     enum Index: Int {
         case id, name, url
@@ -110,6 +88,6 @@ extension DetailViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 
-extension DetailViewController: UITableViewDelegate {
+extension ContactViewController: UITableViewDelegate {
 
 }
