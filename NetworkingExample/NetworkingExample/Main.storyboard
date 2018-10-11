@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Main View Controller-->
+        <scene sceneID="zuB-0K-fB3">
+            <objects>
+                <viewController storyboardIdentifier="MainViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="4rl-hb-n8g" customClass="MainViewController" customModule="NetworkingExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="vNx-UN-EYl">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="32" translatesAutoresizingMaskIntoConstraints="NO" id="gg0-oO-C2v">
+                                <rect key="frame" x="32" y="277.5" width="311" height="112"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ng2-2q-gHU">
+                                        <rect key="frame" x="0.0" y="0.0" width="311" height="40"/>
+                                        <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="40" id="ze4-ut-TdB"/>
+                                        </constraints>
+                                        <state key="normal" title="GET">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="getButtonPressed:" destination="4rl-hb-n8g" eventType="touchUpInside" id="qFD-Eu-gWT"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x7P-12-abh">
+                                        <rect key="frame" x="0.0" y="72" width="311" height="40"/>
+                                        <color key="backgroundColor" red="0.0" green="0.41323309075342468" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="40" id="v5X-5o-1Yg"/>
+                                        </constraints>
+                                        <state key="normal" title="POST">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="postButtonPressed:" destination="4rl-hb-n8g" eventType="touchUpInside" id="qXl-5Y-Tgi"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="gg0-oO-C2v" firstAttribute="centerY" secondItem="vNx-UN-EYl" secondAttribute="centerY" id="MeK-2T-BuX"/>
+                            <constraint firstItem="rNr-hp-vTG" firstAttribute="trailing" secondItem="gg0-oO-C2v" secondAttribute="trailing" constant="32" id="YwO-5t-hn8"/>
+                            <constraint firstItem="gg0-oO-C2v" firstAttribute="leading" secondItem="rNr-hp-vTG" secondAttribute="leading" constant="32" id="jSX-yW-Wvt"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="rNr-hp-vTG"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="T6C-i6-sal" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="17" y="156"/>
+        </scene>
+        <!--Slideshow View Controller-->
+        <scene sceneID="9Rv-p7-pcK">
+            <objects>
+                <viewController storyboardIdentifier="SlideshowViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="cZT-Ep-fBR" customClass="SlideshowViewController" customModule="NetworkingExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Bwt-kM-Fxo">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="tyZ-9i-eqV">
+                                <rect key="frame" x="0.0" y="146" width="375" height="375"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="tyZ-9i-eqV" secondAttribute="height" multiplier="1:1" id="BDi-oI-Sdf"/>
+                                </constraints>
+                                <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="1KN-K1-nSN">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                                <connections>
+                                    <outlet property="dataSource" destination="cZT-Ep-fBR" id="kF4-RZ-LS7"/>
+                                    <outlet property="delegate" destination="cZT-Ep-fBR" id="zN7-ij-7tG"/>
+                                </connections>
+                            </collectionView>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HWr-il-Iyb" customClass="ActivityView" customModule="NetworkingExample" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="tyZ-9i-eqV" firstAttribute="centerY" secondItem="Bwt-kM-Fxo" secondAttribute="centerY" id="79N-VK-bsN"/>
+                            <constraint firstItem="tyZ-9i-eqV" firstAttribute="leading" secondItem="CGx-km-Xz9" secondAttribute="leading" id="8Hq-fw-r5t"/>
+                            <constraint firstItem="HWr-il-Iyb" firstAttribute="top" secondItem="Bwt-kM-Fxo" secondAttribute="top" id="AWa-oA-Yfp"/>
+                            <constraint firstItem="HWr-il-Iyb" firstAttribute="trailing" secondItem="CGx-km-Xz9" secondAttribute="trailing" id="IPP-Bu-pgf"/>
+                            <constraint firstItem="HWr-il-Iyb" firstAttribute="leading" secondItem="CGx-km-Xz9" secondAttribute="leading" id="cQz-DU-udh"/>
+                            <constraint firstItem="CGx-km-Xz9" firstAttribute="bottom" secondItem="HWr-il-Iyb" secondAttribute="bottom" id="m05-Wl-bwc"/>
+                            <constraint firstItem="CGx-km-Xz9" firstAttribute="trailing" secondItem="tyZ-9i-eqV" secondAttribute="trailing" id="w5d-HU-dj6"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="CGx-km-Xz9"/>
+                    </view>
+                    <connections>
+                        <outlet property="activityView" destination="HWr-il-Iyb" id="b2H-4X-r94"/>
+                        <outlet property="collectionView" destination="tyZ-9i-eqV" id="niS-Nx-ivt"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Dwi-AI-gE5" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="820" y="-179"/>
+        </scene>
+        <!--Contact View Controller-->
+        <scene sceneID="oyy-3z-I8c">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0G7-hE-X3Q" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <viewController storyboardIdentifier="ContactViewController" id="Oym-4K-d8Q" customClass="ContactViewController" customModule="NetworkingExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="BvX-Su-dJc">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="ob4-vP-VC3">
+                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="Oym-4K-d8Q" id="zF7-EE-cNR"/>
+                                    <outlet property="delegate" destination="Oym-4K-d8Q" id="gDl-9Y-5yP"/>
+                                </connections>
+                            </tableView>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CFd-P8-ahy" customClass="ActivityView" customModule="NetworkingExample" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="ob4-vP-VC3" firstAttribute="top" secondItem="s1N-Es-RaF" secondAttribute="top" id="3vg-38-jzM"/>
+                            <constraint firstItem="s1N-Es-RaF" firstAttribute="trailing" secondItem="ob4-vP-VC3" secondAttribute="trailing" id="7WR-LK-HEo"/>
+                            <constraint firstItem="s1N-Es-RaF" firstAttribute="bottom" secondItem="ob4-vP-VC3" secondAttribute="bottom" id="7kl-fA-VQi"/>
+                            <constraint firstItem="ob4-vP-VC3" firstAttribute="leading" secondItem="s1N-Es-RaF" secondAttribute="leading" id="Dsy-cm-64z"/>
+                            <constraint firstAttribute="bottom" secondItem="CFd-P8-ahy" secondAttribute="bottom" id="Mn6-d3-riz"/>
+                            <constraint firstItem="CFd-P8-ahy" firstAttribute="leading" secondItem="s1N-Es-RaF" secondAttribute="leading" id="Y6y-fM-eEK"/>
+                            <constraint firstItem="CFd-P8-ahy" firstAttribute="top" secondItem="BvX-Su-dJc" secondAttribute="top" id="eA7-gJ-GO6"/>
+                            <constraint firstItem="CFd-P8-ahy" firstAttribute="trailing" secondItem="s1N-Es-RaF" secondAttribute="trailing" id="yqH-PF-cvx"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="s1N-Es-RaF"/>
+                    </view>
+                    <connections>
+                        <outlet property="activityView" destination="CFd-P8-ahy" id="NfD-v7-2vQ"/>
+                        <outlet property="tableView" destination="ob4-vP-VC3" id="3s6-ck-0cG"/>
+                    </connections>
+                </viewController>
+            </objects>
+            <point key="canvasLocation" x="820" y="523"/>
+        </scene>
+    </scenes>
+</document>
