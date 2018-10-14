@@ -56,6 +56,12 @@ class Slideshow: Codable {
     let slides: [Slide]
     let title: String
 }
+
+class Slide: Codable {
+    let title: String
+    let type: String
+    let items: [String]?
+}
 ```
 
 When `Codable` protocol is implemented, data is automatically parsed to the model.
