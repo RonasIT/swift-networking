@@ -8,8 +8,9 @@ import Alamofire
 
 protocol RequestErrorHandling {
 
-    var errorHandlers: [ErrorHandler] { get set }
+    // TODO: move `endpoint and `errorHandlers` to protocol (avoid duplication in Request protocol)
     var endpoint: Endpoint { get }
+    var errorHandlers: [ErrorHandler] { get set }
 
     func handleError<T>(_ error: Error,
                         `for` response: DataResponse<T>?,

@@ -8,9 +8,16 @@ import Alamofire
 public typealias SuccessHandler<T> = (T) -> Void
 public typealias FailureHandler = (Error) -> Void
 
+public enum RequestAuth {
+    case none
+    case token(String?)
+}
+
 public protocol Request: AnyObject {
 
     var endpoint: Endpoint { get }
+    var auth: RequestAuth  { get set }
+    var errorHandlers: [ErrorHandler] { get set }
 
     func responseString(successHandler: @escaping SuccessHandler<String>,
                         failureHandler: @escaping FailureHandler)

@@ -66,6 +66,7 @@ public enum RequestHeaders: RequestHeader {
 }
 
 public extension Endpoint {
+
     var url: URL {
         return baseURL + path
     }
