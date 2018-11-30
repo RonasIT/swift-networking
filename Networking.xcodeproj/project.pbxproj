@@ -16,8 +16,6 @@
 		6D9F10D2216BBBF200CDB8EE /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10B6216BBBF200CDB8EE /* Request.swift */; };
 		6D9F10D3216BBBF200CDB8EE /* MultipartFormData+Append.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10B7216BBBF200CDB8EE /* MultipartFormData+Append.swift */; };
 		6D9F10D5216BBBF200CDB8EE /* UploadRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10B9216BBBF200CDB8EE /* UploadRequest.swift */; };
-		6D9F10D6216BBBF200CDB8EE /* GeneralResponseValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10BB216BBBF200CDB8EE /* GeneralResponseValidator.swift */; };
-		6D9F10D7216BBBF200CDB8EE /* GeneralResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10BC216BBBF200CDB8EE /* GeneralResponse.swift */; };
 		6D9F10D8216BBBF200CDB8EE /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10BD216BBBF200CDB8EE /* NetworkService.swift */; };
 		6D9F10D9216BBBF200CDB8EE /* JSONDecoder+Decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10BF216BBBF200CDB8EE /* JSONDecoder+Decode.swift */; };
 		6D9F10DB216BBBF200CDB8EE /* URL+Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10C1216BBBF200CDB8EE /* URL+Math.swift */; };
@@ -43,8 +41,6 @@
 		6D9F10B6216BBBF200CDB8EE /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		6D9F10B7216BBBF200CDB8EE /* MultipartFormData+Append.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MultipartFormData+Append.swift"; sourceTree = "<group>"; };
 		6D9F10B9216BBBF200CDB8EE /* UploadRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadRequest.swift; sourceTree = "<group>"; };
-		6D9F10BB216BBBF200CDB8EE /* GeneralResponseValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneralResponseValidator.swift; sourceTree = "<group>"; };
-		6D9F10BC216BBBF200CDB8EE /* GeneralResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneralResponse.swift; sourceTree = "<group>"; };
 		6D9F10BD216BBBF200CDB8EE /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		6D9F10BF216BBBF200CDB8EE /* JSONDecoder+Decode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSONDecoder+Decode.swift"; sourceTree = "<group>"; };
 		6D9F10C1216BBBF200CDB8EE /* URL+Math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+Math.swift"; sourceTree = "<group>"; };
@@ -142,8 +138,6 @@
 			children = (
 				6D9F10BE216BBBF200CDB8EE /* Extensions */,
 				6D9F10C3216BBBF200CDB8EE /* Errors */,
-				6D9F10BB216BBBF200CDB8EE /* GeneralResponseValidator.swift */,
-				6D9F10BC216BBBF200CDB8EE /* GeneralResponse.swift */,
 				6D9F10BD216BBBF200CDB8EE /* NetworkService.swift */,
 			);
 			path = Networking;
@@ -290,7 +284,6 @@
 				6D9F10D8216BBBF200CDB8EE /* NetworkService.swift in Sources */,
 				6D9F10DE216BBBF200CDB8EE /* GeneralErrorHandler.swift in Sources */,
 				6D9F10D1216BBBF200CDB8EE /* BaseRequest.swift in Sources */,
-				6D9F10D6216BBBF200CDB8EE /* GeneralResponseValidator.swift in Sources */,
 				6D9F10DB216BBBF200CDB8EE /* URL+Math.swift in Sources */,
 				6D9F10E1216BBBF200CDB8EE /* AppErrorsHandler.swift in Sources */,
 				6D9F10CF216BBBF200CDB8EE /* ImageBodyPart.swift in Sources */,
@@ -304,7 +297,6 @@
 				6D9F10DC216BBBF200CDB8EE /* DecodingError+Description.swift in Sources */,
 				6D9F10E4216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift in Sources */,
 				6D9F10D9216BBBF200CDB8EE /* JSONDecoder+Decode.swift in Sources */,
-				6D9F10D7216BBBF200CDB8EE /* GeneralResponse.swift in Sources */,
 				6D9F10E3216BBBF200CDB8EE /* ReachabilityService.swift in Sources */,
 				6D9F10DF216BBBF200CDB8EE /* ServerError.swift in Sources */,
 			);
