@@ -5,49 +5,74 @@
 
 import Alamofire
 
-public typealias GeneralRequest = Request<GeneralResponse>
+public final class Request: BaseRequest {
 
-public final class Request<ResponseType>: BaseRequest<ResponseType> {
-
-    typealias EncodingCompletionHandler = (SessionManager.MultipartFormDataEncodingResult) -> Void
     private let request: DataRequest
 
-    override init<U: ResponseBuilder>(endpoint: Endpoint,
-                                      responseBuilder: U,
-                                      sessionManager: SessionManager = SessionManager.default) where U.Response == ResponseType {
+    override init(endpoint: Endpoint,
+                  sessionManager: SessionManager = .default) {
         request = sessionManager.request(endpoint.url,
                                          method: endpoint.method,
                                          parameters: endpoint.parameters,
                                          encoding: endpoint.parameterEncoding,
                                          headers: endpoint.headers.httpHeaders).validate()
-        super.init(endpoint: endpoint, responseBuilder: responseBuilder, sessionManager: sessionManager)
-    }
-
-    func responseJSON(_ handler: @escaping CompletionHandler<ResponseType>) {
-        completionHandler = handler
-        request.responseJSON { (response: DataResponse<Any>) in
-            switch response.result {
-            case .failure(let error):
-                self.handleError(error, forResponse: response)
-            case .success(let json):
-                self.handleResponseData(json)
-            }
-        }
-    }
-
-    func responseData(_ handler: @escaping CompletionHandler<ResponseType>) {
-        completionHandler = handler
-        request.responseData { (response: DataResponse<Data>) in
-            switch response.result {
-            case .failure(let error):
-                self.handleError(error, forResponse: response)
-            case .success(let data):
-                self.handleResponseData(data)
-            }
-        }
+        super.init(endpoint: endpoint, sessionManager: sessionManager)
     }
 
     public func cancel() {
         request.cancel()
+    }
+
+    func responseString(successHandler: @escaping SuccessHandler<String>,
+                        failureHandler: @escaping FailureHandler) {
+        request.responseString { response in
+            switch response.result {
+            case .failure(let error):
+                self.handleError(error, forResponse: response, failureHandler: failureHandler)
+            case .success(let string):
+                self.handleResponseString(string, successHandler: successHandler, failureHandler: failureHandler)
+            }
+        }
+    }
+
+    func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder = JSONDecoder(),
+                                                    successHandler: @escaping SuccessHandler<Object>,
+                                                    failureHandler: @escaping FailureHandler) {
+        request.responseData { response in
+            switch response.result {
+            case .failure(let error):
+                self.handleError(error, forResponse: response, failureHandler: failureHandler)
+            case .success(let data):
+                self.handleResponseDecodableObject(with: data,
+                                                   decoder: decoder,
+                                                   successHandler: successHandler,
+                                                   failureHandler: failureHandler)
+            }
+        }
+    }
+
+    func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
+                      successHandler: @escaping SuccessHandler<Any>,
+                      failureHandler: @escaping FailureHandler) {
+        request.responseJSON(options: readingOptions) { response in
+            switch response.result {
+            case .failure(let error):
+                self.handleError(error, forResponse: response, failureHandler: failureHandler)
+            case .success(let json):
+                self.handleResponseJSON(json, successHandler: successHandler, failureHandler: failureHandler)
+            }
+        }
+    }
+
+    func responseData(successHandler: @escaping SuccessHandler<Data>,
+                      failureHandler: @escaping FailureHandler) {
+        request.responseData { response in
+            switch response.result {
+            case .failure(let error):
+                self.handleError(error, forResponse: response, failureHandler: failureHandler)
+            case .success(let data):
+                self.handleResponseData(data, successHandler: successHandler, failureHandler: failureHandler)
+            }
+        }
     }
 }
