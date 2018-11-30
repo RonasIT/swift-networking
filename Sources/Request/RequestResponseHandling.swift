@@ -1,42 +1,31 @@
 //
-//  Created by Dmitry Frishbuter on 27/09/2018
-//  Copyright © 2018 Ronas IT. All rights reserved.
+// Created by Nikita Zatsepilov on 30/11/2018.
+// Copyright (c) 2018 Ronas IT. All rights reserved.
 //
 
-import Alamofire
+import Foundation
 
-public protocol ErrorHandler {
-    func handle<T>(error: inout Error, for response: DataResponse<T>?, endpoint: Endpoint) -> Bool
+protocol RequestResponseHandling {
+
+    func handleResponseData(_ data: Data,
+                            successHandler: SuccessHandler<Data>,
+                            failureHandler: FailureHandler)
+
+    func handleResponseString(_ string: String,
+                              successHandler: SuccessHandler<String>,
+                              failureHandler: FailureHandler)
+
+    func handleResponseJSON(_ json: Any,
+                            successHandler: SuccessHandler<Any>,
+                            failureHandler: FailureHandler)
+
+    func handleResponseDecodableObject<Result: Decodable>(with data: Data,
+                                                          decoder: JSONDecoder,
+                                                          successHandler: SuccessHandler<Result>,
+                                                          failureHandler: FailureHandler)
 }
 
-public class BaseRequest {
-    public typealias SuccessHandler<T> = (T) -> Void
-    public typealias FailureHandler = (Error) -> Void
-
-    // FIXME: add validators
-
-    var errorHandlers: [ErrorHandler] = []
-    let endpoint: Endpoint
-
-    init(endpoint: Endpoint, sessionManager: SessionManager = SessionManager.default) {
-        if case AuthorizedEndpoint.endpoint(let source, _) = endpoint {
-            self.endpoint = source
-        } else {
-            self.endpoint = endpoint
-        }
-    }
-
-    func handleError<T>(_ error: Error,
-                        forResponse response: DataResponse<T>?,
-                        failureHandler: FailureHandler) {
-        var error = error
-        for handler in errorHandlers {
-            if handler.handle(error: &error, for: response, endpoint: endpoint) {
-                return
-            }
-        }
-        failureHandler(error)
-    }
+extension RequestResponseHandling {
 
     func handleResponseData(_ data: Data,
                             successHandler: SuccessHandler<Data>,

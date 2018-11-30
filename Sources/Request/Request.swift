@@ -5,74 +5,28 @@
 
 import Alamofire
 
-public final class Request: BaseRequest {
+public typealias SuccessHandler<T> = (T) -> Void
+public typealias FailureHandler = (Error) -> Void
 
-    private let request: DataRequest
+public protocol Request: AnyObject {
 
-    override init(endpoint: Endpoint,
-                  sessionManager: SessionManager = .default) {
-        request = sessionManager.request(endpoint.url,
-                                         method: endpoint.method,
-                                         parameters: endpoint.parameters,
-                                         encoding: endpoint.parameterEncoding,
-                                         headers: endpoint.headers.httpHeaders).validate()
-        super.init(endpoint: endpoint, sessionManager: sessionManager)
-    }
-
-    public func cancel() {
-        request.cancel()
-    }
+    var endpoint: Endpoint { get }
 
     func responseString(successHandler: @escaping SuccessHandler<String>,
-                        failureHandler: @escaping FailureHandler) {
-        request.responseString { response in
-            switch response.result {
-            case .failure(let error):
-                self.handleError(error, forResponse: response, failureHandler: failureHandler)
-            case .success(let string):
-                self.handleResponseString(string, successHandler: successHandler, failureHandler: failureHandler)
-            }
-        }
-    }
+                        failureHandler: @escaping FailureHandler)
 
-    func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder = JSONDecoder(),
+    func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder,
                                                     successHandler: @escaping SuccessHandler<Object>,
-                                                    failureHandler: @escaping FailureHandler) {
-        request.responseData { response in
-            switch response.result {
-            case .failure(let error):
-                self.handleError(error, forResponse: response, failureHandler: failureHandler)
-            case .success(let data):
-                self.handleResponseDecodableObject(with: data,
-                                                   decoder: decoder,
-                                                   successHandler: successHandler,
-                                                   failureHandler: failureHandler)
-            }
-        }
-    }
+                                                    failureHandler: @escaping FailureHandler)
 
-    func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
+    func responseJSON(with readingOptions: JSONSerialization.ReadingOptions,
                       successHandler: @escaping SuccessHandler<Any>,
-                      failureHandler: @escaping FailureHandler) {
-        request.responseJSON(options: readingOptions) { response in
-            switch response.result {
-            case .failure(let error):
-                self.handleError(error, forResponse: response, failureHandler: failureHandler)
-            case .success(let json):
-                self.handleResponseJSON(json, successHandler: successHandler, failureHandler: failureHandler)
-            }
-        }
-    }
+                      failureHandler: @escaping FailureHandler)
 
     func responseData(successHandler: @escaping SuccessHandler<Data>,
-                      failureHandler: @escaping FailureHandler) {
-        request.responseData { response in
-            switch response.result {
-            case .failure(let error):
-                self.handleError(error, forResponse: response, failureHandler: failureHandler)
-            case .success(let data):
-                self.handleResponseData(data, successHandler: successHandler, failureHandler: failureHandler)
-            }
-        }
-    }
+                      failureHandler: @escaping FailureHandler)
+}
+
+public protocol ErrorHandler {
+    func handle<T>(error: inout Error, for response: DataResponse<T>?, endpoint: Endpoint) -> Bool
 }
