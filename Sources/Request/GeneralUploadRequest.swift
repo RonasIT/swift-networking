@@ -143,7 +143,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
                 request.validate()
                 success(request)
             case .failure(let error):
-                failure(error)
+                self.handleError(error, failure: failure)
             }
         }
         sessionManager.upload(multipartFormData: multipartFormDataHandler,
