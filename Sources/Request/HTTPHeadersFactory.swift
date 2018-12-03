@@ -5,14 +5,19 @@
 
 import Alamofire
 
-protocol HTTPHeadersFactory: AnyObject {
+public protocol HTTPHeadersFactory: AnyObject {
 
     func httpHeaders(for request: BasicRequest) -> HTTPHeaders
 }
 
-final class GeneralHTTPHeadersFactory: HTTPHeadersFactory {
+open class GeneralHTTPHeadersFactory: HTTPHeadersFactory {
 
-    func httpHeaders(for request: BasicRequest) -> HTTPHeaders {
+    // TODO: find way to avoid empty init
+    public init() {
+
+    }
+
+     public func httpHeaders(for request: BasicRequest) -> HTTPHeaders {
         var headers = request.endpoint.headers
         switch request.authorization {
         case .token(let token):
