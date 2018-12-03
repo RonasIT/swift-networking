@@ -6,185 +6,120 @@
 import Foundation
 import Alamofire
 
-//public typealias Failure = (Error) -> Void
-//
-//open class NetworkService {
-//
-//    private let sessionManager: Alamofire.SessionManager
-//
-//    var responseValidators: [ResponseValidator]?
-//    var errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]
-//
-//    public init(sessionManager: Alamofire.SessionManager = .default) {
-//        self.sessionManager = sessionManager
-//    }
-//
-//    @discardableResult
-//    public func request(for endpoint: Endpoint, success: @escaping () -> Void, failure: @escaping Failure) -> Request<GeneralResponse<Result>> {
-//        let request = self.request(endpoint: endpoint)
-//        request.responseJSON { _, error in
-//            if let error = error {
-//                failure(error)
-//            }
-//            else {
-//                success()
-//            }
-//        }
-//        return request
-//    }
-//
-//
-//    @discardableResult
-//    public func uploadRequest<Result>(for endpoint: UploadEndpoint,
-//                              encodingCompletion: @escaping EncodingCompletionHandler<,
-//                              success: @escaping () -> Void,
-//                              failure: @escaping Failure) -> UploadRequest<GeneralResponse> {
-//        let request = self.uploadRequest(endpoint: endpoint, encodingCompletion: encodingCompletion)
-//        request.responseJSON { _, error in
-//            if let error = error {
-//                failure(error)
-//            }
-//            else {
-//                success()
-//            }
-//        }
-//        return request
-//    }
-//
-//    @discardableResult
-//    public func request<T: Decodable>(for endpoint: Endpoint,
-//                                      decoder: JSONDecoder = JSONDecoder(),
-//                                      success: @escaping (T) -> Void,
-//                                      failure: @escaping Failure) -> Request<GeneralResponse> {
-//        let request = self.request(endpoint: endpoint)
-//        request.responseJSON { response, error in
-//            if let error = error {
-//                failure(error)
-//            }
-//            else if let response = response {
-//                do {
-//                    let parsedResponse: T = try decoder.decode(from: response.data)
-//                    success(parsedResponse)
-//                }
-//                catch {
-//                    failure(error)
-//                }
-//            }
-//        }
-//        return request
-//    }
-//
-//    @discardableResult
-//    public func uploadRequest<T: Decodable>(for endpoint: UploadEndpoint,
-//                                            decoder: JSONDecoder = JSONDecoder(),
-//                                            encodingCompletion: @escaping EncodingCompletionHandler,
-//                                            success: @escaping (T) -> Void,
-//                                            failure: @escaping Failure) -> UploadRequest<GeneralResponse> {
-//        let request = self.uploadRequest(endpoint: endpoint, encodingCompletion: encodingCompletion)
-//        request.responseJSON { response, error in
-//            if let error = error {
-//                failure(error)
-//            }
-//            else if let response = response {
-//                do {
-//                    let parsedResponse: T = try decoder.decode(from: response.data)
-//                    success(parsedResponse)
-//                }
-//                catch {
-//                    failure(error)
-//                }
-//            }
-//        }
-//        return request
-//    }
-//
-//    // MARK: - Private
-//
-//    private func request(endpoint: Endpoint) -> Request<GeneralResponse> {
-//        let request = Request(endpoint: endpointByAppendingAuthorizationInfo(to: endpoint), responseBuilder: responseBuilder)
-//        request.errorHandlers = errorHandlers
-//        if let responseValidators = responseValidators {
-//            request.responseValidators = responseValidators
-//        }
-//        return request
-//    }
-//
-//    private func uploadRequest(endpoint: UploadEndpoint,
-//                               encodingCompletion: @escaping EncodingCompletionHandler) -> UploadRequest<GeneralResponse> {
-//        let request = UploadRequest(endpoint: endpointByAppendingAuthorizationInfo(to: endpoint),
-//                                    imageBodyParts: endpoint.imageBodyParts,
-//                                    responseBuilder: responseBuilder,
-//                                    encodingCompletion: encodingCompletion)
-//        request.errorHandlers = errorHandlers
-//        if let responseValidators = responseValidators {
-//            request.responseValidators = responseValidators
-//        }
-//        return request
-//    }
-//
-//    private func endpointByAppendingAuthorizationInfo(to endpoint: Endpoint, token: String? = nil) -> Endpoint {
-//        return AuthorizedEndpoint.endpoint(source: endpoint, token: token)
-//    }
-//
-////     This original method implementation was commented because of impossibility to use current session implementation for requets auth
-////        private func endpointByAppendingAuthorizationInfo(to endpoint: Endpoint) -> Endpoint {
-////            guard let session = sessionService.session, let token = session.token else {
-////                return AuthorizedEndpoint.endpoint(source: endpoint, token: AppConfiguration.wildCardToken)
-////            }
-////            return AuthorizedEndpoint.endpoint(source: endpoint, token: token)
-////        }
-//}
+open class NetworkService {
 
-// MARK: Endpoint
+    public typealias SuccessHandler<T> = (T) -> Void
+    public typealias FailureHandler = (Error) -> Void
 
-enum AuthorizedEndpoint: Endpoint {
-    case endpoint(source: Endpoint, token: String?)
-}
+    var errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]
 
-extension AuthorizedEndpoint {
-    var method: HTTPMethod {
-        switch self {
-        case .endpoint(let endpoint, _):
-            return endpoint.method
-        }
+    private let sessionManager: SessionManager
+    private let httpHeadersFactory: HTTPHeadersFactory
+
+    public init(sessionManager: SessionManager = .default,
+                httpHeadersFactory: HTTPHeadersFactory = GeneralHTTPHeadersFactory()) {
+        self.sessionManager = sessionManager
+        self.httpHeadersFactory = httpHeadersFactory
     }
 
-    var path: String {
-        switch self {
-        case .endpoint(let endpoint, _):
-            return endpoint.path
-        }
+    @discardableResult
+    public func request<Object: Decodable>(for endpoint: Endpoint,
+                                           decoder: JSONDecoder = JSONDecoder(),
+                                           success: @escaping SuccessHandler<Object>,
+                                           failure: @escaping FailureHandler) -> Request {
+        let request = self.request(for: endpoint)
+        request.responseDecodableObject(with: decoder, success: success, failure: failure)
+        return request
     }
 
-    var parameters: Parameters? {
-        switch self {
-        case .endpoint(let endpoint, _):
-            return endpoint.parameters
-        }
+    @discardableResult
+    public func request(for endpoint: Endpoint,
+                        success: @escaping SuccessHandler<String>,
+                        failure: @escaping FailureHandler) -> Request {
+        let request = self.request(for: endpoint)
+        request.responseString(success: success, failure: failure)
+        return request
     }
 
-    var headers: [RequestHeader] {
-        switch self {
-        case .endpoint(let endpoint, let token):
-            var headers = endpoint.headers
-            if let token = token {
-                headers.append(RequestHeaders.authorization(token))
-            }
-            return headers
-        }
+    @discardableResult
+    public func request(for endpoint: Endpoint,
+                        success: @escaping SuccessHandler<Data>,
+                        failure: @escaping FailureHandler) -> Request {
+        let request = self.request(for: endpoint)
+        request.responseData(success: success, failure: failure)
+        return request
     }
 
-    var baseURL: URL {
-        switch self {
-        case .endpoint(let endpoint, _):
-            return endpoint.baseURL
-        }
+    @discardableResult
+    public func request(for endpoint: Endpoint,
+                        readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
+                        success: @escaping SuccessHandler<Any>,
+                        failure: @escaping FailureHandler) -> Request {
+        let request = self.request(for: endpoint)
+        request.responseJSON(with: readingOptions, success: success, failure: failure)
+        return request
     }
 
-    var parameterEncoding: ParameterEncoding {
-        switch self {
-        case .endpoint(let endpoint, _):
-            return endpoint.parameterEncoding
-        }
+    @discardableResult
+    public func uploadRequest<Object: Decodable>(for endpoint: UploadEndpoint,
+                                                 decoder: JSONDecoder = JSONDecoder(),
+                                                 success: @escaping SuccessHandler<Object>,
+                                                 failure: @escaping FailureHandler) -> Request {
+        let request = self.uploadRequest(for: endpoint)
+        request.responseDecodableObject(with: decoder, success: success, failure: failure)
+        return request
+    }
+
+    @discardableResult
+    public func uploadRequest(for endpoint: UploadEndpoint,
+                              success: @escaping SuccessHandler<String>,
+                              failure: @escaping FailureHandler) -> Request {
+        let request = self.uploadRequest(for: endpoint)
+        request.responseString(success: success, failure: failure)
+        return request
+    }
+
+    @discardableResult
+    public func uploadRequest(for endpoint: UploadEndpoint,
+                              success: @escaping SuccessHandler<Data>,
+                              failure: @escaping FailureHandler) -> Request {
+        let request = self.uploadRequest(for: endpoint)
+        request.responseData(success: success, failure: failure)
+        return request
+    }
+
+    @discardableResult
+    public func uploadRequest(for endpoint: UploadEndpoint,
+                              readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
+                              success: @escaping SuccessHandler<Any>,
+                              failure: @escaping FailureHandler) -> Request {
+        let request = self.uploadRequest(for: endpoint)
+        request.responseJSON(with: readingOptions, success: success, failure: failure)
+        return request
+    }
+
+    public func authorization(for endpoint: Endpoint) -> RequestAuthorization {
+        return .none
+    }
+
+    // MARK: - Private
+
+    private func request(for endpoint: Endpoint) -> Request {
+        let request = GeneralRequest(endpoint: endpoint,
+                                     authorization: authorization(for: endpoint),
+                                     sessionManager: sessionManager,
+                                     httpHeadersFactory: httpHeadersFactory)
+        request.errorHandlers = errorHandlers
+        return request
+    }
+
+    private func uploadRequest(for endpoint: UploadEndpoint) -> Request {
+        let request = GeneralUploadRequest(endpoint: endpoint,
+                                           authorization: authorization(for: endpoint),
+                                           sessionManager: sessionManager,
+                                           httpHeadersFactory: httpHeadersFactory,
+                                           imageBodyParts: endpoint.imageBodyParts)
+        request.errorHandlers = errorHandlers
+        return request
     }
 }
