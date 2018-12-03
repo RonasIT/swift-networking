@@ -11,55 +11,55 @@ protocol RequestResponseHandling {
     typealias FailureHandler = (Error) -> Void
 
     func handleResponseData(_ data: Data,
-                            successHandler: SuccessHandler<Data>,
-                            failureHandler: FailureHandler)
+                            success: SuccessHandler<Data>,
+                            failure: FailureHandler)
 
     func handleResponseString(_ string: String,
-                              successHandler: SuccessHandler<String>,
-                              failureHandler: FailureHandler)
+                              success: SuccessHandler<String>,
+                              failure: FailureHandler)
 
     func handleResponseJSON(_ json: Any,
-                            successHandler: SuccessHandler<Any>,
-                            failureHandler: FailureHandler)
+                            success: SuccessHandler<Any>,
+                            failure: FailureHandler)
 
     func handleResponseDecodableObject<Result: Decodable>(with data: Data,
                                                           decoder: JSONDecoder,
-                                                          successHandler: SuccessHandler<Result>,
-                                                          failureHandler: FailureHandler)
+                                                          success: SuccessHandler<Result>,
+                                                          failure: FailureHandler)
 }
 
 extension RequestResponseHandling {
 
     func handleResponseData(_ data: Data,
-                            successHandler: SuccessHandler<Data>,
-                            failureHandler: FailureHandler) {
+                            success: SuccessHandler<Data>,
+                            failure: FailureHandler) {
         // FIXME: use validators
-        successHandler(data)
+        success(data)
     }
 
     func handleResponseString(_ string: String,
-                              successHandler: SuccessHandler<String>,
-                              failureHandler: FailureHandler) {
+                              success: SuccessHandler<String>,
+                              failure: FailureHandler) {
         // FIXME: use validators
-        successHandler(string)
+        success(string)
     }
 
     func handleResponseJSON(_ json: Any,
-                            successHandler: SuccessHandler<Any>,
-                            failureHandler: FailureHandler) {
+                            success: SuccessHandler<Any>,
+                            failure: FailureHandler) {
         // FIXME: use validators
-        successHandler(json)
+        success(json)
     }
 
     func handleResponseDecodableObject<Result: Decodable>(with data: Data,
                                                           decoder: JSONDecoder = JSONDecoder(),
-                                                          successHandler: SuccessHandler<Result>,
-                                                          failureHandler: FailureHandler) {
+                                                          success: SuccessHandler<Result>,
+                                                          failure: FailureHandler) {
         // FIXME: use validators
         do {
-            successHandler(try decoder.decode(from: data))
+            success(try decoder.decode(from: data))
         } catch {
-            failureHandler(error)
+            failure(error)
         }
     }
 }

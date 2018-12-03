@@ -12,20 +12,20 @@ protocol RequestErrorHandling {
 
     func handleError<T>(_ error: Error,
                         `for` response: DataResponse<T>?,
-                        failureHandler: FailureHandler)
+                        failure: FailureHandler)
 }
 
 extension RequestErrorHandling where Self: BasicRequest {
 
     func handleError<T>(_ error: Error,
                         `for` response: DataResponse<T>?,
-                        failureHandler: FailureHandler) {
+                        failure: FailureHandler) {
         var error = error
         for handler in errorHandlers {
             if handler.handle(error: &error, for: response, endpoint: endpoint) {
                 return
             }
         }
-        failureHandler(error)
+        failure(error)
     }
 }

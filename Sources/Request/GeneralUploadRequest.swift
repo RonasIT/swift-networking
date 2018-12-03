@@ -29,8 +29,8 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
         self.imageBodyParts = imageBodyParts
     }
 
-    func responseString(successHandler: @escaping SuccessHandler<String>,
-                        failureHandler: @escaping FailureHandler) {
+    func responseString(success: @escaping SuccessHandler<String>,
+                        failure: @escaping FailureHandler) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -39,19 +39,19 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
             self.request = request.responseString { response in
                 switch response.result {
                 case .failure(let error):
-                    self.handleError(error, for: response, failureHandler: failureHandler)
+                    self.handleError(error, for: response, failure: failure)
                 case .success(let string):
-                    self.handleResponseString(string, successHandler: successHandler, failureHandler: failureHandler)
+                    self.handleResponseString(string, success: success, failure: failure)
                 }
             }
         }, failure: { [weak self] error in
-            self?.handleError(error, failureHandler: failureHandler)
+            self?.handleError(error, failure: failure)
         })
     }
 
     func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder = JSONDecoder(),
-                                                    successHandler: @escaping SuccessHandler<Object>,
-                                                    failureHandler: @escaping FailureHandler) {
+                                                    success: @escaping SuccessHandler<Object>,
+                                                    failure: @escaping FailureHandler) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -60,22 +60,22 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
             self.request = request.responseData { response in
                 switch response.result {
                 case .failure(let error):
-                    self.handleError(error, for: response, failureHandler: failureHandler)
+                    self.handleError(error, for: response, failure: failure)
                 case .success(let data):
                     self.handleResponseDecodableObject(with: data,
                                                        decoder: decoder,
-                                                       successHandler: successHandler,
-                                                       failureHandler: failureHandler)
+                                                       success: success,
+                                                       failure: failure)
                 }
             }
         }, failure: { [weak self] error in
-            self?.handleError(error, failureHandler: failureHandler)
+            self?.handleError(error, failure: failure)
         })
     }
 
     func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                      successHandler: @escaping SuccessHandler<Any>,
-                      failureHandler: @escaping FailureHandler) {
+                      success: @escaping SuccessHandler<Any>,
+                      failure: @escaping FailureHandler) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -84,18 +84,18 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
             self.request = request.responseJSON(options: readingOptions) { response in
                 switch response.result {
                 case .failure(let error):
-                    self.handleError(error, for: response, failureHandler: failureHandler)
+                    self.handleError(error, for: response, failure: failure)
                 case .success(let json):
-                    self.handleResponseJSON(json, successHandler: successHandler, failureHandler: failureHandler)
+                    self.handleResponseJSON(json, success: success, failure: failure)
                 }
             }
         }, failure: { [weak self] error in
-            self?.handleError(error, failureHandler: failureHandler)
+            self?.handleError(error, failure: failure)
         })
     }
 
-    func responseData(successHandler: @escaping SuccessHandler<Data>,
-                      failureHandler: @escaping FailureHandler) {
+    func responseData(success: @escaping SuccessHandler<Data>,
+                      failure: @escaping FailureHandler) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -104,13 +104,13 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
             self.request = request.responseData { response in
                 switch response.result {
                 case .failure(let error):
-                    self.handleError(error, for: response, failureHandler: failureHandler)
+                    self.handleError(error, for: response, failure: failure)
                 case .success(let data):
-                    self.handleResponseData(data, successHandler: successHandler, failureHandler: failureHandler)
+                    self.handleResponseData(data, success: success, failure: failure)
                 }
             }
         }, failure: { [weak self] error in
-            self?.handleError(error, failureHandler: failureHandler)
+            self?.handleError(error, failure: failure)
         })
     }
 
@@ -151,10 +151,10 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
                               encodingCompletion: encodingCompletion)
     }
 
-    private func handleError(_ error: Error, failureHandler: @escaping FailureHandler) {
+    private func handleError(_ error: Error, failure: @escaping FailureHandler) {
         // Pass `DataResponse<T>?` as `nil`
         // swiftlint:disable:next syntactic_sugar
         let response = Optional<DataResponse<Any>>(nilLiteral: ())
-        handleError(error, for: response, failureHandler: failureHandler)
+        handleError(error, for: response, failure: failure)
     }
 }

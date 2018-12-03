@@ -26,19 +26,19 @@ public protocol Request: BasicRequest {
     typealias SuccessHandler<T> = (T) -> Void
     typealias FailureHandler = (Error) -> Void
 
-    func responseString(successHandler: @escaping SuccessHandler<String>,
-                        failureHandler: @escaping FailureHandler)
+    func responseString(success: @escaping SuccessHandler<String>,
+                        failure: @escaping FailureHandler)
 
     func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder,
-                                                    successHandler: @escaping SuccessHandler<Object>,
-                                                    failureHandler: @escaping FailureHandler)
+                                                    success: @escaping SuccessHandler<Object>,
+                                                    failure: @escaping FailureHandler)
 
     func responseJSON(with readingOptions: JSONSerialization.ReadingOptions,
-                      successHandler: @escaping SuccessHandler<Any>,
-                      failureHandler: @escaping FailureHandler)
+                      success: @escaping SuccessHandler<Any>,
+                      failure: @escaping FailureHandler)
 
-    func responseData(successHandler: @escaping SuccessHandler<Data>,
-                      failureHandler: @escaping FailureHandler)
+    func responseData(success: @escaping SuccessHandler<Data>,
+                      failure: @escaping FailureHandler)
 
     func cancel()
 }
