@@ -50,7 +50,7 @@ final class GeneralRequest: Request, RequestErrorHandling {
                     success(try decoder.decode(from: data))
                 }
                 catch {
-                    failure(error)
+                    self?.handleError(error, for: response, failure: failure)
                 }
             }
         }
