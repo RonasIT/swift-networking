@@ -5,7 +5,6 @@
 
 import UIKit
 import Networking
-import Alamofire
 
 final class SlideshowViewController: UIViewController {
 
@@ -13,7 +12,7 @@ final class SlideshowViewController: UIViewController {
     @IBOutlet var activityView: ActivityView!
 
     private let apiService: ApiServiceProtocol = ApiService()
-    private var request: GeneralRequest?
+    private var request: Request?
 
     private var slideshow: Slideshow?
 

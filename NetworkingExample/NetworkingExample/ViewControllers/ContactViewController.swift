@@ -5,7 +5,6 @@
 
 import UIKit
 import Networking
-import Alamofire
 
 final class ContactViewController: UIViewController {
 
@@ -13,7 +12,7 @@ final class ContactViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
 
     private let apiService: ApiServiceProtocol = ApiService()
-    private var request: GeneralRequest?
+    private var request: Request?
     private var contact: Contact?
 
     override func viewDidLoad() {
