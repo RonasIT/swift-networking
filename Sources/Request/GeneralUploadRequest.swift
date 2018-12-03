@@ -6,7 +6,7 @@
 import Foundation
 import Alamofire
 
-final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponseHandling {
+final class GeneralUploadRequest: Request, RequestErrorHandling {
 
     public let endpoint: Endpoint
     public var auth: RequestAuth = .none
@@ -41,7 +41,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
                 case .failure(let error):
                     self.handleError(error, for: response, failure: failure)
                 case .success(let string):
-                    self.handleResponseString(string, success: success, failure: failure)
+                    success(string)
                 }
             }
         }, failure: { [weak self] error in
@@ -62,10 +62,12 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
                 case .failure(let error):
                     self.handleError(error, for: response, failure: failure)
                 case .success(let data):
-                    self.handleResponseDecodableObject(with: data,
-                                                       decoder: decoder,
-                                                       success: success,
-                                                       failure: failure)
+                    do {
+                        success(try decoder.decode(from: data))
+                    }
+                    catch {
+                        self.handleError(error, failure: failure)
+                    }
                 }
             }
         }, failure: { [weak self] error in
@@ -86,7 +88,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
                 case .failure(let error):
                     self.handleError(error, for: response, failure: failure)
                 case .success(let json):
-                    self.handleResponseJSON(json, success: success, failure: failure)
+                    success(json)
                 }
             }
         }, failure: { [weak self] error in
@@ -106,7 +108,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling, RequestResponse
                 case .failure(let error):
                     self.handleError(error, for: response, failure: failure)
                 case .success(let data):
-                    self.handleResponseData(data, success: success, failure: failure)
+                    success(data)
                 }
             }
         }, failure: { [weak self] error in

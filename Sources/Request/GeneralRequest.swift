@@ -6,7 +6,7 @@
 import Foundation
 import Alamofire
 
-final class GeneralDataRequest: Request, RequestErrorHandling, RequestResponseHandling {
+final class GeneralDataRequest: Request, RequestErrorHandling {
 
     public let endpoint: Endpoint
     public var auth: RequestAuth = .none
@@ -30,7 +30,7 @@ final class GeneralDataRequest: Request, RequestErrorHandling, RequestResponseHa
             case .failure(let error):
                 self.handleError(error, for: response, failure: failure)
             case .success(let string):
-                self.handleResponseString(string, success: success, failure: failure)
+                success(string)
             }
         }
     }
@@ -38,15 +38,17 @@ final class GeneralDataRequest: Request, RequestErrorHandling, RequestResponseHa
     func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder = JSONDecoder(),
                                                     success: @escaping SuccessHandler<Object>,
                                                     failure: @escaping FailureHandler) {
-        request = makeRequest().responseData { response in
+        request = makeRequest().responseData { [weak self] response in
             switch response.result {
             case .failure(let error):
-                self.handleError(error, for: response, failure: failure)
+                self?.handleError(error, for: response, failure: failure)
             case .success(let data):
-                self.handleResponseDecodableObject(with: data,
-                                                   decoder: decoder,
-                                                   success: success,
-                                                   failure: failure)
+                do {
+                    success(try decoder.decode(from: data))
+                }
+                catch {
+                    failure(error)
+                }
             }
         }
     }
@@ -54,24 +56,24 @@ final class GeneralDataRequest: Request, RequestErrorHandling, RequestResponseHa
     func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
                       success: @escaping SuccessHandler<Any>,
                       failure: @escaping FailureHandler) {
-        request = makeRequest().responseJSON(options: readingOptions) { response in
+        request = makeRequest().responseJSON(options: readingOptions) { [weak self] response in
             switch response.result {
             case .failure(let error):
-                self.handleError(error, for: response, failure: failure)
+                self?.handleError(error, for: response, failure: failure)
             case .success(let json):
-                self.handleResponseJSON(json, success: success, failure: failure)
+                success(json)
             }
         }
     }
 
     func responseData(success: @escaping SuccessHandler<Data>,
                       failure: @escaping FailureHandler) {
-        request = makeRequest().responseData { response in
+        request = makeRequest().responseData { [weak self] response in
             switch response.result {
             case .failure(let error):
-                self.handleError(error, for: response, failure: failure)
+                self?.handleError(error, for: response, failure: failure)
             case .success(let data):
-                self.handleResponseData(data, success: success, failure: failure)
+                success(data)
             }
         }
     }
