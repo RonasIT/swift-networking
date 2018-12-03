@@ -9,7 +9,7 @@ import Alamofire
 final class GeneralUploadRequest: Request, RequestErrorHandling {
 
     public let endpoint: Endpoint
-    public let authorization: RequestAuthorization = .none
+    public let authorization: RequestAuthorization
     public var errorHandlers: [ErrorHandler] = []
 
     private let sessionManager: SessionManager
