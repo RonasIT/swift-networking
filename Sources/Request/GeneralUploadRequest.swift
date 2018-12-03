@@ -77,7 +77,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
     }
 
     func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                      success: @escaping Success<Any>,
+                      success: @escaping Success<[AnyHashable: Any]>,
                       failure: @escaping Failure) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
@@ -89,7 +89,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
                 case .failure(let error):
                     self.handleError(error, for: response, failure: failure)
                 case .success(let json):
-                    success(json)
+                    success(json as! [AnyHashable: Any])
                 }
             }
         }, failure: { [weak self] error in

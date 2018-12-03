@@ -12,7 +12,7 @@ public protocol ErrorHandler {
 
 protocol RequestErrorHandling {
 
-    typealias Failure = Request.Failure
+    typealias Failure = BasicRequest.Failure
 
     var errorHandlers: [ErrorHandler] { get set }
 

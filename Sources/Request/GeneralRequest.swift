@@ -57,14 +57,15 @@ final class GeneralRequest: Request, RequestErrorHandling {
     }
 
     func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                      success: @escaping Success<Any>,
+                      success: @escaping Success<[AnyHashable: Any]>,
                       failure: @escaping Failure) {
         request = makeRequest().responseJSON(options: readingOptions) { [weak self] response in
             switch response.result {
             case .failure(let error):
                 self?.handleError(error, for: response, failure: failure)
             case .success(let json):
-                success(json)
+                // FIXME: avoid force cast
+                success(json as! [AnyHashable: Any])
             }
         }
     }

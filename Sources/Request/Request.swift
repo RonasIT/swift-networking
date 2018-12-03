@@ -12,15 +12,14 @@ public enum RequestAuthorization {
 
 public protocol BasicRequest {
 
-    var endpoint: Endpoint { get }
-}
-
-public protocol Request: AnyObject, BasicRequest {
-
     typealias Success<T> = (T) -> Void
     typealias Failure = (Error) -> Void
 
+    var endpoint: Endpoint { get }
     var authorization: RequestAuthorization  { get }
+}
+
+public protocol Request: AnyObject, BasicRequest {
 
     func responseString(success: @escaping Success<String>,
                         failure: @escaping Failure)
@@ -30,7 +29,7 @@ public protocol Request: AnyObject, BasicRequest {
                                                     failure: @escaping Failure)
 
     func responseJSON(with readingOptions: JSONSerialization.ReadingOptions,
-                      success: @escaping Success<Any>,
+                      success: @escaping Success<[AnyHashable: Any]>,
                       failure: @escaping Failure)
 
     func responseData(success: @escaping Success<Data>,

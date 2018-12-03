@@ -12,7 +12,7 @@ public protocol HTTPHeadersFactory: AnyObject {
 
 open class GeneralHTTPHeadersFactory: HTTPHeadersFactory {
 
-    // TODO: find way to avoid empty init
+    // FIXME: find way to avoid empty init
     public init() {
 
     }
