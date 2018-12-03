@@ -7,7 +7,7 @@ import Alamofire
 
 public protocol HTTPHeadersFactory: AnyObject {
 
-    func httpHeaders(for request: BasicRequest) -> HTTPHeaders
+    func httpHeaders(for request: Request) -> HTTPHeaders
 }
 
 open class GeneralHTTPHeadersFactory: HTTPHeadersFactory {
@@ -17,7 +17,7 @@ open class GeneralHTTPHeadersFactory: HTTPHeadersFactory {
 
     }
 
-     public func httpHeaders(for request: BasicRequest) -> HTTPHeaders {
+     public func httpHeaders(for request: Request) -> HTTPHeaders {
         var headers = request.endpoint.headers
         switch request.authorization {
         case .token(let token):

@@ -6,10 +6,10 @@
 import Foundation
 import Alamofire
 
-open class NetworkService {
+public typealias Success<T> = (T) -> Void
+public typealias Failure = (Error) -> Void
 
-    public typealias SuccessHandler<T> = (T) -> Void
-    public typealias FailureHandler = (Error) -> Void
+open class NetworkService {
 
     var errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]
 
@@ -25,8 +25,8 @@ open class NetworkService {
     @discardableResult
     public func request<Object: Decodable>(for endpoint: Endpoint,
                                            decoder: JSONDecoder = JSONDecoder(),
-                                           success: @escaping SuccessHandler<Object>,
-                                           failure: @escaping FailureHandler) -> Request {
+                                           success: @escaping Success<Object>,
+                                           failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseDecodableObject(with: decoder, success: success, failure: failure)
         return request
@@ -34,8 +34,8 @@ open class NetworkService {
 
     @discardableResult
     public func request(for endpoint: Endpoint,
-                        success: @escaping SuccessHandler<String>,
-                        failure: @escaping FailureHandler) -> Request {
+                        success: @escaping Success<String>,
+                        failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseString(success: success, failure: failure)
         return request
@@ -43,8 +43,8 @@ open class NetworkService {
 
     @discardableResult
     public func request(for endpoint: Endpoint,
-                        success: @escaping SuccessHandler<Data>,
-                        failure: @escaping FailureHandler) -> Request {
+                        success: @escaping Success<Data>,
+                        failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseData(success: success, failure: failure)
         return request
@@ -53,8 +53,8 @@ open class NetworkService {
     @discardableResult
     public func request(for endpoint: Endpoint,
                         readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                        success: @escaping SuccessHandler<Any>,
-                        failure: @escaping FailureHandler) -> Request {
+                        success: @escaping Success<Any>,
+                        failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseJSON(with: readingOptions, success: success, failure: failure)
         return request
@@ -63,8 +63,8 @@ open class NetworkService {
     @discardableResult
     public func uploadRequest<Object: Decodable>(for endpoint: UploadEndpoint,
                                                  decoder: JSONDecoder = JSONDecoder(),
-                                                 success: @escaping SuccessHandler<Object>,
-                                                 failure: @escaping FailureHandler) -> Request {
+                                                 success: @escaping Success<Object>,
+                                                 failure: @escaping Failure) -> Request {
         let request = self.uploadRequest(for: endpoint)
         request.responseDecodableObject(with: decoder, success: success, failure: failure)
         return request
@@ -72,8 +72,8 @@ open class NetworkService {
 
     @discardableResult
     public func uploadRequest(for endpoint: UploadEndpoint,
-                              success: @escaping SuccessHandler<String>,
-                              failure: @escaping FailureHandler) -> Request {
+                              success: @escaping Success<String>,
+                              failure: @escaping Failure) -> Request {
         let request = self.uploadRequest(for: endpoint)
         request.responseString(success: success, failure: failure)
         return request
@@ -81,8 +81,8 @@ open class NetworkService {
 
     @discardableResult
     public func uploadRequest(for endpoint: UploadEndpoint,
-                              success: @escaping SuccessHandler<Data>,
-                              failure: @escaping FailureHandler) -> Request {
+                              success: @escaping Success<Data>,
+                              failure: @escaping Failure) -> Request {
         let request = self.uploadRequest(for: endpoint)
         request.responseData(success: success, failure: failure)
         return request
@@ -91,8 +91,8 @@ open class NetworkService {
     @discardableResult
     public func uploadRequest(for endpoint: UploadEndpoint,
                               readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                              success: @escaping SuccessHandler<Any>,
-                              failure: @escaping FailureHandler) -> Request {
+                              success: @escaping Success<Any>,
+                              failure: @escaping Failure) -> Request {
         let request = self.uploadRequest(for: endpoint)
         request.responseJSON(with: readingOptions, success: success, failure: failure)
         return request
@@ -117,8 +117,7 @@ open class NetworkService {
         let request = GeneralUploadRequest(endpoint: endpoint,
                                            authorization: authorization(for: endpoint),
                                            sessionManager: sessionManager,
-                                           httpHeadersFactory: httpHeadersFactory,
-                                           imageBodyParts: endpoint.imageBodyParts)
+                                           httpHeadersFactory: httpHeadersFactory)
         request.errorHandlers = errorHandlers
         return request
     }

@@ -26,8 +26,8 @@ final class GeneralRequest: Request, RequestErrorHandling {
         self.httpHeadersFactory = httpHeadersFactory
     }
 
-    func responseString(success: @escaping SuccessHandler<String>,
-                        failure: @escaping FailureHandler) {
+    func responseString(success: @escaping Success<String>,
+                        failure: @escaping Failure) {
         request = makeRequest().responseString { response in
             switch response.result {
             case .failure(let error):
@@ -39,8 +39,8 @@ final class GeneralRequest: Request, RequestErrorHandling {
     }
 
     func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder = JSONDecoder(),
-                                                    success: @escaping SuccessHandler<Object>,
-                                                    failure: @escaping FailureHandler) {
+                                                    success: @escaping Success<Object>,
+                                                    failure: @escaping Failure) {
         request = makeRequest().responseData { [weak self] response in
             switch response.result {
             case .failure(let error):
@@ -57,8 +57,8 @@ final class GeneralRequest: Request, RequestErrorHandling {
     }
 
     func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                      success: @escaping SuccessHandler<Any>,
-                      failure: @escaping FailureHandler) {
+                      success: @escaping Success<Any>,
+                      failure: @escaping Failure) {
         request = makeRequest().responseJSON(options: readingOptions) { [weak self] response in
             switch response.result {
             case .failure(let error):
@@ -69,8 +69,8 @@ final class GeneralRequest: Request, RequestErrorHandling {
         }
     }
 
-    func responseData(success: @escaping SuccessHandler<Data>,
-                      failure: @escaping FailureHandler) {
+    func responseData(success: @escaping Success<Data>,
+                      failure: @escaping Failure) {
         request = makeRequest().responseData { [weak self] response in
             switch response.result {
             case .failure(let error):

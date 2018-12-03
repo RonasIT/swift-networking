@@ -19,20 +19,19 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
     private var request: DataRequest?
     private var isCancelled: Bool = false
 
-    init(endpoint: Endpoint,
+    init(endpoint: UploadEndpoint,
          authorization: RequestAuthorization = .none,
          sessionManager: SessionManager = SessionManager.default,
-         httpHeadersFactory: HTTPHeadersFactory,
-         imageBodyParts: [ImageBodyPart]) {
+         httpHeadersFactory: HTTPHeadersFactory) {
         self.endpoint = endpoint
         self.authorization = authorization
         self.sessionManager = sessionManager
         self.httpHeadersFactory = httpHeadersFactory
-        self.imageBodyParts = imageBodyParts
+        self.imageBodyParts = endpoint.imageBodyParts
     }
 
-    func responseString(success: @escaping SuccessHandler<String>,
-                        failure: @escaping FailureHandler) {
+    func responseString(success: @escaping Success<String>,
+                        failure: @escaping Failure) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -52,8 +51,8 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
     }
 
     func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder = JSONDecoder(),
-                                                    success: @escaping SuccessHandler<Object>,
-                                                    failure: @escaping FailureHandler) {
+                                                    success: @escaping Success<Object>,
+                                                    failure: @escaping Failure) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -78,8 +77,8 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
     }
 
     func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                      success: @escaping SuccessHandler<Any>,
-                      failure: @escaping FailureHandler) {
+                      success: @escaping Success<Any>,
+                      failure: @escaping Failure) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -98,8 +97,8 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
         })
     }
 
-    func responseData(success: @escaping SuccessHandler<Data>,
-                      failure: @escaping FailureHandler) {
+    func responseData(success: @escaping Success<Data>,
+                      failure: @escaping Failure) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -155,7 +154,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
                               encodingCompletion: encodingCompletion)
     }
 
-    private func handleError(_ error: Error, failure: @escaping FailureHandler) {
+    private func handleError(_ error: Error, failure: @escaping Failure) {
         // Pass `DataResponse<T>?` as `nil`
         // swiftlint:disable:next syntactic_sugar
         let response = Optional<DataResponse<Any>>(nilLiteral: ())

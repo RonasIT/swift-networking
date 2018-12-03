@@ -6,20 +6,22 @@
 import Foundation
 import Alamofire
 
+public protocol ErrorHandler {
+    func handle<T>(error: inout Error, for response: DataResponse<T>?, endpoint: Endpoint) -> Bool
+}
+
 protocol RequestErrorHandling {
 
-    typealias FailureHandler = Request.FailureHandler
+    typealias Failure = Request.Failure
 
-    func handleError<T>(_ error: Error,
-                        `for` response: DataResponse<T>?,
-                        failure: FailureHandler)
+    var errorHandlers: [ErrorHandler] { get set }
+
+    func handleError<T>(_ error: Error, `for` response: DataResponse<T>?, failure: Failure)
 }
 
 extension RequestErrorHandling where Self: BasicRequest {
 
-    func handleError<T>(_ error: Error,
-                        `for` response: DataResponse<T>?,
-                        failure: FailureHandler) {
+    func handleError<T>(_ error: Error, `for` response: DataResponse<T>?, failure: Failure) {
         var error = error
         for handler in errorHandlers {
             if handler.handle(error: &error, for: response, endpoint: endpoint) {

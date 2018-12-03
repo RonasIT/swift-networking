@@ -10,35 +10,31 @@ public enum RequestAuthorization {
     case token(String)
 }
 
-public protocol ErrorHandler {
-    func handle<T>(error: inout Error, for response: DataResponse<T>?, endpoint: Endpoint) -> Bool
-}
-
-public protocol BasicRequest: AnyObject {
+public protocol BasicRequest {
 
     var endpoint: Endpoint { get }
-    var authorization: RequestAuthorization  { get }
-    var errorHandlers: [ErrorHandler] { get set }
 }
 
-public protocol Request: BasicRequest {
+public protocol Request: AnyObject, BasicRequest {
 
-    typealias SuccessHandler<T> = (T) -> Void
-    typealias FailureHandler = (Error) -> Void
+    typealias Success<T> = (T) -> Void
+    typealias Failure = (Error) -> Void
 
-    func responseString(success: @escaping SuccessHandler<String>,
-                        failure: @escaping FailureHandler)
+    var authorization: RequestAuthorization  { get }
+
+    func responseString(success: @escaping Success<String>,
+                        failure: @escaping Failure)
 
     func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder,
-                                                    success: @escaping SuccessHandler<Object>,
-                                                    failure: @escaping FailureHandler)
+                                                    success: @escaping Success<Object>,
+                                                    failure: @escaping Failure)
 
     func responseJSON(with readingOptions: JSONSerialization.ReadingOptions,
-                      success: @escaping SuccessHandler<Any>,
-                      failure: @escaping FailureHandler)
+                      success: @escaping Success<Any>,
+                      failure: @escaping Failure)
 
-    func responseData(success: @escaping SuccessHandler<Data>,
-                      failure: @escaping FailureHandler)
+    func responseData(success: @escaping Success<Data>,
+                      failure: @escaping Failure)
 
     func cancel()
 }
