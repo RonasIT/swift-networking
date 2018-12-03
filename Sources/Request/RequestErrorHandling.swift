@@ -8,16 +8,14 @@ import Alamofire
 
 protocol RequestErrorHandling {
 
-    // TODO: move `endpoint and `errorHandlers` to protocol (avoid duplication in Request protocol)
-    var endpoint: Endpoint { get }
-    var errorHandlers: [ErrorHandler] { get set }
+    typealias FailureHandler = Request.FailureHandler
 
     func handleError<T>(_ error: Error,
                         `for` response: DataResponse<T>?,
                         failureHandler: FailureHandler)
 }
 
-extension RequestErrorHandling {
+extension RequestErrorHandling where Self: BasicRequest {
 
     func handleError<T>(_ error: Error,
                         `for` response: DataResponse<T>?,

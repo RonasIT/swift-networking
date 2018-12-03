@@ -15,6 +15,8 @@ final class RequestFactory {
     }
 
     func makeRequest(endpoint: Endpoint) -> Request {
-        return GeneralRequest(endpoint: endpoint, sessionManager: sessionManager)
+        return GeneralDataRequest(endpoint: endpoint,
+                                  sessionManager: sessionManager,
+                                  httpHeadersFactory: GeneralHTTPHeadersFactory())
     }
 }

@@ -7,6 +7,9 @@ import Foundation
 
 protocol RequestResponseHandling {
 
+    typealias SuccessHandler<T> = (T) -> Void
+    typealias FailureHandler = (Error) -> Void
+
     func handleResponseData(_ data: Data,
                             successHandler: SuccessHandler<Data>,
                             failureHandler: FailureHandler)

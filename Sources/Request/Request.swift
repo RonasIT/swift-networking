@@ -5,19 +5,26 @@
 
 import Alamofire
 
-public typealias SuccessHandler<T> = (T) -> Void
-public typealias FailureHandler = (Error) -> Void
-
 public enum RequestAuth {
     case none
     case token(String)
 }
 
-public protocol Request: AnyObject {
+public protocol ErrorHandler {
+    func handle<T>(error: inout Error, for response: DataResponse<T>?, endpoint: Endpoint) -> Bool
+}
+
+public protocol BasicRequest: AnyObject {
 
     var endpoint: Endpoint { get }
     var auth: RequestAuth  { get set }
     var errorHandlers: [ErrorHandler] { get set }
+}
+
+public protocol Request: BasicRequest {
+
+    typealias SuccessHandler<T> = (T) -> Void
+    typealias FailureHandler = (Error) -> Void
 
     func responseString(successHandler: @escaping SuccessHandler<String>,
                         failureHandler: @escaping FailureHandler)
@@ -32,8 +39,6 @@ public protocol Request: AnyObject {
 
     func responseData(successHandler: @escaping SuccessHandler<Data>,
                       failureHandler: @escaping FailureHandler)
-}
 
-public protocol ErrorHandler {
-    func handle<T>(error: inout Error, for response: DataResponse<T>?, endpoint: Endpoint) -> Bool
+    func cancel()
 }
