@@ -5,7 +5,7 @@
 
 import Alamofire
 
-public enum RequestAuth {
+public enum RequestAuthorization {
     case none
     case token(String)
 }
@@ -17,7 +17,7 @@ public protocol ErrorHandler {
 public protocol BasicRequest: AnyObject {
 
     var endpoint: Endpoint { get }
-    var auth: RequestAuth  { get set }
+    var authorization: RequestAuthorization  { get }
     var errorHandlers: [ErrorHandler] { get set }
 }
 

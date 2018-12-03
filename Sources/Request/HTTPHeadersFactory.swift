@@ -14,10 +14,10 @@ final class GeneralHTTPHeadersFactory: HTTPHeadersFactory {
 
     func httpHeaders(for request: BasicRequest) -> HTTPHeaders {
         var headers = request.endpoint.headers
-        switch request.auth {
+        switch request.authorization {
         case .token(let token):
             headers.append(RequestHeaders.authorization(token))
-        default:
+        case .none:
             break
         }
         return headers.httpHeaders

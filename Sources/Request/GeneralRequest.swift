@@ -6,10 +6,10 @@
 import Foundation
 import Alamofire
 
-final class GeneralDataRequest: Request, RequestErrorHandling {
+final class GeneralRequest: Request, RequestErrorHandling {
 
     public let endpoint: Endpoint
-    public var auth: RequestAuth = .none
+    public let auth: RequestAuthorization = .none
     public var errorHandlers: [ErrorHandler] = []
 
     private let sessionManager: SessionManager
@@ -17,7 +17,10 @@ final class GeneralDataRequest: Request, RequestErrorHandling {
 
     private var request: DataRequest?
 
-    init(endpoint: Endpoint, sessionManager: SessionManager = .default, httpHeadersFactory: HTTPHeadersFactory) {
+    init(endpoint: Endpoint,
+         auth: RequestAuthorization = .none,
+         sessionManager: SessionManager = .default,
+         httpHeadersFactory: HTTPHeadersFactory) {
         self.endpoint = endpoint
         self.sessionManager = sessionManager
         self.httpHeadersFactory = httpHeadersFactory

@@ -9,7 +9,7 @@ import Alamofire
 final class GeneralUploadRequest: Request, RequestErrorHandling {
 
     public let endpoint: Endpoint
-    public var auth: RequestAuth = .none
+    public let authorization: RequestAuthorization = .none
     public var errorHandlers: [ErrorHandler] = []
 
     private let sessionManager: SessionManager
@@ -20,10 +20,12 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
     private var isCancelled: Bool = false
 
     init(endpoint: Endpoint,
+         authorization: RequestAuthorization = .none,
          sessionManager: SessionManager = SessionManager.default,
          httpHeadersFactory: HTTPHeadersFactory,
          imageBodyParts: [ImageBodyPart]) {
         self.endpoint = endpoint
+        self.authorization = authorization
         self.sessionManager = sessionManager
         self.httpHeadersFactory = httpHeadersFactory
         self.imageBodyParts = imageBodyParts
