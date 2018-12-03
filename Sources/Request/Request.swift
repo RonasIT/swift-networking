@@ -10,7 +10,7 @@ public typealias FailureHandler = (Error) -> Void
 
 public enum RequestAuth {
     case none
-    case token(String?)
+    case token(String)
 }
 
 public protocol Request: AnyObject {

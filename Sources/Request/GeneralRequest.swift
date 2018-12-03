@@ -77,14 +77,12 @@ final class GeneralRequest: Request, RequestErrorHandling, RequestResponseHandli
     private func httpHeaders() -> HTTPHeaders {
         var headers = endpoint.headers
         switch auth {
-        case .none:
-             return headers.httpHeaders
         case .token(let token):
-            if let token = token {
-                headers.append(RequestHeaders.authorization(token))
-            }
-            return headers.httpHeaders
+            headers.append(RequestHeaders.authorization(token))
+        default:
+            break
         }
+        return headers.httpHeaders
     }
 
     private func dataRequest() -> DataRequest {
