@@ -79,9 +79,9 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
         })
     }
 
-    func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                      success: @escaping Success<[AnyHashable: Any]>,
-                      failure: @escaping Failure) {
+    func responseJSON<Key: Hashable, Value: Any>(with readingOptions: JSONSerialization.ReadingOptions,
+                                                 success: @escaping Success<[Key: Value]>,
+                                                 failure: @escaping Failure) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -92,7 +92,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
                 case .failure(let error):
                     self.handleError(error, for: response, failure: failure)
                 case .success(let json):
-                    guard let json = json as? [AnyHashable: Any] else {
+                    guard let json = json as? [Key: Value] else {
                         // Standard error of `JSONSerialization`
                         failure(CocoaError.error(.keyValueValidation))
                         return
@@ -105,8 +105,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
         })
     }
 
-    func responseData(success: @escaping Success<Data>,
-                      failure: @escaping Failure) {
+    func responseData(success: @escaping Success<Data>, failure: @escaping Failure) {
         makeRequest(success: { [weak self] request in
             guard let `self` = self else {
                 return
@@ -132,7 +131,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
 
     // MARK: - Private
 
-    private func makeRequest(success: @escaping (DataRequest) -> Void, failure: @escaping (Error) -> Void) {
+    private func makeRequest(success: @escaping Success<DataRequest>, failure: @escaping Failure) {
         let multipartFormDataHandler = { [weak self] (multipartFormData: MultipartFormData) in
             guard let `self` = self else {
                 return

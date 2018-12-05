@@ -11,6 +11,8 @@ public typealias Failure = (Error) -> Void
 
 open class NetworkService {
 
+    public typealias JSONReadingOptions = JSONSerialization.ReadingOptions
+
     var errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]
 
     private let sessionManager: SessionManager
@@ -51,10 +53,10 @@ open class NetworkService {
     }
 
     @discardableResult
-    public func request(for endpoint: Endpoint,
-                        readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                        success: @escaping Success<[AnyHashable: Any]>,
-                        failure: @escaping Failure) -> Request {
+    public func request<Key: Hashable, Value: Any>(for endpoint: Endpoint,
+                                                   readingOptions: JSONReadingOptions = .allowFragments,
+                                                   success: @escaping Success<[Key: Value]>,
+                                                   failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseJSON(with: readingOptions, success: success, failure: failure)
         return request
@@ -89,10 +91,10 @@ open class NetworkService {
     }
 
     @discardableResult
-    public func uploadRequest(for endpoint: UploadEndpoint,
-                              readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                              success: @escaping Success<Any>,
-                              failure: @escaping Failure) -> Request {
+    public func uploadRequest<Key: Hashable, Value: Any>(for endpoint: UploadEndpoint,
+                                                         readingOptions: JSONReadingOptions = .allowFragments,
+                                                         success: @escaping Success<[Key: Value]>,
+                                                         failure: @escaping Failure) -> Request {
         let request = self.uploadRequest(for: endpoint)
         request.responseJSON(with: readingOptions, success: success, failure: failure)
         return request
@@ -105,20 +107,18 @@ open class NetworkService {
     // MARK: - Private
 
     private func request(for endpoint: Endpoint) -> Request {
-        let request = GeneralRequest(endpoint: endpoint,
-                                     authorization: authorization(for: endpoint),
-                                     sessionManager: sessionManager,
-                                     httpHeadersFactory: httpHeadersFactory)
-        request.errorHandlers = errorHandlers
-        return request
+        return GeneralRequest(endpoint: endpoint,
+                              authorization: authorization(for: endpoint),
+                              sessionManager: sessionManager,
+                              errorHandlers: errorHandlers,
+                              httpHeadersFactory: httpHeadersFactory)
     }
 
     private func uploadRequest(for endpoint: UploadEndpoint) -> Request {
-        let request = GeneralUploadRequest(endpoint: endpoint,
-                                           authorization: authorization(for: endpoint),
-                                           sessionManager: sessionManager,
-                                           httpHeadersFactory: httpHeadersFactory)
-        request.errorHandlers = errorHandlers
-        return request
+        return GeneralUploadRequest(endpoint: endpoint,
+                                    authorization: authorization(for: endpoint),
+                                    sessionManager: sessionManager,
+                                    errorHandlers: errorHandlers,
+                                    httpHeadersFactory: httpHeadersFactory)
     }
 }

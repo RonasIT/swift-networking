@@ -59,15 +59,15 @@ final class GeneralRequest: Request, RequestErrorHandling {
         }
     }
 
-    func responseJSON(with readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                      success: @escaping Success<[AnyHashable: Any]>,
-                      failure: @escaping Failure) {
+    func responseJSON<Key: Hashable, Value: Any>(with readingOptions: JSONSerialization.ReadingOptions,
+                                                 success: @escaping Success<[Key: Value]>,
+                                                 failure: @escaping Failure) {
         request = makeRequest().responseJSON(options: readingOptions) { [weak self] response in
             switch response.result {
             case .failure(let error):
                 self?.handleError(error, for: response, failure: failure)
             case .success(let json):
-                guard let json = json as? [AnyHashable: Any] else {
+                guard let json = json as? [Key: Value] else {
                     // Standard error of `JSONSerialization`
                     failure(CocoaError.error(.keyValueValidation))
                     return
@@ -77,8 +77,7 @@ final class GeneralRequest: Request, RequestErrorHandling {
         }
     }
 
-    func responseData(success: @escaping Success<Data>,
-                      failure: @escaping Failure) {
+    func responseData(success: @escaping Success<Data>, failure: @escaping Failure) {
         request = makeRequest().responseData { [weak self] response in
             switch response.result {
             case .failure(let error):

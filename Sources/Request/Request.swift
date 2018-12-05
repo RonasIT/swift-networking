@@ -28,9 +28,9 @@ public protocol Request: AnyObject, BasicRequest {
                                                     success: @escaping Success<Object>,
                                                     failure: @escaping Failure)
 
-    func responseJSON(with readingOptions: JSONSerialization.ReadingOptions,
-                      success: @escaping Success<[AnyHashable: Any]>,
-                      failure: @escaping Failure)
+    func responseJSON<Key: Hashable, Value: Any>(with readingOptions: JSONSerialization.ReadingOptions,
+                                                 success: @escaping Success<[Key: Value]>,
+                                                 failure: @escaping Failure)
 
     func responseData(success: @escaping Success<Data>,
                       failure: @escaping Failure)
