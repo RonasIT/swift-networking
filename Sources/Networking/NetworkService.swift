@@ -53,7 +53,7 @@ open class NetworkService {
     @discardableResult
     public func request(for endpoint: Endpoint,
                         readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                        success: @escaping Success<Any>,
+                        success: @escaping Success<[AnyHashable: Any]>,
                         failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseJSON(with: readingOptions, success: success, failure: failure)

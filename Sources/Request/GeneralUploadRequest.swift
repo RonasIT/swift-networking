@@ -89,7 +89,12 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
                 case .failure(let error):
                     self.handleError(error, for: response, failure: failure)
                 case .success(let json):
-                    success(json as! [AnyHashable: Any])
+                    guard let json = json as? [AnyHashable: Any] else {
+                        // Standard error of `JSONSerialization`
+                        failure(CocoaError.error(.keyValueValidation))
+                        return
+                    }
+                    success(json)
                 }
             }
         }, failure: { [weak self] error in

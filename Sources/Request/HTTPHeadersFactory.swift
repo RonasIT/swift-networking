@@ -12,7 +12,6 @@ public protocol HTTPHeadersFactory: AnyObject {
 
 open class GeneralHTTPHeadersFactory: HTTPHeadersFactory {
 
-    // FIXME: find way to avoid empty init
     public init() {
 
     }
