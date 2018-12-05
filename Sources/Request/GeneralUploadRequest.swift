@@ -9,8 +9,9 @@ import Alamofire
 final class GeneralUploadRequest: Request, RequestErrorHandling {
 
     public let endpoint: Endpoint
-    public let authorization: RequestAuthorization
-    public var errorHandlers: [ErrorHandler] = []
+
+    let authorization: RequestAuthorization
+    let errorHandlers: [ErrorHandler]
 
     private let sessionManager: SessionManager
     private let httpHeadersFactory: HTTPHeadersFactory
@@ -22,12 +23,14 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
     init(endpoint: UploadEndpoint,
          authorization: RequestAuthorization = .none,
          sessionManager: SessionManager = SessionManager.default,
+         errorHandlers: [ErrorHandler] = [],
          httpHeadersFactory: HTTPHeadersFactory) {
         self.endpoint = endpoint
         self.authorization = authorization
         self.sessionManager = sessionManager
         self.httpHeadersFactory = httpHeadersFactory
-        self.imageBodyParts = endpoint.imageBodyParts
+        self.errorHandlers = errorHandlers
+        imageBodyParts = endpoint.imageBodyParts
     }
 
     func responseString(success: @escaping Success<String>,

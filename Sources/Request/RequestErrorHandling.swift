@@ -14,7 +14,7 @@ protocol RequestErrorHandling {
 
     typealias Failure = BasicRequest.Failure
 
-    var errorHandlers: [ErrorHandler] { get set }
+    var errorHandlers: [ErrorHandler] { get }
 
     func handleError<T>(_ error: Error, `for` response: DataResponse<T>?, failure: Failure)
 }

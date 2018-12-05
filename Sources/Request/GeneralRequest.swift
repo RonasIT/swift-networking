@@ -9,20 +9,23 @@ import Alamofire
 final class GeneralRequest: Request, RequestErrorHandling {
 
     public let endpoint: Endpoint
-    public let authorization: RequestAuthorization = .none
-    public var errorHandlers: [ErrorHandler] = []
+
+    let authorization: RequestAuthorization
+    let errorHandlers: [ErrorHandler]
 
     private let sessionManager: SessionManager
     private let httpHeadersFactory: HTTPHeadersFactory
-
     private var request: DataRequest?
 
     init(endpoint: Endpoint,
          authorization: RequestAuthorization = .none,
          sessionManager: SessionManager = .default,
+         errorHandlers: [ErrorHandler] = [],
          httpHeadersFactory: HTTPHeadersFactory) {
         self.endpoint = endpoint
+        self.authorization = authorization
         self.sessionManager = sessionManager
+        self.errorHandlers = errorHandlers
         self.httpHeadersFactory = httpHeadersFactory
     }
 
