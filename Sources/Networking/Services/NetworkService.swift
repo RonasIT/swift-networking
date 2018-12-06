@@ -16,11 +16,14 @@ open class NetworkService {
     public var errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]
 
     private let sessionManager: SessionManager
+    private let requestAuthorizationService: RequestAuthorizationService
     private let httpHeadersFactory: HTTPHeadersFactory
 
     public init(sessionManager: SessionManager = .default,
+                requestAuthorizationService: RequestAuthorizationService = GeneralRequestAuthorizationService(),
                 httpHeadersFactory: HTTPHeadersFactory = GeneralHTTPHeadersFactory()) {
         self.sessionManager = sessionManager
+        self.requestAuthorizationService = requestAuthorizationService
         self.httpHeadersFactory = httpHeadersFactory
     }
 
@@ -100,15 +103,11 @@ open class NetworkService {
         return request
     }
 
-    public func authorization(for endpoint: Endpoint) -> RequestAuthorization {
-        return .none
-    }
-
     // MARK: - Private
 
     private func request(for endpoint: Endpoint) -> Request {
         return GeneralRequest(endpoint: endpoint,
-                              authorization: authorization(for: endpoint),
+                              authorization: requestAuthorizationService.authorization(for: endpoint),
                               sessionManager: sessionManager,
                               errorHandlers: errorHandlers,
                               httpHeadersFactory: httpHeadersFactory)
@@ -116,7 +115,7 @@ open class NetworkService {
 
     private func uploadRequest(for endpoint: UploadEndpoint) -> Request {
         return GeneralUploadRequest(endpoint: endpoint,
-                                    authorization: authorization(for: endpoint),
+                                    authorization: requestAuthorizationService.authorization(for: endpoint),
                                     sessionManager: sessionManager,
                                     errorHandlers: errorHandlers,
                                     httpHeadersFactory: httpHeadersFactory)
