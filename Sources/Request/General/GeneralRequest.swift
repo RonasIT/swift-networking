@@ -6,12 +6,13 @@
 import Foundation
 import Alamofire
 
-final class GeneralRequest: Request, RequestErrorHandling {
+// FIXME: requires ARC check
+
+final class GeneralRequest: NetworkRequest {
 
     public let endpoint: Endpoint
 
     let authorization: RequestAuthorization
-    let errorHandlers: [ErrorHandler]
 
     private let sessionManager: SessionManager
     private let httpHeadersFactory: HTTPHeadersFactory
@@ -20,72 +21,34 @@ final class GeneralRequest: Request, RequestErrorHandling {
     init(endpoint: Endpoint,
          authorization: RequestAuthorization = .none,
          sessionManager: SessionManager = .default,
-         errorHandlers: [ErrorHandler] = [],
          httpHeadersFactory: HTTPHeadersFactory) {
         self.endpoint = endpoint
         self.authorization = authorization
         self.sessionManager = sessionManager
-        self.errorHandlers = errorHandlers
         self.httpHeadersFactory = httpHeadersFactory
     }
 
-    func responseString(success: @escaping Success<String>,
-                        failure: @escaping Failure) {
-        request = makeRequest().responseString { response in
-            switch response.result {
-            case .failure(let error):
-                self.handleError(error, for: response, failure: failure)
-            case .success(let string):
-                success(string)
-            }
-        }
+    func responseObject<Object: Decodable>(queue: DispatchQueue? = nil,
+                                           decoder: JSONDecoder,
+                                           completion: @escaping Completion<DataResponse<Object>>) {
+        makeRequest().responseObject(queue: queue, decoder: decoder, completionHandler: completion)
     }
 
-    func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder = JSONDecoder(),
-                                                    success: @escaping Success<Object>,
-                                                    failure: @escaping Failure) {
-        request = makeRequest().responseData { [weak self] response in
-            switch response.result {
-            case .failure(let error):
-                self?.handleError(error, for: response, failure: failure)
-            case .success(let data):
-                do {
-                    success(try decoder.decode(from: data))
-                }
-                catch {
-                    self?.handleError(error, for: response, failure: failure)
-                }
-            }
-        }
+    func responseString(queue: DispatchQueue? = nil,
+                        encoding: String.Encoding? = nil,
+                        completion: @escaping Completion<DataResponse<String>>) {
+        makeRequest().responseString(queue: queue, encoding: encoding, completionHandler: completion)
     }
 
-    func responseJSON<Key: Hashable, Value: Any>(with readingOptions: JSONSerialization.ReadingOptions,
-                                                 success: @escaping Success<[Key: Value]>,
-                                                 failure: @escaping Failure) {
-        request = makeRequest().responseJSON(options: readingOptions) { [weak self] response in
-            switch response.result {
-            case .failure(let error):
-                self?.handleError(error, for: response, failure: failure)
-            case .success(let json):
-                guard let json = json as? [Key: Value] else {
-                    // Standard error of `JSONSerialization`
-                    failure(CocoaError.error(.keyValueValidation))
-                    return
-                }
-                success(json)
-            }
-        }
+    func responseJSON(queue: DispatchQueue? = nil,
+                      readingOptions: JSONSerialization.ReadingOptions,
+                      completion: @escaping Completion<DataResponse<Any>>) {
+        makeRequest().responseJSON(queue: queue, options: readingOptions, completionHandler: completion)
     }
 
-    func responseData(success: @escaping Success<Data>, failure: @escaping Failure) {
-        request = makeRequest().responseData { [weak self] response in
-            switch response.result {
-            case .failure(let error):
-                self?.handleError(error, for: response, failure: failure)
-            case .success(let data):
-                success(data)
-            }
-        }
+    func responseData(queue: Dispatch.DispatchQueue? = nil,
+                      completion: @escaping Completion<DataResponse<Data>>) {
+        makeRequest().responseData(queue: queue, completionHandler: completion)
     }
 
     func cancel() {

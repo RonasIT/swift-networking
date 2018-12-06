@@ -6,12 +6,13 @@
 import Foundation
 import Alamofire
 
-final class GeneralUploadRequest: Request, RequestErrorHandling {
+// FIXME: requires ARC check
+
+final class GeneralUploadRequest: Request {
 
     public let endpoint: Endpoint
 
     let authorization: RequestAuthorization
-    let errorHandlers: [ErrorHandler]
 
     private let sessionManager: SessionManager
     private let httpHeadersFactory: HTTPHeadersFactory
@@ -23,104 +24,55 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
     init(endpoint: UploadEndpoint,
          authorization: RequestAuthorization = .none,
          sessionManager: SessionManager = SessionManager.default,
-         errorHandlers: [ErrorHandler] = [],
          httpHeadersFactory: HTTPHeadersFactory) {
         self.endpoint = endpoint
         self.authorization = authorization
         self.sessionManager = sessionManager
         self.httpHeadersFactory = httpHeadersFactory
-        self.errorHandlers = errorHandlers
         imageBodyParts = endpoint.imageBodyParts
     }
 
-    func responseString(success: @escaping Success<String>,
-                        failure: @escaping Failure) {
-        makeRequest(success: { [weak self] request in
-            guard let `self` = self else {
-                return
-            }
-
-            self.request = request.responseString { response in
-                switch response.result {
-                case .failure(let error):
-                    self.handleError(error, for: response, failure: failure)
-                case .success(let string):
-                    success(string)
-                }
-            }
-        }, failure: { [weak self] error in
-            self?.handleError(error, failure: failure)
+    func responseData(queue: DispatchQueue? = nil, completion: @escaping Completion<DataResponse<Data>>) {
+        makeRequest(success: { request in
+            self.request = request.responseData(queue: queue, completionHandler: completion)
+        }, failure: { error in
+            completion(self.errorResponse(with: error))
         })
     }
 
-    func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder = JSONDecoder(),
-                                                    success: @escaping Success<Object>,
-                                                    failure: @escaping Failure) {
-        makeRequest(success: { [weak self] request in
-            guard let `self` = self else {
-                return
-            }
-
-            self.request = request.responseData { response in
-                switch response.result {
-                case .failure(let error):
-                    self.handleError(error, for: response, failure: failure)
-                case .success(let data):
-                    do {
-                        success(try decoder.decode(from: data))
-                    }
-                    catch {
-                        self.handleError(error, failure: failure)
-                    }
-                }
-            }
-        }, failure: { [weak self] error in
-            self?.handleError(error, failure: failure)
+    func responseJSON(queue: DispatchQueue? = nil,
+                      readingOptions: JSONSerialization.ReadingOptions,
+                      completion: @escaping Completion<DataResponse<Any>>) {
+        makeRequest(success: { request in
+            self.request = request.responseJSON(queue: queue,
+                                                options: readingOptions,
+                                                completionHandler: completion)
+        }, failure: { error in
+            completion(self.errorResponse(with: error))
         })
     }
 
-    func responseJSON<Key: Hashable, Value: Any>(with readingOptions: JSONSerialization.ReadingOptions,
-                                                 success: @escaping Success<[Key: Value]>,
-                                                 failure: @escaping Failure) {
-        makeRequest(success: { [weak self] request in
-            guard let `self` = self else {
-                return
-            }
-
-            self.request = request.responseJSON(options: readingOptions) { response in
-                switch response.result {
-                case .failure(let error):
-                    self.handleError(error, for: response, failure: failure)
-                case .success(let json):
-                    guard let json = json as? [Key: Value] else {
-                        // Standard error of `JSONSerialization`
-                        failure(CocoaError.error(.keyValueValidation))
-                        return
-                    }
-                    success(json)
-                }
-            }
-        }, failure: { [weak self] error in
-            self?.handleError(error, failure: failure)
+    func responseString(queue: DispatchQueue? = nil,
+                        encoding: String.Encoding?,
+                        completion: @escaping Completion<DataResponse<String>>) {
+        makeRequest(success: { request in
+            self.request = request.responseString(queue: queue,
+                                                  encoding: encoding,
+                                                  completionHandler: completion)
+        }, failure: { error in
+            completion(self.errorResponse(with: error))
         })
     }
 
-    func responseData(success: @escaping Success<Data>, failure: @escaping Failure) {
-        makeRequest(success: { [weak self] request in
-            guard let `self` = self else {
-                return
-            }
-
-            self.request = request.responseData { response in
-                switch response.result {
-                case .failure(let error):
-                    self.handleError(error, for: response, failure: failure)
-                case .success(let data):
-                    success(data)
-                }
-            }
-        }, failure: { [weak self] error in
-            self?.handleError(error, failure: failure)
+    func responseObject<Object: Decodable>(queue: DispatchQueue? = nil,
+                                           decoder: JSONDecoder,
+                                           completion: @escaping Completion<DataResponse<Object>>) {
+        makeRequest(success: { request in
+            self.request = request.responseObject(queue: queue,
+                                                   decoder: decoder,
+                                                   completionHandler: completion)
+        }, failure: { error in
+            completion(self.errorResponse(with: error))
         })
     }
 
@@ -131,18 +83,15 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
 
     // MARK: - Private
 
-    private func makeRequest(success: @escaping Success<DataRequest>, failure: @escaping Failure) {
-        let multipartFormDataHandler = { [weak self] (multipartFormData: MultipartFormData) in
-            guard let `self` = self else {
-                return
-            }
+    private func makeRequest(success: @escaping (DataRequest) -> Void, failure: @escaping (Error) -> Void) {
+        let multipartFormDataHandler = { (multipartFormData: MultipartFormData) in
             multipartFormData.appendImageBodyParts(self.imageBodyParts)
             if let parameters = self.endpoint.parameters {
                 multipartFormData.appendParametersBodyParts(parameters)
             }
         }
-        let encodingCompletion = { [weak self] (encodingResult: SessionManager.MultipartFormDataEncodingResult) in
-            guard let `self` = self, !self.isCancelled else {
+        let encodingCompletion = { (encodingResult: SessionManager.MultipartFormDataEncodingResult) in
+            guard self.isCancelled else {
                 return
             }
             switch encodingResult {
@@ -150,7 +99,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
                 request.validate()
                 success(request)
             case .failure(let error):
-                self.handleError(error, failure: failure)
+                failure(error)
             }
         }
         sessionManager.upload(multipartFormData: multipartFormDataHandler,
@@ -161,10 +110,7 @@ final class GeneralUploadRequest: Request, RequestErrorHandling {
                               encodingCompletion: encodingCompletion)
     }
 
-    private func handleError(_ error: Error, failure: @escaping Failure) {
-        // Pass `DataResponse<T>?` as `nil`
-        // swiftlint:disable:next syntactic_sugar
-        let response = Optional<DataResponse<Any>>(nilLiteral: ())
-        handleError(error, for: response, failure: failure)
+    private func errorResponse<T>(with error: Error) -> DataResponse<T> {
+        return DataResponse<T>(request: nil, response: nil, data: nil, result: .failure(error))
     }
 }

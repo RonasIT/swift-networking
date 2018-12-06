@@ -10,30 +10,29 @@ public enum RequestAuthorization {
     case token(String)
 }
 
-public protocol BasicRequest {
+public protocol Request: AnyObject {
 
-    typealias Success<T> = (T) -> Void
-    typealias Failure = (Error) -> Void
+    typealias Completion<T> = (T) -> Void
 
     var endpoint: Endpoint { get }
     var authorization: RequestAuthorization  { get }
-}
-
-public protocol Request: AnyObject, BasicRequest {
-
-    func responseString(success: @escaping Success<String>,
-                        failure: @escaping Failure)
-
-    func responseDecodableObject<Object: Decodable>(with decoder: JSONDecoder,
-                                                    success: @escaping Success<Object>,
-                                                    failure: @escaping Failure)
-
-    func responseJSON<Key: Hashable, Value: Any>(with readingOptions: JSONSerialization.ReadingOptions,
-                                                 success: @escaping Success<[Key: Value]>,
-                                                 failure: @escaping Failure)
-
-    func responseData(success: @escaping Success<Data>,
-                      failure: @escaping Failure)
 
     func cancel()
+}
+
+protocol NetworkRequest: Request {
+
+    func responseData(queue: DispatchQueue?, completion: @escaping Completion<DataResponse<Data>>)
+
+    func responseJSON(queue: DispatchQueue?,
+                      readingOptions: JSONSerialization.ReadingOptions,
+                      completion: @escaping Completion<DataResponse<Any>>)
+
+    func responseObject<Object: Decodable>(queue: DispatchQueue?,
+                                           decoder: JSONDecoder,
+                                           completion: @escaping Completion<DataResponse<Object>>)
+
+    func responseString(queue: DispatchQueue?,
+                        encoding: String.Encoding?,
+                        completion: @escaping Completion<DataResponse<String>>)
 }
