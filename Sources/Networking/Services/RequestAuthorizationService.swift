@@ -7,7 +7,7 @@ import Foundation
 
 public protocol RequestAuthorizationService: AnyObject {
 
-    func authorization(for endpoint: Endpoint) -> RequestAuthorization
+    func requestAuthorization(for endpoint: Endpoint) -> RequestAuthorization
 }
 
 open class GeneralRequestAuthorizationService: RequestAuthorizationService {
@@ -16,7 +16,7 @@ open class GeneralRequestAuthorizationService: RequestAuthorizationService {
 
     }
 
-    public func authorization(for endpoint: Endpoint) -> RequestAuthorization {
+    public func requestAuthorization(for endpoint: Endpoint) -> RequestAuthorization {
         return .none
     }
 }

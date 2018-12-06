@@ -107,7 +107,7 @@ open class NetworkService {
 
     private func request(for endpoint: Endpoint) -> Request {
         return GeneralRequest(endpoint: endpoint,
-                              authorization: requestAuthorizationService.authorization(for: endpoint),
+                              authorization: requestAuthorizationService.requestAuthorization(for: endpoint),
                               sessionManager: sessionManager,
                               errorHandlers: errorHandlers,
                               httpHeadersFactory: httpHeadersFactory)
@@ -115,7 +115,7 @@ open class NetworkService {
 
     private func uploadRequest(for endpoint: UploadEndpoint) -> Request {
         return GeneralUploadRequest(endpoint: endpoint,
-                                    authorization: requestAuthorizationService.authorization(for: endpoint),
+                                    authorization: requestAuthorizationService.requestAuthorization(for: endpoint),
                                     sessionManager: sessionManager,
                                     errorHandlers: errorHandlers,
                                     httpHeadersFactory: httpHeadersFactory)
