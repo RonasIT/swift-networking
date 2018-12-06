@@ -8,6 +8,10 @@ import Foundation
 
 open class GeneralErrorHandler: ErrorHandler {
 
+    public init() {
+
+    }
+
     public func handle<T>(error: inout Error, for response: DataResponse<T>?, endpoint: Endpoint) -> Bool {
         handle(&error, byCode: (error as NSError).code)
         return false

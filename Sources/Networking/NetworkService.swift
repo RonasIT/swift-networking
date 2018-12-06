@@ -13,7 +13,7 @@ open class NetworkService {
 
     public typealias JSONReadingOptions = JSONSerialization.ReadingOptions
 
-    var errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]
+    public var errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]
 
     private let sessionManager: SessionManager
     private let httpHeadersFactory: HTTPHeadersFactory
