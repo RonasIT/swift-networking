@@ -12,20 +12,15 @@ final class GeneralRequest: NetworkRequest {
 
     public let endpoint: Endpoint
 
-    let authorization: RequestAuthorization
+    private(set) var additionalHeaders: [RequestHeader] = []
 
     private let sessionManager: SessionManager
-    private let httpHeadersFactory: HTTPHeadersFactory
     private var request: DataRequest?
 
-    init(endpoint: Endpoint,
-         authorization: RequestAuthorization = .none,
-         sessionManager: SessionManager = .default,
-         httpHeadersFactory: HTTPHeadersFactory) {
+    init(sessionManager: SessionManager = .default,
+         endpoint: Endpoint) {
         self.endpoint = endpoint
-        self.authorization = authorization
         self.sessionManager = sessionManager
-        self.httpHeadersFactory = httpHeadersFactory
     }
 
     func responseObject<Object: Decodable>(queue: DispatchQueue? = nil,
@@ -55,6 +50,19 @@ final class GeneralRequest: NetworkRequest {
         request?.cancel()
     }
 
+    func addHeader(_ header: RequestHeader) {
+        // TODO: find way to move to `NetworkRequest` protocol
+        let headerIndexOrNil = additionalHeaders.firstIndex { existingHeader in
+            return existingHeader.key == header.key
+        }
+
+        if let headerIndex = headerIndexOrNil {
+            additionalHeaders.remove(at: headerIndex)
+        }
+
+        additionalHeaders.append(header)
+    }
+
     // MARK: Private
 
     private func makeRequest() -> DataRequest {
@@ -62,6 +70,6 @@ final class GeneralRequest: NetworkRequest {
                                       method: endpoint.method,
                                       parameters: endpoint.parameters,
                                       encoding: endpoint.parameterEncoding,
-                                      headers: httpHeadersFactory.httpHeaders(for: self)).validate()
+                                      headers: httpHeaders).validate()
     }
 }

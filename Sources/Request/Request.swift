@@ -5,22 +5,19 @@
 
 import Alamofire
 
-public enum RequestAuthorization {
-    case none
-    case token(String)
-}
-
 public protocol Request: AnyObject {
 
-    typealias Completion<T> = (T) -> Void
-
     var endpoint: Endpoint { get }
-    var authorization: RequestAuthorization  { get }
 
     func cancel()
 }
 
 protocol NetworkRequest: Request {
+
+    typealias Completion<T> = (T) -> Void
+
+    var additionalHeaders: [RequestHeader] { get }
+    var httpHeaders: HTTPHeaders { get }
 
     func responseData(queue: DispatchQueue?, completion: @escaping Completion<DataResponse<Data>>)
 
@@ -35,4 +32,17 @@ protocol NetworkRequest: Request {
     func responseString(queue: DispatchQueue?,
                         encoding: String.Encoding?,
                         completion: @escaping Completion<DataResponse<String>>)
+
+    func addHeader(_ header: RequestHeader)
+}
+
+extension NetworkRequest {
+
+    var httpHeaders: HTTPHeaders {
+        var headers = endpoint.headers.httpHeaders
+        // Merging with additional headers
+        // Additional headers will override headers from endpoint
+        headers.merge(additionalHeaders.httpHeaders) { $1 }
+        return headers
+    }
 }

@@ -8,27 +8,22 @@ import Alamofire
 
 // FIXME: requires ARC check
 
-final class GeneralUploadRequest: Request {
+final class GeneralUploadRequest: NetworkRequest {
 
     public let endpoint: Endpoint
 
-    let authorization: RequestAuthorization
+    private(set) var additionalHeaders: [RequestHeader] = []
 
     private let sessionManager: SessionManager
-    private let httpHeadersFactory: HTTPHeadersFactory
     private let imageBodyParts: [ImageBodyPart]
 
     private var request: DataRequest?
     private var isCancelled: Bool = false
 
-    init(endpoint: UploadEndpoint,
-         authorization: RequestAuthorization = .none,
-         sessionManager: SessionManager = SessionManager.default,
-         httpHeadersFactory: HTTPHeadersFactory) {
-        self.endpoint = endpoint
-        self.authorization = authorization
+    init(sessionManager: SessionManager = SessionManager.default,
+         endpoint: UploadEndpoint) {
         self.sessionManager = sessionManager
-        self.httpHeadersFactory = httpHeadersFactory
+        self.endpoint = endpoint
         imageBodyParts = endpoint.imageBodyParts
     }
 
@@ -106,11 +101,24 @@ final class GeneralUploadRequest: Request {
                               usingThreshold: SessionManager.multipartFormDataEncodingMemoryThreshold,
                               to: endpoint.url,
                               method: .post,
-                              headers: endpoint.headers.httpHeaders,
+                              headers: httpHeaders,
                               encodingCompletion: encodingCompletion)
     }
 
     private func errorResponse<T>(with error: Error) -> DataResponse<T> {
         return DataResponse<T>(request: nil, response: nil, data: nil, result: .failure(error))
+    }
+
+    func addHeader(_ header: RequestHeader) {
+        // TODO: find way to move to `NetworkRequest` protocol
+        let headerIndexOrNil = additionalHeaders.firstIndex { existingHeader in
+            return existingHeader.key == header.key
+        }
+
+        if let headerIndex = headerIndexOrNil {
+            additionalHeaders.remove(at: headerIndex)
+        }
+
+        additionalHeaders.append(header)
     }
 }

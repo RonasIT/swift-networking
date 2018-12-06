@@ -14,18 +14,16 @@ open class NetworkService {
     public typealias JSONReadingOptions = JSONSerialization.ReadingOptions
 
     private let sessionManager: SessionManager
-    private let requestAuthorizationService: RequestAuthorizationService
     private let requestErrorHandlingService: RequestErrorHandlingService
-    private let httpHeadersFactory: HTTPHeadersFactory
+
+    public let requestAdapters: [RequestAdapter]
 
     public init(sessionManager: SessionManager = .default,
-                requestAuthorizationService: RequestAuthorizationService = GeneralRequestAuthorizationService(),
                 requestErrorHandlingService: RequestErrorHandlingService = GeneralRequestErrorHandlingService(),
-                httpHeadersFactory: HTTPHeadersFactory = GeneralHTTPHeadersFactory()) {
+                requestAdapters: [RequestAdapter] = []) {
         self.sessionManager = sessionManager
-        self.requestAuthorizationService = requestAuthorizationService
         self.requestErrorHandlingService = requestErrorHandlingService
-        self.httpHeadersFactory = httpHeadersFactory
+        self.requestAdapters = requestAdapters
     }
 
     @discardableResult
@@ -78,17 +76,15 @@ open class NetworkService {
     // MARK: - Private
 
     private func request(for endpoint: Endpoint) -> GeneralRequest {
-        return GeneralRequest(endpoint: endpoint,
-                              authorization: requestAuthorizationService.requestAuthorization(for: endpoint),
-                              sessionManager: sessionManager,
-                              httpHeadersFactory: httpHeadersFactory)
+        let request = GeneralRequest(sessionManager: sessionManager, endpoint: endpoint)
+        requestAdapters.forEach { $0.adapt(request: request) }
+        return request
     }
 
     private func uploadRequest(for endpoint: UploadEndpoint) -> GeneralUploadRequest {
-        return GeneralUploadRequest(endpoint: endpoint,
-                                    authorization: requestAuthorizationService.requestAuthorization(for: endpoint),
-                                    sessionManager: sessionManager,
-                                    httpHeadersFactory: httpHeadersFactory)
+        let request = GeneralUploadRequest(sessionManager: sessionManager, endpoint: endpoint)
+        requestAdapters.forEach { $0.adapt(request: request) }
+        return request
     }
 
     private func processResponse<T>(_ response: DataResponse<T>,
