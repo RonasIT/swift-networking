@@ -8,17 +8,15 @@ import Alamofire
 
 extension DataRequest {
 
-    static func decodableResponseSerializer<Object: Decodable>(with decoder: JSONDecoder)
-                    -> DataResponseSerializer<Object> {
+    static func decodableResponseSerializer<Object: Decodable>(with decoder: JSONDecoder) -> DataResponseSerializer<Object> {
         return DataResponseSerializer { (request, response, data, error) -> Result<Object> in
-            guard let data = data else {
-                if let error = error {
-                    return .failure(error)
-                }
+            if let error = error {
+                return .failure(error)
+            }
 
-                let code = NSURLErrorCannotParseResponse
-                let defaultError = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: code))
-                return .failure(defaultError)
+            guard let data = data else {
+                let error = AFError.responseSerializationFailed(reason: .inputDataNil)
+                return .failure(error)
             }
 
             do {
