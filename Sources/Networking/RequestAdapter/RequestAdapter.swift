@@ -5,15 +5,12 @@
 
 import Foundation
 
-open class RequestAdapter {
+public protocol RequestAdapter {
 
-    public init() {
+    func adaptRequest(_ request: AdaptiveRequest)
+}
 
-    }
-
-    open func adaptRequest(_ request: AdaptiveRequest) {
-
-    }
+extension RequestAdapter {
 
     func adaptRequest(_ request: NetworkRequest) {
         adaptRequest(AdaptiveRequest(request: request))
