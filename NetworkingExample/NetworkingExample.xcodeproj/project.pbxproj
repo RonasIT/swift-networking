@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B5CD7AB1D9A8EBABDB62C19 /* SessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD6BB2B0D1FD526758045 /* SessionService.swift */; };
+		1B5CD7C1766A27C79CBC98A6 /* TokenRequestAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDF680E52C1BB036A009B /* TokenRequestAdapter.swift */; };
 		6D37C1EA216C79FF0056CBFE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6D37C1E9216C79FF0056CBFE /* Main.storyboard */; };
 		6D3EF79521676A2F00251869 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D3EF79421676A2F00251869 /* AppDelegate.swift */; };
 		6D3EF79721676A2F00251869 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D3EF79621676A2F00251869 /* MainViewController.swift */; };
@@ -29,6 +31,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1B5CD6BB2B0D1FD526758045 /* SessionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionService.swift; sourceTree = "<group>"; };
+		1B5CDF680E52C1BB036A009B /* TokenRequestAdapter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenRequestAdapter.swift; sourceTree = "<group>"; };
 		6D37C1E9216C79FF0056CBFE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		6D3EF79121676A2F00251869 /* NetworkingExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkingExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D3EF79421676A2F00251869 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -142,6 +146,8 @@
 				6DAAF0D9216C931D0003B3A7 /* ApiServiceProtocol.swift */,
 				6DAAF0D7216C92FA0003B3A7 /* ApiService.swift */,
 				6DAAF0DB216C93D10003B3A7 /* AnythingEndpoint.swift */,
+				1B5CDF680E52C1BB036A009B /* TokenRequestAdapter.swift */,
+				1B5CD6BB2B0D1FD526758045 /* SessionService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -265,6 +271,8 @@
 				6D3EF79521676A2F00251869 /* AppDelegate.swift in Sources */,
 				6D873D4A216E2B3A00AF9B9E /* SlideshowViewController.swift in Sources */,
 				6DAAF0F0216CBC730003B3A7 /* Contact.swift in Sources */,
+				1B5CD7C1766A27C79CBC98A6 /* TokenRequestAdapter.swift in Sources */,
+				1B5CD7AB1D9A8EBABDB62C19 /* SessionService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
