@@ -19,7 +19,7 @@ final class GeneralUploadRequest: NetworkRequest {
 
     private var request: DataRequest?
     private var isCancelled: Bool = false
-    private var retryHandler: (() -> Void)?
+    private var responseHandler: (() -> Void)?
 
     init(sessionManager: SessionManager = SessionManager.default,
          endpoint: UploadEndpoint) {
@@ -29,7 +29,7 @@ final class GeneralUploadRequest: NetworkRequest {
     }
 
     func responseData(queue: DispatchQueue? = nil, completion: @escaping Completion<DataResponse<Data>>) {
-        let handler = { [weak self] in
+        responseHandler = { [weak self] in
             guard let `self` = self else {
                 return
             }
@@ -39,44 +39,62 @@ final class GeneralUploadRequest: NetworkRequest {
                 completion(self.errorResponse(with: error))
             })
         }
-        retryHandler = handler
-        handler()
+        responseHandler?()
     }
 
     func responseJSON<Key: Hashable, Value>(queue: Dispatch.DispatchQueue? = nil,
                                             readingOptions: JSONSerialization.ReadingOptions,
                                             completion: @escaping Completion<DataResponse<[Key: Value]>>) {
-        makeRequest(success: { request in
-            self.request = request.responseJSON(queue: queue,
-                                                readingOptions: readingOptions,
-                                                completionHandler: completion)
-        }, failure: { error in
-            completion(self.errorResponse(with: error))
-        })
+        responseHandler = { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            self.makeRequest(success: { request in
+                self.request = request.responseJSON(queue: queue,
+                                                    readingOptions: readingOptions,
+                                                    completionHandler: completion)
+            }, failure: { error in
+                completion(self.errorResponse(with: error))
+            })
+        }
+        responseHandler?()
     }
 
     func responseString(queue: DispatchQueue? = nil,
                         encoding: String.Encoding?,
                         completion: @escaping Completion<DataResponse<String>>) {
-        makeRequest(success: { request in
-            self.request = request.responseString(queue: queue,
-                                                  encoding: encoding,
-                                                  completionHandler: completion)
-        }, failure: { error in
-            completion(self.errorResponse(with: error))
-        })
+        responseHandler = { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            self.makeRequest(success: { request in
+                self.request = request.responseString(queue: queue,
+                                                      encoding: encoding,
+                                                      completionHandler: completion)
+            }, failure: { error in
+                completion(self.errorResponse(with: error))
+            })
+        }
+        responseHandler?()
     }
 
     func responseObject<Object: Decodable>(queue: DispatchQueue? = nil,
                                            decoder: JSONDecoder,
                                            completion: @escaping Completion<DataResponse<Object>>) {
-        makeRequest(success: { request in
-            self.request = request.responseObject(queue: queue,
-                                                   decoder: decoder,
-                                                   completionHandler: completion)
-        }, failure: { error in
-            completion(self.errorResponse(with: error))
-        })
+        responseHandler = { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+
+            self.makeRequest(success: { request in
+                self.request = request.responseObject(queue: queue,
+                                                      decoder: decoder,
+                                                      completionHandler: completion)
+            }, failure: { error in
+                completion(self.errorResponse(with: error))
+            })
+        }
+        responseHandler?()
     }
 
     func cancel() {
@@ -85,7 +103,7 @@ final class GeneralUploadRequest: NetworkRequest {
     }
 
     func retry() {
-        // FIXME: implement retrying
+        responseHandler?()
     }
 
     // MARK: - Private

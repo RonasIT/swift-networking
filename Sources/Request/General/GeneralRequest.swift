@@ -17,6 +17,8 @@ final class GeneralRequest: NetworkRequest {
     private let sessionManager: SessionManager
     private var request: DataRequest?
 
+    private var responseHandler: (() -> Void)?
+
     init(sessionManager: SessionManager = .default,
          endpoint: Endpoint) {
         self.endpoint = endpoint
@@ -26,24 +28,42 @@ final class GeneralRequest: NetworkRequest {
     func responseObject<Object: Decodable>(queue: DispatchQueue? = nil,
                                            decoder: JSONDecoder,
                                            completion: @escaping Completion<DataResponse<Object>>) {
-        makeRequest().responseObject(queue: queue, decoder: decoder, completionHandler: completion)
+        responseHandler = { [weak self] in
+            self?.makeRequest().responseObject(queue: queue, decoder: decoder, completionHandler: completion)
+        }
+        responseHandler?()
     }
 
     func responseString(queue: DispatchQueue? = nil,
                         encoding: String.Encoding? = nil,
                         completion: @escaping Completion<DataResponse<String>>) {
-        makeRequest().responseString(queue: queue, encoding: encoding, completionHandler: completion)
+        responseHandler = { [weak self] in
+            self?.makeRequest().responseString(queue: queue, encoding: encoding, completionHandler: completion)
+        }
+        responseHandler?()
     }
 
     func responseJSON<Key: Hashable, Value>(queue: DispatchQueue? = nil,
                                             readingOptions: JSONSerialization.ReadingOptions,
                                             completion: @escaping Completion<DataResponse<[Key: Value]>>) {
-        makeRequest().responseJSON(queue: queue, readingOptions: readingOptions, completionHandler: completion)
+        responseHandler = { [weak self] in
+            self?.makeRequest().responseJSON(queue: queue,
+                                             readingOptions: readingOptions,
+                                             completionHandler: completion)
+        }
+        responseHandler?()
     }
 
     func responseData(queue: Dispatch.DispatchQueue? = nil,
                       completion: @escaping Completion<DataResponse<Data>>) {
-        makeRequest().responseData(queue: queue, completionHandler: completion)
+        responseHandler = { [weak self] in
+            self?.makeRequest().responseData(queue: queue, completionHandler: completion)
+        }
+        responseHandler?()
+    }
+
+    func start() {
+
     }
 
     func cancel() {
@@ -51,7 +71,7 @@ final class GeneralRequest: NetworkRequest {
     }
 
     func retry() {
-        // FIXME: implement retrying
+        responseHandler?()
     }
 
     func addHeader(_ header: RequestHeader) {
