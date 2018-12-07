@@ -8,10 +8,7 @@ import Networking
 final class ApiService: NetworkService, ApiServiceProtocol {
 
     init(sessionService: SessionServiceProtocol) {
-        let requestAdapters = [
-            TokenRequestAdapter(sessionService: sessionService)
-        ]
-
+        let requestAdapters = [TokenRequestAdapter(sessionService: sessionService)]
         super.init(requestAdapters: requestAdapters)
     }
 

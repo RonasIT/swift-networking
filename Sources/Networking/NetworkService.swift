@@ -17,13 +17,16 @@ open class NetworkService {
 
     private let requestAdapters: [RequestAdapter]
     private let errorHandlers: [ErrorHandler]
+    private let errorResolvers: [ErrorResolver]
 
     public init(sessionManager: SessionManager = .default,
                 requestAdapters: [RequestAdapter] = [],
+                errorResolvers: [ErrorResolver] = [],
                 errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]) {
         self.sessionManager = sessionManager
         self.requestAdapters = requestAdapters
         self.errorHandlers = errorHandlers
+        self.errorResolvers = errorResolvers
     }
 
     @discardableResult
@@ -96,14 +99,49 @@ open class NetworkService {
                                     success: @escaping Success<T>,
                                     failure: @escaping Failure) {
         switch response.result {
-        case .failure(var error):
-            if handleError(&error, response: response, endpoint: request.endpoint) {
-                return
-            }
-            failure(error)
+        case .failure(let error):
+            handleError(error, request: request, response: response, failure: failure)
         case .success(let result):
             success(result)
         }
+    }
+
+    private func handleError<T>(_ error: Error,
+                                request: NetworkRequest,
+                                response: DataResponse<T>,
+                                failure: @escaping Failure) {
+        guard var error = response.error else {
+            return
+        }
+
+        if resolveError(error, request: request, failure: failure) {
+            return
+        }
+
+        if handleError(&error, response: response, endpoint: request.endpoint) {
+            return
+        }
+
+        failure(error)
+    }
+
+    private func resolveError(_ error: Error, request: NetworkRequest, failure: @escaping Failure) -> Bool {
+        let errorResolverOrNil = errorResolvers.first { $0.canResolveError(error) }
+
+        guard let errorResolver = errorResolverOrNil else {
+            return false
+        }
+
+        errorResolver.resolveError(error, endpoint: request.endpoint) { resolution in
+            switch resolution {
+            case .retryRequest:
+                request.retry()
+            case .failure:
+                failure(error)
+            }
+        }
+
+        return true
     }
 
     private func handleError<T>(_ error: inout Error, response: DataResponse<T>, endpoint: Endpoint) -> Bool {
