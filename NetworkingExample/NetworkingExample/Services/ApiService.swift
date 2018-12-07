@@ -9,7 +9,7 @@ final class ApiService: NetworkService, ApiServiceProtocol {
 
     @discardableResult
     func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> Request? {
-        return requestObject(endpoint: AnythingEndpoint.fetchSlideshow, success: { (result: SlideshowResponse) in
+        return responseObject(endpoint: AnythingEndpoint.fetchSlideshow, success: { (result: SlideshowResponse) in
             success(result.slideshow)
         }, failure: { error in
             failure?(error)

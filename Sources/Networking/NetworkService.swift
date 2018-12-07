@@ -14,16 +14,16 @@ open class NetworkService {
     public typealias JSONReadingOptions = JSONSerialization.ReadingOptions
 
     private let sessionManager: SessionManager
-    private let requestErrorHandlingService: RequestErrorHandlingService
 
-    public let requestAdapters: [RequestAdapter]
+    private let requestAdapters: [RequestAdapter]
+    private let responseInterceptors: [ResponseInterceptor]
 
     public init(sessionManager: SessionManager = .default,
-                requestErrorHandlingService: RequestErrorHandlingService = GeneralRequestErrorHandlingService(),
-                requestAdapters: [RequestAdapter] = []) {
+                requestAdapters: [RequestAdapter] = [],
+                responseInterceptors: [ResponseInterceptor] = [ErrorResponseInterceptor()]) {
         self.sessionManager = sessionManager
-        self.requestErrorHandlingService = requestErrorHandlingService
         self.requestAdapters = requestAdapters
+        self.responseInterceptors = responseInterceptors
     }
 
     @discardableResult
@@ -33,7 +33,7 @@ open class NetworkService {
                                failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseString(encoding: encoding) { [weak self] response in
-            self?.processResponse(response, success: success, failure: failure)
+            self?.processResponse(response, endpoint: endpoint, success: success, failure: failure)
         }
         return request
     }
@@ -44,7 +44,7 @@ open class NetworkService {
                              failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseData { [weak self] response in
-            self?.processResponse(response, success: success, failure: failure)
+            self?.processResponse(response, endpoint: endpoint, success: success, failure: failure)
         }
         return request
     }
@@ -56,7 +56,7 @@ open class NetworkService {
                                        failure: @escaping Failure) -> Request where Object: Decodable {
         let request = self.request(for: endpoint)
         request.responseObject(decoder: decoder) { [weak self] (response: DataResponse<Object>) in
-            self?.processResponse(response, success: success, failure: failure)
+            self?.processResponse(response, endpoint: endpoint, success: success, failure: failure)
         }
         return request
     }
@@ -68,7 +68,7 @@ open class NetworkService {
                                          failure: @escaping Failure) -> Request where Key: Hashable, Value: Any {
         let request = self.request(for: endpoint)
         request.responseJSON(readingOptions: readingOptions) { [weak self] response in
-            self?.processResponse(response, success: success, failure: failure)
+            self?.processResponse(response, endpoint: endpoint, success: success, failure: failure)
         }
         return request
     }
@@ -77,19 +77,31 @@ open class NetworkService {
 
     private func request(for endpoint: Endpoint) -> GeneralRequest {
         let request = GeneralRequest(sessionManager: sessionManager, endpoint: endpoint)
-        requestAdapters.forEach { $0.adapt(request: request) }
+        adaptRequest(request)
         return request
     }
 
     private func uploadRequest(for endpoint: UploadEndpoint) -> GeneralUploadRequest {
         let request = GeneralUploadRequest(sessionManager: sessionManager, endpoint: endpoint)
-        requestAdapters.forEach { $0.adapt(request: request) }
+        adaptRequest(request)
         return request
     }
 
+    private func adaptRequest(_ request: NetworkRequest) {
+        requestAdapters.forEach { $0.adaptRequest(request) }
+    }
+
     private func processResponse<T>(_ response: DataResponse<T>,
+                                    endpoint: Endpoint,
                                     success: @escaping Success<T>,
                                     failure: @escaping Failure) {
+        let responseCallback = ResponseCallback(success: success, failure: failure)
+        for interceptor in responseInterceptors {
+            if interceptor.interceptResponse(response, endpoint: endpoint, responseCallback: responseCallback) {
+                return
+            }
+        }
+
         switch response.result {
         case .failure(let error):
             failure(error)

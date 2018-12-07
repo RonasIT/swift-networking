@@ -5,14 +5,19 @@
 
 import Foundation
 
-public final class RequestCustomizer {
+public final class AdaptiveRequest {
 
     private let request: NetworkRequest
+
+    public var endpoint: Endpoint {
+        return request.endpoint
+    }
 
     init(request: NetworkRequest) {
         self.request = request
     }
 
+    @discardableResult
     public func addHeader(_ header: RequestHeader) -> Self {
         request.addHeader(header)
         return self
