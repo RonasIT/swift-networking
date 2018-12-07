@@ -50,6 +50,10 @@ final class GeneralRequest: NetworkRequest {
         request?.cancel()
     }
 
+    func retry() {
+        // FIXME: implement retrying
+    }
+
     func addHeader(_ header: RequestHeader) {
         // TODO: find way to move to `NetworkRequest` protocol
         let headerIndexOrNil = additionalHeaders.firstIndex { existingHeader in

@@ -19,6 +19,7 @@ final class GeneralUploadRequest: NetworkRequest {
 
     private var request: DataRequest?
     private var isCancelled: Bool = false
+    private var retryHandler: (() -> Void)?
 
     init(sessionManager: SessionManager = SessionManager.default,
          endpoint: UploadEndpoint) {
@@ -28,11 +29,18 @@ final class GeneralUploadRequest: NetworkRequest {
     }
 
     func responseData(queue: DispatchQueue? = nil, completion: @escaping Completion<DataResponse<Data>>) {
-        makeRequest(success: { request in
-            self.request = request.responseData(queue: queue, completionHandler: completion)
-        }, failure: { error in
-            completion(self.errorResponse(with: error))
-        })
+        let handler = { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            self.makeRequest(success: { request in
+                self.request = request.responseData(queue: queue, completionHandler: completion)
+            }, failure: { error in
+                completion(self.errorResponse(with: error))
+            })
+        }
+        retryHandler = handler
+        handler()
     }
 
     func responseJSON<Key: Hashable, Value>(queue: Dispatch.DispatchQueue? = nil,
@@ -74,6 +82,10 @@ final class GeneralUploadRequest: NetworkRequest {
     func cancel() {
         isCancelled = true
         request?.cancel()
+    }
+
+    func retry() {
+        // FIXME: implement retrying
     }
 
     // MARK: - Private

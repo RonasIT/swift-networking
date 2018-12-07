@@ -14,6 +14,8 @@ public protocol Request: AnyObject {
 
 protocol NetworkRequest: Request {
 
+    // TODO: move headers logic to separated protocol
+
     typealias Completion<T> = (T) -> Void
 
     var additionalHeaders: [RequestHeader] { get }
@@ -34,6 +36,8 @@ protocol NetworkRequest: Request {
                         completion: @escaping Completion<DataResponse<String>>)
 
     func addHeader(_ header: RequestHeader)
+
+    func retry()
 }
 
 extension NetworkRequest {

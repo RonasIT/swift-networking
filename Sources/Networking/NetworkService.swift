@@ -16,14 +16,14 @@ open class NetworkService {
     private let sessionManager: SessionManager
 
     private let requestAdapters: [RequestAdapter]
-    private let responseInterceptors: [ResponseInterceptor]
+    private let errorHandlers: [ErrorHandler]
 
     public init(sessionManager: SessionManager = .default,
                 requestAdapters: [RequestAdapter] = [],
                 errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]) {
         self.sessionManager = sessionManager
         self.requestAdapters = requestAdapters
-        self.responseInterceptors = [ErrorHandlersResponseInterceptor(errorHandlers: errorHandlers)]
+        self.errorHandlers = errorHandlers
     }
 
     @discardableResult
@@ -33,11 +33,7 @@ open class NetworkService {
                                failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseString(encoding: encoding) { [weak self] response in
-            self?.processResponse(of: request,
-                                  response: response,
-                                  endpoint: endpoint,
-                                  success: success,
-                                  failure: failure)
+            self?.processResponse(of: request, response: response, success: success, failure: failure)
         }
         return request
     }
@@ -48,11 +44,7 @@ open class NetworkService {
                              failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseData { [weak self] response in
-            self?.processResponse(of: request,
-                                  response: response,
-                                  endpoint: endpoint,
-                                  success: success,
-                                  failure: failure)
+            self?.processResponse(of: request, response: response, success: success, failure: failure)
         }
         return request
     }
@@ -64,11 +56,7 @@ open class NetworkService {
                                        failure: @escaping Failure) -> Request where Object: Decodable {
         let request = self.request(for: endpoint)
         request.responseObject(decoder: decoder) { [weak self] (response: DataResponse<Object>) in
-            self?.processResponse(of: request,
-                                  response: response,
-                                  endpoint: endpoint,
-                                  success: success,
-                                  failure: failure)
+            self?.processResponse(of: request, response: response, success: success, failure: failure)
         }
         return request
     }
@@ -80,11 +68,7 @@ open class NetworkService {
                                          failure: @escaping Failure) -> Request where Key: Hashable, Value: Any {
         let request = self.request(for: endpoint)
         request.responseJSON(readingOptions: readingOptions) { [weak self] response in
-            self?.processResponse(of: request,
-                                  response: response,
-                                  endpoint: endpoint,
-                                  success: success,
-                                  failure: failure)
+            self?.processResponse(of: request, response: response, success: success, failure: failure)
         }
         return request
     }
@@ -109,24 +93,25 @@ open class NetworkService {
 
     private func processResponse<T>(of request: NetworkRequest,
                                     response: DataResponse<T>,
-                                    endpoint: Endpoint,
                                     success: @escaping Success<T>,
                                     failure: @escaping Failure) {
-        let responseCallback = ResponseCallback(success: success, failure: failure)
-        for interceptor in responseInterceptors {
-            if interceptor.interceptResponse(of: request,
-                                             response: response,
-                                             endpoint: endpoint,
-                                             responseCallback: responseCallback) {
+        switch response.result {
+        case .failure(var error):
+            if handleError(&error, response: response, endpoint: request.endpoint) {
                 return
             }
-        }
-
-        switch response.result {
-        case .failure(let error):
             failure(error)
         case .success(let result):
             success(result)
         }
+    }
+
+    private func handleError<T>(_ error: inout Error, response: DataResponse<T>, endpoint: Endpoint) -> Bool {
+        for errorHandler in errorHandlers {
+            if errorHandler.handle(error: &error, for: response, endpoint: endpoint) {
+                return true
+            }
+        }
+        return false
     }
 }
