@@ -20,10 +20,10 @@ open class NetworkService {
 
     public init(sessionManager: SessionManager = .default,
                 requestAdapters: [RequestAdapter] = [],
-                responseInterceptors: [ResponseInterceptor] = [ErrorResponseInterceptor()]) {
+                errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]) {
         self.sessionManager = sessionManager
         self.requestAdapters = requestAdapters
-        self.responseInterceptors = responseInterceptors
+        self.responseInterceptors = [ErrorHandlersResponseInterceptor(errorHandlers: errorHandlers)]
     }
 
     @discardableResult
@@ -33,7 +33,11 @@ open class NetworkService {
                                failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseString(encoding: encoding) { [weak self] response in
-            self?.processResponse(response, endpoint: endpoint, success: success, failure: failure)
+            self?.processResponse(of: request,
+                                  response: response,
+                                  endpoint: endpoint,
+                                  success: success,
+                                  failure: failure)
         }
         return request
     }
@@ -44,7 +48,11 @@ open class NetworkService {
                              failure: @escaping Failure) -> Request {
         let request = self.request(for: endpoint)
         request.responseData { [weak self] response in
-            self?.processResponse(response, endpoint: endpoint, success: success, failure: failure)
+            self?.processResponse(of: request,
+                                  response: response,
+                                  endpoint: endpoint,
+                                  success: success,
+                                  failure: failure)
         }
         return request
     }
@@ -56,7 +64,11 @@ open class NetworkService {
                                        failure: @escaping Failure) -> Request where Object: Decodable {
         let request = self.request(for: endpoint)
         request.responseObject(decoder: decoder) { [weak self] (response: DataResponse<Object>) in
-            self?.processResponse(response, endpoint: endpoint, success: success, failure: failure)
+            self?.processResponse(of: request,
+                                  response: response,
+                                  endpoint: endpoint,
+                                  success: success,
+                                  failure: failure)
         }
         return request
     }
@@ -68,7 +80,11 @@ open class NetworkService {
                                          failure: @escaping Failure) -> Request where Key: Hashable, Value: Any {
         let request = self.request(for: endpoint)
         request.responseJSON(readingOptions: readingOptions) { [weak self] response in
-            self?.processResponse(response, endpoint: endpoint, success: success, failure: failure)
+            self?.processResponse(of: request,
+                                  response: response,
+                                  endpoint: endpoint,
+                                  success: success,
+                                  failure: failure)
         }
         return request
     }
@@ -91,13 +107,17 @@ open class NetworkService {
         requestAdapters.forEach { $0.adaptRequest(request) }
     }
 
-    private func processResponse<T>(_ response: DataResponse<T>,
+    private func processResponse<T>(of request: NetworkRequest,
+                                    response: DataResponse<T>,
                                     endpoint: Endpoint,
                                     success: @escaping Success<T>,
                                     failure: @escaping Failure) {
         let responseCallback = ResponseCallback(success: success, failure: failure)
         for interceptor in responseInterceptors {
-            if interceptor.interceptResponse(response, endpoint: endpoint, responseCallback: responseCallback) {
+            if interceptor.interceptResponse(of: request,
+                                             response: response,
+                                             endpoint: endpoint,
+                                             responseCallback: responseCallback) {
                 return
             }
         }

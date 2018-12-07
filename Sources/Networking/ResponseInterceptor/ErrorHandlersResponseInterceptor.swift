@@ -6,22 +6,21 @@
 import Foundation
 import Alamofire
 
-public final class ErrorResponseInterceptor: ResponseInterceptor {
+public final class ErrorHandlersResponseInterceptor: ResponseInterceptor {
 
     private let errorHandlers: [ErrorHandler]
 
-    public init(errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]) {
+    public init(errorHandlers: [ErrorHandler]) {
         self.errorHandlers = errorHandlers
     }
 
-    public func interceptResponse<T>(_ response: DataResponse<T>,
-                                     endpoint: Endpoint,
-                                     responseCallback: ResponseCallback<T>) -> Bool {
+    func interceptResponse<T>(of request: NetworkRequest,
+                              response: DataResponse<T>,
+                              endpoint: Endpoint,
+                              responseCallback: ResponseCallback<T>) -> Bool {
         guard var error = response.error else {
             return false
         }
-
-        error = CocoaError.error(.keyValueValidation)
 
         for handler in errorHandlers {
             if handler.handle(error: &error, for: response, endpoint: endpoint) {

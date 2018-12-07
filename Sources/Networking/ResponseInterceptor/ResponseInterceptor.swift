@@ -17,9 +17,10 @@ public final class ResponseCallback<T> {
     }
 }
 
-public protocol ResponseInterceptor: AnyObject {
+protocol ResponseInterceptor: AnyObject {
 
-    func interceptResponse<T>(_ response: DataResponse<T>,
+    func interceptResponse<T>(of request: NetworkRequest,
+                              response: DataResponse<T>,
                               endpoint: Endpoint,
                               responseCallback: ResponseCallback<T>) -> Bool
 }
