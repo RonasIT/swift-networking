@@ -35,10 +35,10 @@ final class GeneralRequest: NetworkRequest {
         makeRequest().responseString(queue: queue, encoding: encoding, completionHandler: completion)
     }
 
-    func responseJSON(queue: DispatchQueue? = nil,
-                      readingOptions: JSONSerialization.ReadingOptions,
-                      completion: @escaping Completion<DataResponse<Any>>) {
-        makeRequest().responseJSON(queue: queue, options: readingOptions, completionHandler: completion)
+    func responseJSON<Key: Hashable, Value>(queue: DispatchQueue? = nil,
+                                            readingOptions: JSONSerialization.ReadingOptions,
+                                            completion: @escaping Completion<DataResponse<[Key: Value]>>) {
+        makeRequest().responseJSON(queue: queue, readingOptions: readingOptions, completionHandler: completion)
     }
 
     func responseData(queue: Dispatch.DispatchQueue? = nil,

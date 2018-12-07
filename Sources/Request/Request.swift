@@ -21,9 +21,9 @@ protocol NetworkRequest: Request {
 
     func responseData(queue: DispatchQueue?, completion: @escaping Completion<DataResponse<Data>>)
 
-    func responseJSON(queue: DispatchQueue?,
-                      readingOptions: JSONSerialization.ReadingOptions,
-                      completion: @escaping Completion<DataResponse<Any>>)
+    func responseJSON<Key: Hashable, Value: Any>(queue: DispatchQueue?,
+                                                 readingOptions: JSONSerialization.ReadingOptions,
+                                                 completion: @escaping Completion<DataResponse<[Key: Value]>>)
 
     func responseObject<Object: Decodable>(queue: DispatchQueue?,
                                            decoder: JSONDecoder,

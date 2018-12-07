@@ -35,12 +35,12 @@ final class GeneralUploadRequest: NetworkRequest {
         })
     }
 
-    func responseJSON(queue: DispatchQueue? = nil,
-                      readingOptions: JSONSerialization.ReadingOptions,
-                      completion: @escaping Completion<DataResponse<Any>>) {
+    func responseJSON<Key: Hashable, Value>(queue: Dispatch.DispatchQueue? = nil,
+                                            readingOptions: JSONSerialization.ReadingOptions,
+                                            completion: @escaping Completion<DataResponse<[Key: Value]>>) {
         makeRequest(success: { request in
             self.request = request.responseJSON(queue: queue,
-                                                options: readingOptions,
+                                                readingOptions: readingOptions,
                                                 completionHandler: completion)
         }, failure: { error in
             completion(self.errorResponse(with: error))

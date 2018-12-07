@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B5CD2A6CB4630FEC2255EC0 /* DataRequest+JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDE9A96BA987176D8A815 /* DataRequest+JSON.swift */; };
 		1B5CD5075BE83DC9DEF14C85 /* GeneralRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDF2D184219D8A50EFC09 /* GeneralRequest.swift */; };
 		1B5CD5314837F22FDF4508C7 /* ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD9A7F0425B7F52B51E01 /* ErrorHandler.swift */; };
 		1B5CD5A1BD11150B67D08A25 /* RequestAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDF0CA3E80298CCCA51BF /* RequestAdapter.swift */; };
@@ -81,6 +82,7 @@
 			children = (
 				1B5CD82D751AD368159F0899 /* MultipartFormData+Append.swift */,
 				1B5CDECB29678EE1F142F310 /* DataRequest+Decodable.swift */,
+				1B5CDE9A96BA987176D8A815 /* DataRequest+JSON.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -351,6 +353,7 @@
 				1B5CDFB0919C5074D614E0F4 /* DataRequest+Decodable.swift in Sources */,
 				1B5CD5A1BD11150B67D08A25 /* RequestAdapter.swift in Sources */,
 				1B5CDDAD079C8D4EAE32720E /* RequestCustomizer.swift in Sources */,
+				1B5CD2A6CB4630FEC2255EC0 /* DataRequest+JSON.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

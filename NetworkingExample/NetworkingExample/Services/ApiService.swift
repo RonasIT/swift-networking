@@ -18,7 +18,7 @@ final class ApiService: NetworkService, ApiServiceProtocol {
 
     @discardableResult
     func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: Failure?) -> Request? {
-        return requestObject(endpoint: AnythingEndpoint.postContact(contact), success: { (result: ContactResponse) in
+        return responseObject(endpoint: AnythingEndpoint.postContact(contact), success: { (result: ContactResponse) in
             success(result.form)
         }, failure: { error in
             failure?(error)
