@@ -11,14 +11,13 @@ extension DataRequest {
     static func jsonResponseSerializer<Key, Value>(with readingOptions: JSONSerialization.ReadingOptions)
                     -> DataResponseSerializer<[Key: Value]> where Key: Hashable, Value: Any {
         return DataResponseSerializer { (request, response, data, error) -> Result<[Key: Value]> in
-            guard let data = data else {
-                if let error = error {
-                    return .failure(error)
-                }
+            if let error = error {
+                return .failure(error)
+            }
 
-                let code = NSURLErrorCannotParseResponse
-                let defaultError = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: code))
-                return .failure(defaultError)
+            guard let data = data else {
+                let error = AFError.responseSerializationFailed(reason: .inputDataNil)
+                return .failure(error)
             }
 
             do {
@@ -26,7 +25,7 @@ extension DataRequest {
                 guard let json = object as? [Key: Value] else {
                     return .failure(CocoaError.error(.keyValueValidation))
                 }
-                
+
                 return .success(json)
             }
             catch {
