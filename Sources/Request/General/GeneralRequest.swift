@@ -62,10 +62,6 @@ final class GeneralRequest: NetworkRequest {
         responseHandler?()
     }
 
-    func start() {
-
-    }
-
     func cancel() {
         request?.cancel()
     }
