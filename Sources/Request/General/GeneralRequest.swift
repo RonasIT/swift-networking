@@ -9,6 +9,7 @@ final class GeneralRequest: NetworkRequest, CancellableRequest {
 
     public let endpoint: Endpoint
 
+    let identifier: String = UUID().uuidString
     var headers: [RequestHeader] = []
 
     private let sessionManager: SessionManager

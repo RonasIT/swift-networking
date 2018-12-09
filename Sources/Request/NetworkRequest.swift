@@ -9,6 +9,7 @@ protocol NetworkRequest: BasicRequest, CancellableRequest, AdaptiveRequest {
 
     typealias Completion<T> = (T) -> Void
 
+    var identifier: String { get }
     var headers: [RequestHeader] { get set }
 
     func responseData(queue: DispatchQueue?, completion: @escaping Completion<DataResponse<Data>>)

@@ -11,16 +11,15 @@ public typealias Failure = (Error) -> Void
 open class NetworkService {
 
     private let sessionManager: SessionManager
-
-    private let requestAdapters: [RequestAdapter]
-    private let errorHandlers: [ErrorHandler]
+    private let requestAdaptingService: RequestAdaptingServiceProtocol?
+    private let errorHandlingService: ErrorHandlingServiceProtocol?
 
     public init(sessionManager: SessionManager = .default,
-                requestAdapters: [RequestAdapter] = [],
-                errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]) {
+                requestAdaptingService: RequestAdaptingServiceProtocol? = nil,
+                errorHandlingService: ErrorHandlingServiceProtocol? = nil) {
         self.sessionManager = sessionManager
-        self.requestAdapters = requestAdapters
-        self.errorHandlers = errorHandlers
+        self.requestAdaptingService = requestAdaptingService
+        self.errorHandlingService = errorHandlingService
     }
 
     @discardableResult
@@ -120,19 +119,20 @@ open class NetworkService {
     // MARK: - Private
 
     private func request(for endpoint: Endpoint) -> GeneralRequest {
+
         let request = GeneralRequest(sessionManager: sessionManager, endpoint: endpoint)
-        adapt(request)
+        if let requestAdaptingService = requestAdaptingService {
+            requestAdaptingService.adapt(request)
+        }
         return request
     }
 
     private func uploadRequest(for endpoint: UploadEndpoint) -> GeneralUploadRequest {
         let request = GeneralUploadRequest(sessionManager: sessionManager, endpoint: endpoint)
-        adapt(request)
+        if let requestAdaptingService = requestAdaptingService {
+            requestAdaptingService.adapt(request)
+        }
         return request
-    }
-
-    private func adapt(_ request: NetworkRequest) {
-        requestAdapters.forEach { $0.adapt(request) }
     }
 
     private func processResponse<T>(_ response: DataResponse<T>,
@@ -140,21 +140,14 @@ open class NetworkService {
                                     success: @escaping Success<T>,
                                     failure: @escaping Failure) {
         switch response.result {
-        case .failure(let error):
-            handleError(error, response: response, endpoint: endpoint, failure: failure)
+        case .failure(var error):
+            if let errorHandlingService = errorHandlingService,
+               errorHandlingService.handleError(&error, response: response, endpoint: endpoint) {
+                return
+            }
+            failure(error)
         case .success(let result):
             success(result)
         }
-    }
-
-    private func handleError<T>(_ error: Error, response: DataResponse<T>, endpoint: Endpoint, failure: @escaping Failure) {
-        var error = error
-        for errorHandler in errorHandlers {
-            if errorHandler.handle(error: &error, for: response, endpoint: endpoint) {
-                return
-            }
-        }
-
-        failure(error)
     }
 }
