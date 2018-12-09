@@ -14,6 +14,8 @@ final class GeneralRequest: NetworkRequest, CancellableRequest {
     private let sessionManager: SessionManager
     private var request: DataRequest?
 
+    private var sending: (() -> Void)?
+
     init(sessionManager: SessionManager = .default,
          endpoint: Endpoint) {
         self.endpoint = endpoint
@@ -24,32 +26,53 @@ final class GeneralRequest: NetworkRequest, CancellableRequest {
     func responseObject<Object: Decodable>(queue: DispatchQueue? = nil,
                                            decoder: JSONDecoder,
                                            completion: @escaping Completion<DataResponse<Object>>) {
-        request = makeRequest()
-        request?.responseObject(queue: queue, decoder: decoder, completionHandler: completion)
+        let request = makeRequest()
+        self.request = request
+        sending = {
+            request.responseObject(queue: queue, decoder: decoder, completionHandler: completion)
+        }
+        sending?()
     }
 
     func responseString(queue: DispatchQueue? = nil,
                         encoding: String.Encoding? = nil,
                         completion: @escaping Completion<DataResponse<String>>) {
-        request = makeRequest()
-        request?.responseString(queue: queue, encoding: encoding, completionHandler: completion)
+        let request = makeRequest()
+        self.request = request
+        sending = {
+            request.responseString(queue: queue, encoding: encoding, completionHandler: completion)
+        }
+        sending?()
     }
 
     func responseJSON<Key: Hashable, Value>(queue: DispatchQueue? = nil,
                                             readingOptions: JSONSerialization.ReadingOptions,
                                             completion: @escaping Completion<DataResponse<[Key: Value]>>) {
-        request = makeRequest()
-        request?.responseJSON(queue: queue, readingOptions: readingOptions, completionHandler: completion)
+        let request = makeRequest()
+        self.request = request
+        sending = {
+            request.responseJSON(queue: queue, readingOptions: readingOptions, completionHandler: completion)
+        }
+        sending?()
     }
 
-    func responseData(queue: Dispatch.DispatchQueue? = nil,
-                      completion: @escaping Completion<DataResponse<Data>>) {
-        request = makeRequest()
-        request?.responseData(queue: queue, completionHandler: completion)
+    func responseData(queue: Dispatch.DispatchQueue? = nil, completion: @escaping Completion<DataResponse<Data>>) {
+        let request = makeRequest()
+        self.request = request
+        sending = {
+            request.responseData(queue: queue, completionHandler: completion)
+        }
+        sending?()
     }
 
     func cancel() {
         request?.cancel()
+        request = nil
+        sending = nil
+    }
+
+    func retry() {
+        sending?()
     }
 
     // MARK: Private

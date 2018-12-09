@@ -17,6 +17,8 @@ final class GeneralUploadRequest: NetworkRequest, CancellableRequest {
     private var request: DataRequest?
     private var isCancelled: Bool = false
 
+    private var sending: (() -> Void)?
+
     init(sessionManager: SessionManager = SessionManager.default,
          endpoint: UploadEndpoint) {
         self.sessionManager = sessionManager
@@ -27,9 +29,13 @@ final class GeneralUploadRequest: NetworkRequest, CancellableRequest {
 
     func responseData(queue: DispatchQueue? = nil, completion: @escaping Completion<DataResponse<Data>>) {
         makeRequest(success: { request in
-            self.request = request.responseData(queue: queue, completionHandler: completion)
+            self.request = request
+            self.sending = {
+                request.responseData(queue: queue, completionHandler: completion)
+            }
+            self.sending?()
         }, failure: { error in
-            completion(self.errorResponse(with: error))
+            completion(self.emptyResponse(for: error))
         })
     }
 
@@ -37,9 +43,13 @@ final class GeneralUploadRequest: NetworkRequest, CancellableRequest {
                                             readingOptions: JSONSerialization.ReadingOptions,
                                             completion: @escaping Completion<DataResponse<[Key: Value]>>) {
         makeRequest(success: { request in
-            self.request = request.responseJSON(queue: queue, readingOptions: readingOptions, completionHandler: completion)
+            self.request = request
+            self.sending = {
+                request.responseJSON(queue: queue, readingOptions: readingOptions, completionHandler: completion)
+            }
+            self.sending?()
         }, failure: { error in
-            completion(self.errorResponse(with: error))
+            completion(self.emptyResponse(for: error))
         })
     }
 
@@ -47,9 +57,13 @@ final class GeneralUploadRequest: NetworkRequest, CancellableRequest {
                         encoding: String.Encoding?,
                         completion: @escaping Completion<DataResponse<String>>) {
         makeRequest(success: { request in
-            self.request = request.responseString(queue: queue, encoding: encoding, completionHandler: completion)
+            self.request = request
+            self.sending = {
+                request.responseString(queue: queue, encoding: encoding, completionHandler: completion)
+            }
+            self.sending?()
         }, failure: { error in
-            completion(self.errorResponse(with: error))
+            completion(self.emptyResponse(for: error))
         })
     }
 
@@ -57,15 +71,26 @@ final class GeneralUploadRequest: NetworkRequest, CancellableRequest {
                                            decoder: JSONDecoder,
                                            completion: @escaping Completion<DataResponse<Object>>) {
         makeRequest(success: { request in
-            self.request = request.responseObject(queue: queue, decoder: decoder, completionHandler: completion)
+            self.request = request
+            self.sending = {
+                request.responseObject(queue: queue, decoder: decoder, completionHandler: completion)
+            }
+            self.sending?()
         }, failure: { error in
-            completion(self.errorResponse(with: error))
+            completion(self.emptyResponse(for: error))
         })
     }
 
     func cancel() {
         isCancelled = true
         request?.cancel()
+        request = nil
+        sending = nil
+    }
+
+    func retry() {
+        isCancelled = false
+        sending?()
     }
 
     // MARK: - Private
@@ -97,7 +122,7 @@ final class GeneralUploadRequest: NetworkRequest, CancellableRequest {
                               encodingCompletion: encodingCompletion)
     }
 
-    private func errorResponse<T>(with error: Error) -> DataResponse<T> {
+    private func emptyResponse<T>(for error: Error) -> DataResponse<T> {
         return DataResponse<T>(request: nil, response: nil, data: nil, result: .failure(error))
     }
 }

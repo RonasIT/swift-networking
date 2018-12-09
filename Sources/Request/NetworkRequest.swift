@@ -24,4 +24,6 @@ protocol NetworkRequest: BasicRequest, CancellableRequest, AdaptiveRequest {
     func responseString(queue: DispatchQueue?,
                         encoding: String.Encoding?,
                         completion: @escaping Completion<DataResponse<String>>)
+
+    func retry()
 }
