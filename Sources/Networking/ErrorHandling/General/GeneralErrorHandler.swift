@@ -4,7 +4,6 @@
 //
 
 import Alamofire
-import Foundation
 
 open class GeneralErrorHandler: ErrorHandler {
 
