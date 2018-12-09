@@ -9,15 +9,12 @@ import Alamofire
 public typealias Success<T> = (T) -> Void
 public typealias Failure = (Error) -> Void
 
-// FIXME: support upload request, rename methods
-
 open class NetworkService {
 
     public typealias JSONReadingOptions = JSONSerialization.ReadingOptions
 
     private let sessionManager: SessionManager
 
-    // FIXME: move from service to "general" classes, which will hold this objects and logic
     private let requestAdapters: [RequestAdapter]
     private let errorHandlers: [ErrorHandler]
 
@@ -153,10 +150,7 @@ open class NetworkService {
         }
     }
 
-    private func handleError<T>(_ error: Error,
-                                response: DataResponse<T>,
-                                endpoint: Endpoint,
-                                failure: @escaping Failure) {
+    private func handleError<T>(_ error: Error, response: DataResponse<T>, endpoint: Endpoint, failure: @escaping Failure) {
         var error = error
         for errorHandler in errorHandlers {
             if errorHandler.handle(error: &error, for: response, endpoint: endpoint) {
