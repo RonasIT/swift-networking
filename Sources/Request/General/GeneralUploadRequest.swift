@@ -6,8 +6,6 @@
 import Foundation
 import Alamofire
 
-// FIXME: requires ARC check
-
 final class GeneralUploadRequest: NetworkRequest {
 
     public let endpoint: Endpoint
@@ -19,7 +17,6 @@ final class GeneralUploadRequest: NetworkRequest {
 
     private var request: DataRequest?
     private var isCancelled: Bool = false
-    private var responseHandler: (() -> Void)?
 
     init(sessionManager: SessionManager = SessionManager.default,
          endpoint: UploadEndpoint) {
@@ -29,81 +26,46 @@ final class GeneralUploadRequest: NetworkRequest {
     }
 
     func responseData(queue: DispatchQueue? = nil, completion: @escaping Completion<DataResponse<Data>>) {
-        responseHandler = { [weak self] in
-            guard let `self` = self else {
-                return
-            }
-            self.makeRequest(success: { request in
-                self.request = request.responseData(queue: queue, completionHandler: completion)
-            }, failure: { error in
-                completion(self.errorResponse(with: error))
-            })
-        }
-        responseHandler?()
+        makeRequest(success: { request in
+            self.request = request.responseData(queue: queue, completionHandler: completion)
+        }, failure: { error in
+            completion(self.errorResponse(with: error))
+        })
     }
 
     func responseJSON<Key: Hashable, Value>(queue: Dispatch.DispatchQueue? = nil,
                                             readingOptions: JSONSerialization.ReadingOptions,
                                             completion: @escaping Completion<DataResponse<[Key: Value]>>) {
-        responseHandler = { [weak self] in
-            guard let `self` = self else {
-                return
-            }
-            self.makeRequest(success: { request in
-                self.request = request.responseJSON(queue: queue,
-                                                    readingOptions: readingOptions,
-                                                    completionHandler: completion)
-            }, failure: { error in
-                completion(self.errorResponse(with: error))
-            })
-        }
-        responseHandler?()
+        makeRequest(success: { request in
+            self.request = request.responseJSON(queue: queue, readingOptions: readingOptions, completionHandler: completion)
+        }, failure: { error in
+            completion(self.errorResponse(with: error))
+        })
     }
 
     func responseString(queue: DispatchQueue? = nil,
                         encoding: String.Encoding?,
                         completion: @escaping Completion<DataResponse<String>>) {
-        responseHandler = { [weak self] in
-            guard let `self` = self else {
-                return
-            }
-            self.makeRequest(success: { request in
-                self.request = request.responseString(queue: queue,
-                                                      encoding: encoding,
-                                                      completionHandler: completion)
-            }, failure: { error in
-                completion(self.errorResponse(with: error))
-            })
-        }
-        responseHandler?()
+        makeRequest(success: { request in
+            self.request = request.responseString(queue: queue, encoding: encoding, completionHandler: completion)
+        }, failure: { error in
+            completion(self.errorResponse(with: error))
+        })
     }
 
     func responseObject<Object: Decodable>(queue: DispatchQueue? = nil,
                                            decoder: JSONDecoder,
                                            completion: @escaping Completion<DataResponse<Object>>) {
-        responseHandler = { [weak self] in
-            guard let `self` = self else {
-                return
-            }
-
-            self.makeRequest(success: { request in
-                self.request = request.responseObject(queue: queue,
-                                                      decoder: decoder,
-                                                      completionHandler: completion)
-            }, failure: { error in
-                completion(self.errorResponse(with: error))
-            })
-        }
-        responseHandler?()
+        makeRequest(success: { request in
+            self.request = request.responseObject(queue: queue, decoder: decoder, completionHandler: completion)
+        }, failure: { error in
+            completion(self.errorResponse(with: error))
+        })
     }
 
     func cancel() {
         isCancelled = true
         request?.cancel()
-    }
-
-    func retry() {
-        responseHandler?()
     }
 
     // MARK: - Private

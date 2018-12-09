@@ -36,8 +36,6 @@ protocol NetworkRequest: Request {
                         completion: @escaping Completion<DataResponse<String>>)
 
     func addHeader(_ header: RequestHeader)
-
-    func retry()
 }
 
 extension NetworkRequest {
