@@ -78,7 +78,7 @@ final class GeneralUploadRequest: NetworkRequest, CancellableRequest {
             }
         }
         let encodingCompletion = { (encodingResult: SessionManager.MultipartFormDataEncodingResult) in
-            guard self.isCancelled else {
+            guard !self.isCancelled else {
                 return
             }
             switch encodingResult {
