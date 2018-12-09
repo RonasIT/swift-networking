@@ -3,7 +3,6 @@
 //  Copyright © 2018 Ronas IT. All rights reserved.
 //
 
-import Foundation
 import Alamofire
 
 public typealias Success<T> = (T) -> Void

@@ -3,8 +3,6 @@
 // Copyright (c) 2018 Ronas IT. All rights reserved.
 //
 
-import Foundation
-
 public protocol RequestAdapter {
 
     func adapt(_ request: AdaptiveRequest)
