@@ -11,8 +11,7 @@ final class ContactViewController: UIViewController {
     @IBOutlet var activityView: ActivityView!
     @IBOutlet var tableView: UITableView!
 
-    private lazy var sessionService: SessionServiceProtocol = SessionService()
-    private lazy var apiService: ApiServiceProtocol = ApiService(sessionService: sessionService)
+    private let apiService: ApiServiceProtocol = ServicesFactory.apiService
     private var request: Request?
     private var contact: Contact?
 

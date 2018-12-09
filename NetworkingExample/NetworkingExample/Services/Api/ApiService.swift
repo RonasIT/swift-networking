@@ -7,11 +7,6 @@ import Networking
 
 final class ApiService: NetworkService, ApiServiceProtocol {
 
-    init(sessionService: SessionServiceProtocol) {
-        let requestAdapters = [TokenRequestAdapter(sessionService: sessionService)]
-        super.init(requestAdapters: requestAdapters)
-    }
-
     @discardableResult
     func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> Request? {
         return request(endpoint: AnythingEndpoint.fetchSlideshow, success: { (result: SlideshowResponse) in
