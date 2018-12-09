@@ -6,11 +6,11 @@
 import Foundation
 import Alamofire
 
-final class GeneralRequest: NetworkRequest {
+final class GeneralRequest: NetworkRequest, CancellableRequest {
 
     public let endpoint: Endpoint
 
-    private(set) var additionalHeaders: [RequestHeader] = []
+    var headers: [RequestHeader] = []
 
     private let sessionManager: SessionManager
     private var request: DataRequest?
@@ -18,6 +18,7 @@ final class GeneralRequest: NetworkRequest {
     init(sessionManager: SessionManager = .default,
          endpoint: Endpoint) {
         self.endpoint = endpoint
+        self.headers = endpoint.headers
         self.sessionManager = sessionManager
     }
 
@@ -52,19 +53,6 @@ final class GeneralRequest: NetworkRequest {
         request?.cancel()
     }
 
-    func addHeader(_ header: RequestHeader) {
-        // TODO: find way to move to `NetworkRequest` protocol
-        let headerIndexOrNil = additionalHeaders.firstIndex { existingHeader in
-            return existingHeader.key == header.key
-        }
-
-        if let headerIndex = headerIndexOrNil {
-            additionalHeaders.remove(at: headerIndex)
-        }
-
-        additionalHeaders.append(header)
-    }
-
     // MARK: Private
 
     private func makeRequest() -> DataRequest {
@@ -72,6 +60,6 @@ final class GeneralRequest: NetworkRequest {
                                       method: endpoint.method,
                                       parameters: endpoint.parameters,
                                       encoding: endpoint.parameterEncoding,
-                                      headers: httpHeaders).validate()
+                                      headers: headers.httpHeaders).validate()
     }
 }

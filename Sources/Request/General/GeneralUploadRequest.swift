@@ -6,11 +6,11 @@
 import Foundation
 import Alamofire
 
-final class GeneralUploadRequest: NetworkRequest {
+final class GeneralUploadRequest: NetworkRequest, CancellableRequest {
 
     public let endpoint: Endpoint
 
-    private(set) var additionalHeaders: [RequestHeader] = []
+    var headers: [RequestHeader] = []
 
     private let sessionManager: SessionManager
     private let imageBodyParts: [ImageBodyPart]
@@ -22,6 +22,7 @@ final class GeneralUploadRequest: NetworkRequest {
          endpoint: UploadEndpoint) {
         self.sessionManager = sessionManager
         self.endpoint = endpoint
+        headers = endpoint.headers
         imageBodyParts = endpoint.imageBodyParts
     }
 
@@ -93,24 +94,11 @@ final class GeneralUploadRequest: NetworkRequest {
                               usingThreshold: SessionManager.multipartFormDataEncodingMemoryThreshold,
                               to: endpoint.url,
                               method: .post,
-                              headers: httpHeaders,
+                              headers: headers.httpHeaders,
                               encodingCompletion: encodingCompletion)
     }
 
     private func errorResponse<T>(with error: Error) -> DataResponse<T> {
         return DataResponse<T>(request: nil, response: nil, data: nil, result: .failure(error))
-    }
-
-    func addHeader(_ header: RequestHeader) {
-        // TODO: find way to move to `NetworkRequest` protocol
-        let headerIndexOrNil = additionalHeaders.firstIndex { existingHeader in
-            return existingHeader.key == header.key
-        }
-
-        if let headerIndex = headerIndexOrNil {
-            additionalHeaders.remove(at: headerIndex)
-        }
-
-        additionalHeaders.append(header)
     }
 }

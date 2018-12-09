@@ -11,8 +11,6 @@ public typealias Failure = (Error) -> Void
 
 open class NetworkService {
 
-    public typealias JSONReadingOptions = JSONSerialization.ReadingOptions
-
     private let sessionManager: SessionManager
 
     private let requestAdapters: [RequestAdapter]
@@ -63,7 +61,7 @@ open class NetworkService {
 
     @discardableResult
     public func request<Key, Value>(endpoint: Endpoint,
-                                    readingOptions: JSONReadingOptions = .allowFragments,
+                                    readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
                                     success: @escaping Success<[Key: Value]>,
                                     failure: @escaping Failure) -> Request where Key: Hashable, Value: Any {
         let request = self.request(for: endpoint)
@@ -110,7 +108,7 @@ open class NetworkService {
 
     @discardableResult
     public func uploadRequest<Key, Value>(endpoint: UploadEndpoint,
-                                          readingOptions: JSONReadingOptions = .allowFragments,
+                                          readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
                                           success: @escaping Success<[Key: Value]>,
                                           failure: @escaping Failure) -> Request where Key: Hashable, Value: Any {
         let request = self.uploadRequest(for: endpoint)
@@ -124,18 +122,18 @@ open class NetworkService {
 
     private func request(for endpoint: Endpoint) -> GeneralRequest {
         let request = GeneralRequest(sessionManager: sessionManager, endpoint: endpoint)
-        adaptRequest(request)
+        adapt(request)
         return request
     }
 
     private func uploadRequest(for endpoint: UploadEndpoint) -> GeneralUploadRequest {
         let request = GeneralUploadRequest(sessionManager: sessionManager, endpoint: endpoint)
-        adaptRequest(request)
+        adapt(request)
         return request
     }
 
-    private func adaptRequest(_ request: NetworkRequest) {
-        requestAdapters.forEach { $0.adaptRequest(request) }
+    private func adapt(_ request: NetworkRequest) {
+        requestAdapters.forEach { $0.adapt(request) }
     }
 
     private func processResponse<T>(_ response: DataResponse<T>,

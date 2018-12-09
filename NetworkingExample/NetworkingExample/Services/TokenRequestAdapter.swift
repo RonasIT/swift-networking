@@ -14,9 +14,9 @@ final class TokenRequestAdapter: RequestAdapter {
         self.sessionService = sessionService
     }
 
-    func adaptRequest(_ request: AdaptiveRequest) {
+    func adapt(_ request: AdaptiveRequest) {
         if let token = sessionService.token() {
-            request.addHeader(RequestHeaders.authorization(token))
+            request.add(RequestHeaders.authorization(token))
         }
     }
 }

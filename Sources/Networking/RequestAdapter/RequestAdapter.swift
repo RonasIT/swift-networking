@@ -7,12 +7,12 @@ import Foundation
 
 public protocol RequestAdapter {
 
-    func adaptRequest(_ request: AdaptiveRequest)
+    func adapt(_ request: AdaptiveRequest)
 }
 
 extension RequestAdapter {
 
-    func adaptRequest(_ request: NetworkRequest) {
-        adaptRequest(AdaptiveRequest(request: request))
+    func adapt(_ request: NetworkRequest) {
+        adapt(request as AdaptiveRequest)
     }
 }
