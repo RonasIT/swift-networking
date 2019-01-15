@@ -5,8 +5,9 @@
 
 import Alamofire
 
-final class GeneralUploadRequest: NetworkRequest, CancellableRequest {
+final class GeneralUploadRequest: NetworkRequest, Cancellable {
 
+    public let id: String = UUID().uuidString
     public let endpoint: Endpoint
 
     // TODO: changing only with method

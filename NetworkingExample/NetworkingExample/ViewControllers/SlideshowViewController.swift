@@ -11,8 +11,8 @@ final class SlideshowViewController: UIViewController {
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var activityView: ActivityView!
 
-    private lazy var apiService: ApiServiceProtocol = ServicesFactory.apiService
-    private var request: Request?
+    private lazy var apiService: ApiServiceProtocol = Services.apiService
+    private var request: CancellableRequest?
 
     private var slideshow: Slideshow?
 

@@ -5,6 +5,11 @@
 
 import Networking
 
+protocol HasGeneralRequestAdaptingService {
+
+    var generalRequestAdaptingService: RequestAdaptingServiceProtocol { get }
+}
+
 final class GeneralRequestAdaptingService: RequestAdaptingService {
 
     init(sessionService: SessionServiceProtocol) {

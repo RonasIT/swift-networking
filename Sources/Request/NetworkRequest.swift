@@ -5,7 +5,7 @@
 
 import Alamofire
 
-protocol NetworkRequest: BasicRequest, CancellableRequest, AdaptiveRequest {
+protocol NetworkRequest: BasicRequest, AdaptiveRequest, Cancellable, Retryable {
 
     typealias Completion<T> = (T) -> Void
 
@@ -24,6 +24,15 @@ protocol NetworkRequest: BasicRequest, CancellableRequest, AdaptiveRequest {
     func responseString(queue: DispatchQueue?,
                         encoding: String.Encoding?,
                         completion: @escaping Completion<DataResponse<String>>)
+}
 
-    func retry()
+extension NetworkRequest {
+
+    func append(_ header: RequestHeader) {
+        let headerIndexOrNil = headers.firstIndex { $0.key == header.key }
+        if let headerIndex = headerIndexOrNil {
+            headers[headerIndex] = header
+            return
+        }
+    }
 }

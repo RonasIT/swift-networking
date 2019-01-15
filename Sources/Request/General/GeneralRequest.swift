@@ -5,12 +5,12 @@
 
 import Alamofire
 
-final class GeneralRequest: NetworkRequest, CancellableRequest {
+final class GeneralRequest: NetworkRequest {
 
+    public let id: String = UUID().uuidString
     public let endpoint: Endpoint
 
-    // TODO: changing only with method
-    var headers: [RequestHeader] = []
+    var headers: [RequestHeader]
 
     private let sessionManager: SessionManager
     private var request: DataRequest?
@@ -27,10 +27,9 @@ final class GeneralRequest: NetworkRequest, CancellableRequest {
     func responseObject<Object: Decodable>(queue: DispatchQueue? = nil,
                                            decoder: JSONDecoder,
                                            completion: @escaping Completion<DataResponse<Object>>) {
-        let request = makeRequest()
-        self.request = request
-        sending = {
-            request.responseObject(queue: queue, decoder: decoder, completionHandler: completion)
+        request = makeRequest()
+        sending = { [request] in
+            request?.responseObject(queue: queue, decoder: decoder, completionHandler: completion)
         }
         sending?()
     }
@@ -38,10 +37,9 @@ final class GeneralRequest: NetworkRequest, CancellableRequest {
     func responseString(queue: DispatchQueue? = nil,
                         encoding: String.Encoding? = nil,
                         completion: @escaping Completion<DataResponse<String>>) {
-        let request = makeRequest()
-        self.request = request
-        sending = {
-            request.responseString(queue: queue, encoding: encoding, completionHandler: completion)
+        request = makeRequest()
+        sending = { [request] in
+            request?.responseString(queue: queue, encoding: encoding, completionHandler: completion)
         }
         sending?()
     }
@@ -49,19 +47,17 @@ final class GeneralRequest: NetworkRequest, CancellableRequest {
     func responseJSON<Key: Hashable, Value>(queue: DispatchQueue? = nil,
                                             readingOptions: JSONSerialization.ReadingOptions,
                                             completion: @escaping Completion<DataResponse<[Key: Value]>>) {
-        let request = makeRequest()
-        self.request = request
-        sending = {
-            request.responseJSON(queue: queue, readingOptions: readingOptions, completionHandler: completion)
+        request = makeRequest()
+        sending = { [request] in
+            request?.responseJSON(queue: queue, readingOptions: readingOptions, completionHandler: completion)
         }
         sending?()
     }
 
     func responseData(queue: Dispatch.DispatchQueue? = nil, completion: @escaping Completion<DataResponse<Data>>) {
-        let request = makeRequest()
-        self.request = request
-        sending = {
-            request.responseData(queue: queue, completionHandler: completion)
+        request = makeRequest()
+        sending = { [request] in
+            request?.responseData(queue: queue, completionHandler: completion)
         }
         sending?()
     }
