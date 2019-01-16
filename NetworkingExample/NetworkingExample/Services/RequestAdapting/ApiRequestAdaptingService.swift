@@ -5,12 +5,12 @@
 
 import Networking
 
-protocol HasGeneralRequestAdaptingService {
+protocol HasApiRequestAdaptingService {
 
-    var generalRequestAdaptingService: RequestAdaptingServiceProtocol { get }
+    var apiRequestAdaptingService: RequestAdaptingServiceProtocol { get }
 }
 
-final class GeneralRequestAdaptingService: RequestAdaptingService {
+final class ApiRequestAdaptingService: RequestAdaptingService {
 
     init(sessionService: SessionServiceProtocol) {
         super.init(requestAdapters: [TokenRequestAdapter(sessionService: sessionService)])

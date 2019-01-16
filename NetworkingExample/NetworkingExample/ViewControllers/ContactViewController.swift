@@ -41,7 +41,7 @@ final class ContactViewController: UIViewController {
 
     private func postContact(_ contact: Contact) {
         startLoading()
-        request = apiService.postContact(contact, success: { [weak self] result in
+        apiService.postContact(contact, success: { [weak self] result in
                 self?.stopLoading()
                 self?.contact = result
                 self?.tableView.reloadData()

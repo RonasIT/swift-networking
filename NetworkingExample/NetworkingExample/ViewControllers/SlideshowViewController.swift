@@ -25,7 +25,7 @@ final class SlideshowViewController: UIViewController {
 
     private func loadSlideshow() {
         startLoading()
-        request = apiService.fetchSlideshow(success: { [weak self] slideshow in
+        apiService.fetchSlideshow(success: { [weak self] slideshow in
                 self?.stopLoading()
                 self?.slideshow = slideshow
                 self?.title = slideshow.author
