@@ -6,7 +6,6 @@
 import Alamofire
 
 public typealias CancellableRequest = BasicRequest & Cancellable
-public typealias RetryableRequest = BasicRequest & Retryable
 
 public protocol Cancellable {
 
