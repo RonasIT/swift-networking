@@ -8,8 +8,8 @@ import Networking
 final class ApiService: NetworkService, ApiServiceProtocol {
 
     @discardableResult
-    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> Request? {
-        return request(endpoint: AnythingEndpoint.fetchSlideshow, success: { (result: SlideshowResponse) in
+    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> CancellableRequest? {
+        return response(for: AnythingEndpoint.fetchSlideshow, success: { (result: SlideshowResponse) in
             success(result.slideshow)
         }, failure: { error in
             failure?(error)
@@ -17,8 +17,8 @@ final class ApiService: NetworkService, ApiServiceProtocol {
     }
 
     @discardableResult
-    func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: Failure?) -> Request? {
-        return request(endpoint: AnythingEndpoint.postContact(contact), success: { (result: ContactResponse) in
+    func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: Failure?) -> CancellableRequest? {
+        return response(for: AnythingEndpoint.postContact(contact), success: { (result: ContactResponse) in
             success(result.form)
         }, failure: { error in
             failure?(error)

@@ -1,30 +1,32 @@
 //
-// Created by Nikita Zatsepilov on 09/12/2018.
-// Copyright (c) 2018 Ronas IT. All rights reserved.
+// Created by Nikita Zatsepilov on 2019-01-15.
+// Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
 import Alamofire
 
 public protocol ErrorHandlingServiceProtocol {
 
-    func handleError<T>(_ error: inout Error, response: DataResponse<T>, endpoint: Endpoint) -> Bool
+    func handleError(_ error: Error, completion: @escaping (ErrorHandlingResult) -> Void)
 }
 
 open class ErrorHandlingService: ErrorHandlingServiceProtocol {
 
-    private let errorHandlers: [ErrorHandler]
+    let errorHandlers: [ErrorHandler]
 
-    public init(errorHandlers: [ErrorHandler] = [GeneralErrorHandler()]) {
+    public init(errorHandlers: [ErrorHandler]) {
         self.errorHandlers = errorHandlers
     }
 
-    public func handleError<T>(_ error: inout Error, response: DataResponse<T>, endpoint: Endpoint) -> Bool {
-        for errorHandler in errorHandlers {
-            if errorHandler.handle(error: &error, for: response, endpoint: endpoint) {
-                return true
-            }
+    public func handleError(_ error: Error, completion: @escaping (ErrorHandlingResult) -> Void) {
+        let errorHandlerOrNil = errorHandlers.first { $0.canHandleError(error) }
+        guard let errorHandler = errorHandlerOrNil else {
+            completion(.failure(error))
+            return
         }
 
-        return false
+        errorHandler.handleError(error) { result in
+            completion(result)
+        }
     }
 }

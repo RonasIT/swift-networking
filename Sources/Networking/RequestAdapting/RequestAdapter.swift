@@ -10,7 +10,7 @@ public protocol RequestAdapter {
 
 extension RequestAdapter {
 
-    func adapt(_ request: NetworkRequest) {
+    func adapt(_ request: Request) {
         adapt(request as AdaptiveRequest)
     }
 }

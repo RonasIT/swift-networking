@@ -1,18 +1,16 @@
 //
-//  Created by Dmitry Frishbuter on 27/09/2018
-//  Copyright © 2018 Ronas IT. All rights reserved.
+// Created by Nikita Zatsepilov on 09/12/2018.
+// Copyright (c) 2018 Ronas IT. All rights reserved.
 //
 
 import Alamofire
 
-public typealias Request = BasicRequest & CancellableRequest
+protocol Request: BasicRequest, AdaptiveRequest, Cancellable, Retryable {
 
-public protocol CancellableRequest {
+    typealias Completion<T> = (DataResponse<T>) -> Void
+    typealias ResponseSerializer = DataResponseSerializerProtocol
 
-    func cancel()
-}
-
-public protocol BasicRequest: AnyObject {
-
-    var endpoint: Endpoint { get }
+    func response<Serializer: ResponseSerializer>(queue: DispatchQueue?,
+                                                  responseSerializer: Serializer,
+                                                  completion: @escaping Completion<Serializer.SerializedObject>)
 }

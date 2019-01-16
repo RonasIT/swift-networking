@@ -11,8 +11,8 @@ final class ContactViewController: UIViewController {
     @IBOutlet var activityView: ActivityView!
     @IBOutlet var tableView: UITableView!
 
-    private let apiService: ApiServiceProtocol = ServicesFactory.apiService
-    private var request: Request?
+    private let apiService: ApiServiceProtocol = Services.apiService
+    private var request: CancellableRequest?
     private var contact: Contact?
 
     override func viewDidLoad() {
@@ -41,7 +41,7 @@ final class ContactViewController: UIViewController {
 
     private func postContact(_ contact: Contact) {
         startLoading()
-        request = apiService.postContact(contact, success: { [weak self] result in
+        apiService.postContact(contact, success: { [weak self] result in
                 self?.stopLoading()
                 self?.contact = result
                 self?.tableView.reloadData()

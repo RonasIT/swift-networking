@@ -5,18 +5,6 @@
 
 public protocol AdaptiveRequest {
 
-    func add(_ header: RequestHeader)
+    func append(_ header: RequestHeader)
 }
 
-extension AdaptiveRequest where Self: NetworkRequest {
-
-    func add(_ header: RequestHeader) {
-        let headerIndexOrNil = headers.firstIndex { $0.key == header.key }
-        if let headerIndex = headerIndexOrNil {
-            headers[headerIndex] = header
-            return
-        }
-
-        headers.append(header)
-    }
-}

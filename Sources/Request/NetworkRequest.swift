@@ -1,29 +1,68 @@
 //
-// Created by Nikita Zatsepilov on 09/12/2018.
+// Created by Nikita Zatsepilov on 30/11/2018.
 // Copyright (c) 2018 Ronas IT. All rights reserved.
 //
 
 import Alamofire
 
-protocol NetworkRequest: BasicRequest, CancellableRequest, AdaptiveRequest {
+final class NetworkRequest: Request {
 
-    typealias Completion<T> = (T) -> Void
+    public let id: String
+    public let endpoint: Endpoint
 
-    var headers: [RequestHeader] { get set }
+    private let sessionManager: SessionManager
+    private var headers: [RequestHeader]
 
-    func responseData(queue: DispatchQueue?, completion: @escaping Completion<DataResponse<Data>>)
+    private var sending: (() -> Void)?
+    private var cancellation: (() -> Void)?
 
-    func responseJSON<Key: Hashable, Value: Any>(queue: DispatchQueue?,
-                                                 readingOptions: JSONSerialization.ReadingOptions,
-                                                 completion: @escaping Completion<DataResponse<[Key: Value]>>)
+    init(sessionManager: SessionManager = .default, endpoint: Endpoint) {
+        id = UUID().uuidString
+        headers = endpoint.headers
+        self.endpoint = endpoint
+        self.sessionManager = sessionManager
+    }
 
-    func responseObject<Object: Decodable>(queue: DispatchQueue?,
-                                           decoder: JSONDecoder,
-                                           completion: @escaping Completion<DataResponse<Object>>)
+    deinit {
+        print("\(self) \(#function)")
+    }
 
-    func responseString(queue: DispatchQueue?,
-                        encoding: String.Encoding?,
-                        completion: @escaping Completion<DataResponse<String>>)
+    func response<Serializer: ResponseSerializer>(queue: DispatchQueue? = nil,
+                                                  responseSerializer: Serializer,
+                                                  completion: @escaping Completion<Serializer.SerializedObject>) {
+        sending = { [unowned self] in
+            let request = self.request()
+            self.cancellation = request.cancel
+            request.response(queue: queue, responseSerializer: responseSerializer, completionHandler: completion)
+        }
+        sending?()
+    }
 
-    func retry()
+    func cancel() {
+        cancellation?()
+        cancellation = nil
+        sending = nil
+    }
+
+    func retry() {
+        sending?()
+    }
+
+    func append(_ header: RequestHeader) {
+        let indexOrNil = headers.firstIndex { $0.key == header.key }
+        if let index = indexOrNil {
+            headers.remove(at: index)
+        }
+        headers.append(header)
+    }
+
+    // MARK: - Private
+
+    private func request() -> DataRequest {
+        return sessionManager.request(endpoint.url,
+                                      method: endpoint.method,
+                                      parameters: endpoint.parameters,
+                                      encoding: endpoint.parameterEncoding,
+                                      headers: headers.httpHeaders).validate()
+    }
 }

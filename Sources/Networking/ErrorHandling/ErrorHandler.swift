@@ -1,12 +1,12 @@
 //
-// Created by Nikita Zatsepilov on 06/12/2018.
-// Copyright (c) 2018 Ronas IT. All rights reserved.
+// Created by Nikita Zatsepilov on 2019-01-15.
+// Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
-import Foundation
 import Alamofire
 
 public protocol ErrorHandler {
 
-    func handle<T>(error: inout Error, for response: DataResponse<T>?, endpoint: Endpoint) -> Bool
+    func canHandleError(_ error: Error) -> Bool
+    func handleError(_ error: Error, completion: @escaping (ErrorHandlingResult) -> Void)
 }

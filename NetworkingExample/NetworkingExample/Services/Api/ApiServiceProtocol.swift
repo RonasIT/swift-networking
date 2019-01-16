@@ -5,11 +5,16 @@
 
 import Networking
 
+protocol HasApiService {
+
+    var apiService: ApiServiceProtocol { get }
+}
+
 protocol ApiServiceProtocol {
 
     @discardableResult
-    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> Request?
+    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> CancellableRequest?
 
     @discardableResult
-    func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: Failure?) -> Request?
+    func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: Failure?) -> CancellableRequest?
 }
