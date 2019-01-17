@@ -8,20 +8,29 @@ import Networking
 final class ApiService: NetworkService, ApiServiceProtocol {
 
     @discardableResult
-    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> CancellableRequest? {
-        return response(for: AnythingEndpoint.fetchSlideshow, success: { (result: SlideshowResponse) in
+    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: @escaping Failure) -> CancellableRequest {
+        return request(for: AnythingEndpoint.fetchSlideshow, success: { (result: SlideshowResponse) in
             success(result.slideshow)
         }, failure: { error in
-            failure?(error)
+            failure(error)
         })
     }
 
     @discardableResult
-    func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: Failure?) -> CancellableRequest? {
-        return response(for: AnythingEndpoint.postContact(contact), success: { (result: ContactResponse) in
+    func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: @escaping Failure) -> CancellableRequest {
+        return request(for: AnythingEndpoint.postContact(contact), success: { (result: ContactResponse) in
             success(result.form)
         }, failure: { error in
-            failure?(error)
+            failure(error)
+        })
+    }
+
+    @discardableResult
+    func tokenRefreshExample(success: @escaping () -> Void, failure: @escaping Failure) -> CancellableRequest {
+        return request(for: AnythingEndpoint.authorizedRequest, success: { (response: AuthorizedRequestResponse) in
+            success()
+        }, failure: { error in
+            failure(error)
         })
     }
 }
@@ -32,4 +41,9 @@ private final class SlideshowResponse: Decodable {
 
 private final class ContactResponse: Decodable {
     let form: Contact
+}
+
+private final class AuthorizedRequestResponse: Decodable {
+    let authenticated: Bool
+    let token: String
 }

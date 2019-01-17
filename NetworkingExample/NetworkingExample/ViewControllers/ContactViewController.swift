@@ -41,14 +41,14 @@ final class ContactViewController: UIViewController {
 
     private func postContact(_ contact: Contact) {
         startLoading()
-        apiService.postContact(contact, success: { [weak self] result in
-                self?.stopLoading()
-                self?.contact = result
-                self?.tableView.reloadData()
-            }) { [weak self] error in
-                self?.stopLoading()
-                self?.presentAlertController(for: error)
-            }
+        request = apiService.postContact(contact, success: { [weak self] contact in
+            self?.stopLoading()
+            self?.contact = contact
+            self?.tableView.reloadData()
+        }, failure: { [weak self] error in
+            self?.stopLoading()
+            self?.presentAlertController(for: error)
+        })
     }
 }
 

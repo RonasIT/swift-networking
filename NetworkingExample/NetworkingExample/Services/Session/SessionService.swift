@@ -3,28 +3,28 @@
 // Copyright (c) 2018 Ronas IT. All rights reserved.
 //
 
-import Foundation
-
-protocol HasSessionService {
-
-    var sessionService: SessionServiceProtocol { get }
-}
-
-protocol SessionServiceProtocol {
-
-    func token() -> String?
-    func refreshToken(completion: @escaping (Bool) -> Void)
-}
+import Alamofire
+import Networking
 
 final class SessionService: SessionServiceProtocol {
 
-    func token() -> String? {
-        return "any-token"
+    weak var output: SessionServiceOutput?
+
+    private var token: String?
+
+    var authToken: String? {
+        return nil
     }
 
-    func refreshToken(completion: @escaping (Bool) -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            completion(false)
+    func updateToken(to token: String?) {
+        self.token = token
+    }
+
+    func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
+        output?.sessionServiceDidStartTokenRefresh()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            self?.updateToken(to: "token")
+            failure(AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401)))
         }
     }
 }

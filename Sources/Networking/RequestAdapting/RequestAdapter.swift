@@ -7,10 +7,3 @@ public protocol RequestAdapter {
 
     func adapt(_ request: AdaptiveRequest)
 }
-
-extension RequestAdapter {
-
-    func adapt(_ request: Request) {
-        adapt(request as AdaptiveRequest)
-    }
-}

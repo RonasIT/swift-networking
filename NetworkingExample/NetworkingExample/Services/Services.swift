@@ -7,10 +7,9 @@ import Networking
 
 typealias HasServices = HasApiService &
                         HasSessionService &
-                        HasApiRequestAdaptingService &
-                        HasApiErrorHandlingService
+                        HasApiRequestAdaptingService
 
-var Services: MainServices = MainServices() // swiftlint:disable:this variable_name
+var Services: HasServices = MainServices() // swiftlint:disable:this variable_name
 
 final class MainServices: HasServices {
 
@@ -23,7 +22,7 @@ final class MainServices: HasServices {
     }()
 
     lazy var apiErrorHandlingService: ErrorHandlingServiceProtocol = {
-        return ApiErrorHandlingService(sessionService: sessionService)
+        return RequestErrorHandlingService(sessionService: sessionService)
     }()
 
     lazy var apiService: ApiServiceProtocol = {

@@ -10,6 +10,7 @@ import Networking
 enum AnythingEndpoint: Endpoint {
     case fetchSlideshow
     case postContact(Contact)
+    case authorizedRequest
 
     var baseURL: URL {
         return URL(string: "https://httpbin.org/")!
@@ -21,13 +22,19 @@ enum AnythingEndpoint: Endpoint {
             return "json"
         case .postContact:
             return "anything"
+        case .authorizedRequest:
+            return "bearer"
+
         }
     }
 
     var method: HTTPMethod {
         switch self {
-        case .fetchSlideshow: return .get
-        case .postContact:    return .post
+        case .authorizedRequest,
+             .fetchSlideshow:
+            return .get
+        case .postContact:
+            return .post
         }
     }
 

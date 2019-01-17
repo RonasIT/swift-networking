@@ -4,6 +4,7 @@
 //
 
 public enum ErrorHandlingResult {
-    case failure(Error)
-    case errorResolved
+    case continueFailure(with: Error)
+    case retryNeeded
+    case ignoreFailure
 }

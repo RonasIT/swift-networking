@@ -13,8 +13,11 @@ protocol HasApiService {
 protocol ApiServiceProtocol {
 
     @discardableResult
-    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: Failure?) -> CancellableRequest?
+    func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: @escaping Failure) -> CancellableRequest
 
     @discardableResult
-    func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: Failure?) -> CancellableRequest?
+    func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: @escaping Failure) -> CancellableRequest
+
+    @discardableResult
+    func tokenRefreshExample(success: @escaping () -> Void, failure: @escaping Failure) -> CancellableRequest
 }

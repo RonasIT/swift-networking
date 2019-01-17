@@ -25,15 +25,15 @@ final class SlideshowViewController: UIViewController {
 
     private func loadSlideshow() {
         startLoading()
-        apiService.fetchSlideshow(success: { [weak self] slideshow in
-                self?.stopLoading()
-                self?.slideshow = slideshow
-                self?.title = slideshow.author
-                self?.collectionView.reloadData()
-            }, failure: { [weak self] error in
-                self?.stopLoading()
-                self?.presentAlertController(for: error)
-            })
+        request = apiService.fetchSlideshow(success: { [weak self] slideshow in
+            self?.stopLoading()
+            self?.slideshow = slideshow
+            self?.title = slideshow.author
+            self?.collectionView.reloadData()
+        }, failure: { [weak self] error in
+            self?.stopLoading()
+            self?.presentAlertController(for: error)
+        })
     }
 
     private func startLoading() {

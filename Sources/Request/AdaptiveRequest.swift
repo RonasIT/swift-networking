@@ -5,6 +5,6 @@
 
 public protocol AdaptiveRequest {
 
-    func append(_ header: RequestHeader)
+    func appendHeader(_ header: RequestHeader)
 }
 

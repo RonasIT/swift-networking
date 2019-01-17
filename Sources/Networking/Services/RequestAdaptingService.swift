@@ -8,18 +8,11 @@ public protocol RequestAdaptingServiceProtocol {
     func adapt(_ request: AdaptiveRequest)
 }
 
-extension RequestAdaptingServiceProtocol {
-
-    func adapt(_ request: Request) {
-        adapt(request as AdaptiveRequest)
-    }
-}
-
 open class RequestAdaptingService: RequestAdaptingServiceProtocol {
 
     private let requestAdapters: [RequestAdapter]
 
-    public init(requestAdapters: [RequestAdapter] = []) {
+    public init(requestAdapters: [RequestAdapter]) {
         self.requestAdapters = requestAdapters
     }
 
