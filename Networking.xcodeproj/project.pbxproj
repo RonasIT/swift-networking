@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B5CD0231747F5BA7C41899A /* RequestErrorHandlingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD876CC23560CFA5E3473 /* RequestErrorHandlingService.swift */; };
 		1B5CD15F49FAEB759211E1E4 /* RequestAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDDC10B4E3F98E41DC3F1 /* RequestAdapter.swift */; };
 		1B5CD19AE3BE12438905DFD8 /* BaseRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD181B961E974327DEC33 /* BaseRequest.swift */; };
 		1B5CD2A41C026110EA79DF51 /* ServerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD0D2A55AA7101CA07209 /* ServerError.swift */; };
@@ -54,7 +53,6 @@
 		1B5CD6B291213BBBA10C2701 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		1B5CD82D751AD368159F0899 /* MultipartFormData+Append.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MultipartFormData+Append.swift"; sourceTree = "<group>"; };
 		1B5CD86344A88FC32A9CD436 /* EndpointError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EndpointError.swift; sourceTree = "<group>"; };
-		1B5CD876CC23560CFA5E3473 /* RequestErrorHandlingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestErrorHandlingService.swift; sourceTree = "<group>"; };
 		1B5CD908A319B457697AC9CE /* AdaptiveRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdaptiveRequest.swift; sourceTree = "<group>"; };
 		1B5CD9F249BFCB9814B964B9 /* ErrorHandlingResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorHandlingResult.swift; sourceTree = "<group>"; };
 		1B5CDA622EDBD8B381CF755A /* Retryable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Retryable.swift; sourceTree = "<group>"; };
@@ -126,7 +124,6 @@
 				1B5CD64CC7DF46C6564F67F0 /* ErrorHandlingService.swift */,
 				1B5CD521A45CF7F99D353C33 /* RequestAdaptingService.swift */,
 				1B5CDA71F35A80419DA31EDA /* SessionService.swift */,
-				1B5CD876CC23560CFA5E3473 /* RequestErrorHandlingService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -366,7 +363,6 @@
 				1B5CD983644981E9D57B9652 /* EndpointError.swift in Sources */,
 				1B5CD2A41C026110EA79DF51 /* ServerError.swift in Sources */,
 				1B5CD9D76478A02C040E3D57 /* RequestError.swift in Sources */,
-				1B5CD0231747F5BA7C41899A /* RequestErrorHandlingService.swift in Sources */,
 				1B5CD19AE3BE12438905DFD8 /* BaseRequest.swift in Sources */,
 				1B5CDEA243B93AC147A1212F /* Retryable.swift in Sources */,
 				1B5CD6E97A30FED7763EC549 /* Cancellable.swift in Sources */,

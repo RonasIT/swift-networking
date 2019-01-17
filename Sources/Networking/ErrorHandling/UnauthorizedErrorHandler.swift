@@ -5,23 +5,16 @@
 
 import Alamofire
 
-protocol UnauthorizedErrorHandlerInput: AnyObject {
+public final class UnauthorizedErrorHandler: ErrorHandler {
 
-    func unauthorizedErrorResolved()
-    func unauthorizedErrorResolvingFailed(with error: Error)
-}
+    private let sessionService: SessionServiceProtocol
 
-protocol UnauthorizedErrorHandlerOutput: AnyObject {
-
-    func unauthorizedErrorHandlerDidReceiveError(_ input: UnauthorizedErrorHandlerInput)
-}
-
-final class UnauthorizedErrorHandler: ErrorHandler {
-
-    public weak var output: UnauthorizedErrorHandlerOutput?
-
-    private var isWaitingResolution: Bool = false
+    private var isRefreshingToken: Bool = false
     private var items: [AuthorizationErrorHandlerItem] = []
+
+    public init(sessionService: SessionServiceProtocol) {
+        self.sessionService = sessionService
+    }
 
     public func canHandleError<T>(_ error: RequestError<T>) -> Bool {
         guard let statusCode = error.response.response?.statusCode else {
@@ -35,15 +28,24 @@ final class UnauthorizedErrorHandler: ErrorHandler {
             completion(.continueFailure(with: error.underlyingError))
             return
         }
-
         items.append(AuthorizationErrorHandlerItem(error: error.underlyingError, completion: completion))
-        if !isWaitingResolution {
-            output?.unauthorizedErrorHandlerDidReceiveError(self)
-            isWaitingResolution = true
-        }
+        refreshTokenIfNeeded()
     }
 
     // MARK: - Private
+
+    private func refreshTokenIfNeeded() {
+        guard !isRefreshingToken else {
+            return
+        }
+
+        isRefreshingToken = true
+        sessionService.refreshAuthToken(success: { [weak self] in
+            self?.finish(isErrorResolved: true)
+        }, failure: { [weak self] _ in
+            self?.finish(isErrorResolved: false)
+        })
+    }
 
     private func finish(isErrorResolved: Bool) {
         items.removeAll { item in
@@ -54,19 +56,7 @@ final class UnauthorizedErrorHandler: ErrorHandler {
             }
             return true
         }
-    }
-}
-
-// MARK: - RequestAuthErrorHandlerInput
-
-extension UnauthorizedErrorHandler: UnauthorizedErrorHandlerInput {
-
-    func unauthorizedErrorResolvingFailed(with error: Error) {
-        finish(isErrorResolved: false)
-    }
-
-    func unauthorizedErrorResolved() {
-        finish(isErrorResolved: true)
+        isRefreshingToken = false
     }
 }
 

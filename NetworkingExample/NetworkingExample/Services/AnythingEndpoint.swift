@@ -7,10 +7,10 @@ import Foundation
 import Alamofire
 import Networking
 
-enum AnythingEndpoint: Endpoint {
-    case fetchSlideshow
-    case postContact(Contact)
-    case authorizedRequest
+enum ApiEndpoint: Endpoint {
+    case json
+    case anything(Codable)
+    case bearer
 
     var baseURL: URL {
         return URL(string: "https://httpbin.org/")!
@@ -18,22 +18,16 @@ enum AnythingEndpoint: Endpoint {
 
     var path: String {
         switch self {
-        case .fetchSlideshow:
-            return "json"
-        case .postContact:
-            return "anything"
-        case .authorizedRequest:
-            return "bearer"
-
+        case .anything, .json:  return "anything"
+        case .bearer:           return "bearer"
         }
     }
 
     var method: HTTPMethod {
         switch self {
-        case .authorizedRequest,
-             .fetchSlideshow:
+        case .bearer, .json:
             return .get
-        case .postContact:
+        case .anything:
             return .post
         }
     }
@@ -44,8 +38,8 @@ enum AnythingEndpoint: Endpoint {
 
     var parameters: Parameters? {
         switch self {
-        case .postContact(let contact):
-            return try? contact.asDictionary()
+        case .anything(let object):
+            return try? object.asDictionary()
         default:
             return nil
         }

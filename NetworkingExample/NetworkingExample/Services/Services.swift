@@ -22,7 +22,7 @@ final class MainServices: HasServices {
     }()
 
     lazy var apiErrorHandlingService: ErrorHandlingServiceProtocol = {
-        return RequestErrorHandlingService(sessionService: sessionService)
+        return ApiErrorHandlingService(sessionService: sessionService)
     }()
 
     lazy var apiService: ApiServiceProtocol = {
