@@ -18,17 +18,16 @@ enum ApiEndpoint: Endpoint {
 
     var path: String {
         switch self {
-        case .anything, .json:  return "anything"
-        case .bearer:           return "bearer"
+        case .anything:     return "anything"
+        case .json:         return "json"
+        case .bearer:       return "bearer"
         }
     }
 
     var method: HTTPMethod {
         switch self {
-        case .bearer, .json:
-            return .get
-        case .anything:
-            return .post
+        case .bearer, .json:    return .get
+        case .anything:         return .post
         }
     }
 

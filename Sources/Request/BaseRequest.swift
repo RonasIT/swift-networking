@@ -30,11 +30,6 @@ class BaseRequest<Result>: CancellableRequest, AdaptiveRequest, Retryable {
         headers = endpoint.headers
     }
 
-    deinit {
-        #warning("Remove logging")
-        print("\(self) \(#function)")
-    }
-
     func response(completion: @escaping Completion) {
         fatalError("\(#function) is abstract")
     }
