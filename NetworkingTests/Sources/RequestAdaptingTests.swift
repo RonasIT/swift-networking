@@ -91,6 +91,6 @@ final class RequestAdaptingTests: XCTestCase {
             print("test")
         })
 
-        wait(for: [requestAdaptedOnRetryExpectation], timeout: 999)
+        wait(for: [requestAdaptedOnRetryExpectation], timeout: 10)
     }
 }
