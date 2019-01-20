@@ -1,6 +1,6 @@
-# 🌐  Networking
+# Networking
 
-Networking is network abstraction layer built on top of [Alamofire](https://github.com/Alamofire/Alamofire).
+Networking is a network abstraction layer built on top of [Alamofire](https://github.com/Alamofire/Alamofire).
 
 ## Features
 
@@ -18,7 +18,7 @@ Networking is network abstraction layer built on top of [Alamofire](https://gith
 
 ### Making a Request
 
-To implement requests with specific endpoint you need subclass `NetworkService`, like this:
+To send requests with specific endpoint you need to subclass `NetworkService`, like this:
 
 ```swift
 import Networking
