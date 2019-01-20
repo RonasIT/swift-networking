@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1B5CD3614F0488C969CD1730 /* NotFoundErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD4C04C92CA40043A47BB /* NotFoundErrorHandler.swift */; };
 		1B5CD4343BBB636A9E934DD7 /* Services.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDCEE89D3F942D9208291 /* Services.swift */; };
+		1B5CD4972D94A8315E5D7326 /* AnythingEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD3424A3FA444FAF08350 /* AnythingEndpoint.swift */; };
 		1B5CD6420AD30723F1FBA9C7 /* ApiServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD7A77AA94B17B1CC4207 /* ApiServiceProtocol.swift */; };
 		1B5CD6552FF55CF3DCCA7576 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD798FEE0A9637495E9F0 /* ApiService.swift */; };
 		1B5CD7A6D41BF01DC44244A2 /* SessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDB608461F3A02436243F /* SessionService.swift */; };
@@ -24,7 +25,6 @@
 		6D873D48216E29D400AF9B9E /* Slideshow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D873D47216E29D400AF9B9E /* Slideshow.swift */; };
 		6D873D4A216E2B3A00AF9B9E /* SlideshowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D873D49216E2B3A00AF9B9E /* SlideshowViewController.swift */; };
 		6D873D4C216E2FC800AF9B9E /* SlideCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D873D4B216E2FC800AF9B9E /* SlideCollectionViewCell.swift */; };
-		6DAAF0DC216C93D10003B3A7 /* AnythingEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0DB216C93D10003B3A7 /* AnythingEndpoint.swift */; };
 		6DAAF0E0216C96D40003B3A7 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DAAF0DF216C96D40003B3A7 /* Alamofire.framework */; };
 		6DAAF0E3216CA9230003B3A7 /* ContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0E2216CA9230003B3A7 /* ContactViewController.swift */; };
 		6DAAF0E5216CAA540003B3A7 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAF0E4216CAA540003B3A7 /* ActivityView.swift */; };
@@ -36,6 +36,7 @@
 
 /* Begin PBXFileReference section */
 		1B5CD113296DD40C09F1BE30 /* ApiErrorHandlingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiErrorHandlingService.swift; sourceTree = "<group>"; };
+		1B5CD3424A3FA444FAF08350 /* AnythingEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnythingEndpoint.swift; sourceTree = "<group>"; };
 		1B5CD3C3FC1C3F89DEFB48D9 /* ApiRequestAdaptingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiRequestAdaptingService.swift; sourceTree = "<group>"; };
 		1B5CD4C04C92CA40043A47BB /* NotFoundErrorHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotFoundErrorHandler.swift; sourceTree = "<group>"; };
 		1B5CD606D2FBA893A6455ADE /* SessionServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionServiceProtocol.swift; sourceTree = "<group>"; };
@@ -54,7 +55,6 @@
 		6D873D47216E29D400AF9B9E /* Slideshow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Slideshow.swift; sourceTree = "<group>"; };
 		6D873D49216E2B3A00AF9B9E /* SlideshowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideshowViewController.swift; sourceTree = "<group>"; };
 		6D873D4B216E2FC800AF9B9E /* SlideCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideCollectionViewCell.swift; sourceTree = "<group>"; };
-		6DAAF0DB216C93D10003B3A7 /* AnythingEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnythingEndpoint.swift; sourceTree = "<group>"; };
 		6DAAF0DF216C96D40003B3A7 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = ../Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
 		6DAAF0E2216CA9230003B3A7 /* ContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactViewController.swift; sourceTree = "<group>"; };
 		6DAAF0E4216CAA540003B3A7 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
@@ -82,6 +82,7 @@
 			children = (
 				1B5CD7A77AA94B17B1CC4207 /* ApiServiceProtocol.swift */,
 				1B5CD798FEE0A9637495E9F0 /* ApiService.swift */,
+				1B5CD3424A3FA444FAF08350 /* AnythingEndpoint.swift */,
 			);
 			path = Api;
 			sourceTree = "<group>";
@@ -186,7 +187,6 @@
 		6DAAF0EC216CAE680003B3A7 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				6DAAF0DB216C93D10003B3A7 /* AnythingEndpoint.swift */,
 				1B5CDCEE89D3F942D9208291 /* Services.swift */,
 				1B5CD64826EA2F3E5CD1C8C7 /* RequestAdapting */,
 				1B5CD037F62CFF6899D6EA24 /* Api */,
@@ -309,7 +309,6 @@
 				6DAAF0F2216CC4E50003B3A7 /* UIAlertController+Actions.swift in Sources */,
 				6DAAF0E3216CA9230003B3A7 /* ContactViewController.swift in Sources */,
 				6DAAF0E5216CAA540003B3A7 /* ActivityView.swift in Sources */,
-				6DAAF0DC216C93D10003B3A7 /* AnythingEndpoint.swift in Sources */,
 				6D3EF79521676A2F00251869 /* AppDelegate.swift in Sources */,
 				6D873D4A216E2B3A00AF9B9E /* SlideshowViewController.swift in Sources */,
 				6DAAF0F0216CBC730003B3A7 /* Contact.swift in Sources */,
@@ -321,6 +320,7 @@
 				1B5CD911B73E709DB35684EC /* SessionServiceProtocol.swift in Sources */,
 				1B5CDA43302D371CC46F27CA /* ApiErrorHandlingService.swift in Sources */,
 				1B5CD3614F0488C969CD1730 /* NotFoundErrorHandler.swift in Sources */,
+				1B5CD4972D94A8315E5D7326 /* AnythingEndpoint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

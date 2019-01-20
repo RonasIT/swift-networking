@@ -5,6 +5,8 @@
 
 import Foundation
 
+#warning("Remove ServerError?")
+
 final class ServerError: Codable {
     let code: String
     let description: String

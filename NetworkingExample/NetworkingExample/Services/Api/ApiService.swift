@@ -9,7 +9,7 @@ final class ApiService: NetworkService, ApiServiceProtocol {
 
     @discardableResult
     func fetchSlideshow(success: @escaping (Slideshow) -> Void, failure: @escaping Failure) -> CancellableRequest {
-        return request(for: ApiEndpoint.json, success: { (result: SlideshowResponse) in
+        return request(for: AnythingEndpoint.fetchSlideshow, success: { (result: SlideshowResponse) in
             success(result.slideshow)
         }, failure: { error in
             failure(error)
@@ -18,7 +18,7 @@ final class ApiService: NetworkService, ApiServiceProtocol {
 
     @discardableResult
     func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: @escaping Failure) -> CancellableRequest {
-        return request(for: ApiEndpoint.anything(contact), success: { (result: ContactResponse) in
+        return request(for: AnythingEndpoint.postContact(contact), success: { (result: ContactResponse) in
             success(result.form)
         }, failure: { error in
             failure(error)

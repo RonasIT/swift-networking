@@ -5,6 +5,8 @@
 
 import Foundation
 
+#warning("Remove EndpointError?")
+
 public protocol EndpointError {
     func error(for code: String, description: String?) -> Error?
 }
