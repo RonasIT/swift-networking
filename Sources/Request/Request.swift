@@ -12,18 +12,17 @@ final class Request<Result>: BaseRequest<Result> {
 
     override func response(completion: @escaping Completion) {
         self.completion = completion
-        let request = sessionManager.request(endpoint.url,
-                                             method: endpoint.method,
-                                             parameters: endpoint.parameters,
-                                             encoding: endpoint.parameterEncoding,
-                                             headers: headers.httpHeaders).validate()
-        request.response(responseSerializer: responseSerializer, completionHandler: completion)
+        request = sessionManager.request(endpoint.url,
+                                         method: endpoint.method,
+                                         parameters: endpoint.parameters,
+                                         encoding: endpoint.parameterEncoding,
+                                         headers: headers.httpHeaders).validate()
+        request?.response(responseSerializer: responseSerializer, completionHandler: completion)
     }
 
     override func cancel() {
         request?.cancel()
         request = nil
-        completion = nil
     }
 
     override func retry() {

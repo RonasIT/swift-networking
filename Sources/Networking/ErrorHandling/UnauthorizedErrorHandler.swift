@@ -24,10 +24,6 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
     }
 
     public func handleError<T>(_ error: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
-        guard canHandleError(error) else {
-            completion(.continueFailure(with: error.underlyingError))
-            return
-        }
         items.append(AuthorizationErrorHandlerItem(error: error.underlyingError, completion: completion))
         refreshTokenIfNeeded()
     }

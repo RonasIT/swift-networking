@@ -17,7 +17,4 @@ protocol ApiServiceProtocol {
 
     @discardableResult
     func postContact(_ contact: Contact, success: @escaping (Contact) -> Void, failure: @escaping Failure) -> CancellableRequest
-
-    @discardableResult
-    func tokenRefreshExample(success: @escaping () -> Void, failure: @escaping Failure) -> CancellableRequest
 }

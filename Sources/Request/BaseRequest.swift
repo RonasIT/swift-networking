@@ -5,12 +5,14 @@
 
 import Alamofire
 
-public protocol CancellableRequest: AnyObject, Cancellable {
+public protocol CancellableRequest: AnyObject {
 
     var endpoint: Endpoint { get }
+
+    func cancel()
 }
 
-class BaseRequest<Result>: CancellableRequest, AdaptiveRequest, Retryable {
+class BaseRequest<Result>: CancellableRequest, AdaptiveRequest {
 
     typealias Completion = (DataResponse<Result>) -> Void
 

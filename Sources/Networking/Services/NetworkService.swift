@@ -48,7 +48,6 @@ open class NetworkService {
             guard let `self` = self, let `request` = request else {
                 return
             }
-
             switch response.result {
             case .failure(let error):
                 self.handleResponseError(error, response: response, request: request, failure: failure)
@@ -69,14 +68,16 @@ open class NetworkService {
         }
 
         let requestError = RequestError(endpoint: request.endpoint, underlyingError: error, response: response)
-        errorHandlingService.handleError(requestError) { result in
+        errorHandlingService.handleError(requestError) { [weak self] result in
+            guard let `self` = self else {
+                return
+            }
             switch result {
             case .continueFailure(let error):
                 failure(error)
             case .retryNeeded:
+                self.requestAdaptingService?.adapt(request)
                 request.retry()
-            case .ignoreFailure:
-                return
             }
         }
     }
@@ -120,6 +121,16 @@ extension NetworkService {
         let responseSerializer: DataResponseSerializer<[Key: Value]> = DataRequest.jsonResponseSerializer(with: readingOptions)
         return request(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
     }
+
+    @discardableResult
+    public func request(for endpoint: Endpoint,
+                        success: @escaping Success<Void>,
+                        failure: @escaping Failure) -> CancellableRequest {
+        let responseSerializer = DataRequest.dataResponseSerializer()
+        return request(for: endpoint, responseSerializer: responseSerializer, success: { _ in
+            success(())
+        }, failure: failure)
+    }
 }
 
 // MARK: - Upload requests
@@ -127,37 +138,47 @@ extension NetworkService {
 extension NetworkService {
 
     @discardableResult
-    public func uploadRequest(for uploadEndpoint: UploadEndpoint,
+    public func uploadRequest(for endpoint: UploadEndpoint,
                               encoding: String.Encoding? = nil,
                               success: @escaping Success<String>,
                               failure: @escaping Failure) -> CancellableRequest {
         let responseSerializer = DataRequest.stringResponseSerializer(encoding: encoding)
-        return uploadRequest(for: uploadEndpoint, responseSerializer: responseSerializer, success: success, failure: failure)
+        return uploadRequest(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
     }
 
     @discardableResult
-    public func uploadRequest(for uploadEndpoint: UploadEndpoint,
+    public func uploadRequest(for endpoint: UploadEndpoint,
                               success: @escaping Success<Data>,
                               failure: @escaping Failure) -> CancellableRequest {
         let responseSerializer = DataRequest.dataResponseSerializer()
-        return uploadRequest(for: uploadEndpoint, responseSerializer: responseSerializer, success: success, failure: failure)
+        return uploadRequest(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
     }
 
     @discardableResult
-    public func uploadRequest<Object>(for uploadEndpoint: UploadEndpoint,
+    public func uploadRequest<Object>(for endpoint: UploadEndpoint,
                                       decoder: JSONDecoder = JSONDecoder(),
                                       success: @escaping Success<Object>,
                                       failure: @escaping Failure) -> CancellableRequest where Object: Decodable {
         let responseSerializer: DataResponseSerializer<Object> = DataRequest.decodableResponseSerializer(with: decoder)
-        return uploadRequest(for: uploadEndpoint, responseSerializer: responseSerializer, success: success, failure: failure)
+        return uploadRequest(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
     }
 
     @discardableResult
-    public func uploadRequest<Key, Value>(for uploadEndpoint: UploadEndpoint,
+    public func uploadRequest<Key, Value>(for endpoint: UploadEndpoint,
                                           readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
                                           success: @escaping Success<[Key: Value]>,
                                           failure: @escaping Failure) -> CancellableRequest where Key: Hashable, Value: Any {
         let responseSerializer: DataResponseSerializer<[Key: Value]> = DataRequest.jsonResponseSerializer(with: readingOptions)
-        return uploadRequest(for: uploadEndpoint, responseSerializer: responseSerializer, success: success, failure: failure)
+        return uploadRequest(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
+    }
+
+    @discardableResult
+    public func uploadRequest(for endpoint: UploadEndpoint,
+                              success: @escaping Success<Void>,
+                              failure: @escaping Failure) -> CancellableRequest {
+        let responseSerializer = DataRequest.dataResponseSerializer()
+        return uploadRequest(for: endpoint, responseSerializer: responseSerializer, success: { _ in
+            success(())
+        }, failure: failure)
     }
 }

@@ -9,7 +9,7 @@ class ReachabilityService {
 
     var handler: ((Bool) -> Void)?
 
-    private let reachabilityManager = Alamofire.NetworkReachabilityManager()
+    private let reachabilityManager = NetworkReachabilityManager()
 
     // MARK: - Reachable status
 

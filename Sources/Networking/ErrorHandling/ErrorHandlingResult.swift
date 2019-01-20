@@ -6,5 +6,4 @@
 public enum ErrorHandlingResult {
     case continueFailure(with: Error)
     case retryNeeded
-    case ignoreFailure
 }

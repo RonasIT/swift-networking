@@ -11,6 +11,7 @@ enum ApiEndpoint: Endpoint {
     case json
     case anything(Codable)
     case bearer
+    case status(Int)
 
     var baseURL: URL {
         return URL(string: "https://httpbin.org/")!
@@ -18,16 +19,23 @@ enum ApiEndpoint: Endpoint {
 
     var path: String {
         switch self {
-        case .anything:     return "anything"
-        case .json:         return "json"
-        case .bearer:       return "bearer"
+        case .anything:
+            return "anything"
+        case .json:
+            return "json"
+        case .bearer:
+            return "bearer"
+        case .status(let statusCode):
+            return "status/\(statusCode)"
         }
     }
 
     var method: HTTPMethod {
         switch self {
-        case .bearer, .json:    return .get
-        case .anything:         return .post
+        case .bearer, .json, .status:
+            return .get
+        case .anything:
+            return .post
         }
     }
 
@@ -48,4 +56,3 @@ enum ApiEndpoint: Endpoint {
         return URLEncoding.default
     }
 }
-

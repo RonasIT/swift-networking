@@ -10,8 +10,8 @@ final class UploadRequest<Result>: BaseRequest<Result> {
     private let imageBodyParts: [ImageBodyPart]
 
     private var completion: Completion?
-    private var isCancelled: Bool = false
     private var request: DataRequest?
+    private var isCancelled: Bool = false
 
     init(sessionManager: SessionManager, endpoint: UploadEndpoint, responseSerializer: DataResponseSerializer<Result>) {
         self.imageBodyParts = endpoint.imageBodyParts
@@ -20,15 +20,16 @@ final class UploadRequest<Result>: BaseRequest<Result> {
 
     override func response(completion: @escaping Completion) {
         self.completion = completion
-        self.request = nil
         start(sending: { request in
             guard !self.isCancelled else {
+                self.failAsCancelled()
                 return
             }
             self.request = request
             request.response(responseSerializer: self.responseSerializer, completionHandler: completion)
         }, failure: { error in
             guard !self.isCancelled else {
+                self.failAsCancelled()
                 return
             }
             completion(DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
@@ -45,14 +46,16 @@ final class UploadRequest<Result>: BaseRequest<Result> {
         isCancelled = true
         request?.cancel()
         request = nil
-        completion = nil
     }
 
     // MARK: - Private
 
     private func start(sending: @escaping (DataRequest) -> Void, failure: @escaping (Error) -> Void) {
-        isCancelled = false
         let multipartFormDataHandler = { (multipartFormData: MultipartFormData) in
+            guard !self.isCancelled else {
+                self.failAsCancelled()
+                return
+            }
             multipartFormData.appendImageBodyParts(self.imageBodyParts)
             if let parameters = self.endpoint.parameters {
                 multipartFormData.appendParametersBodyParts(parameters)
@@ -60,6 +63,7 @@ final class UploadRequest<Result>: BaseRequest<Result> {
         }
         let encodingCompletion = { (encodingResult: SessionManager.MultipartFormDataEncodingResult) in
             guard !self.isCancelled else {
+                self.failAsCancelled()
                 return
             }
             switch encodingResult {
@@ -76,5 +80,14 @@ final class UploadRequest<Result>: BaseRequest<Result> {
                               method: .post,
                               headers: headers.httpHeaders,
                               encodingCompletion: encodingCompletion)
+    }
+
+    private func failAsCancelled() {
+        guard let completion = completion else {
+            return
+        }
+        let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled)
+        completion(DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
+        self.completion = nil
     }
 }

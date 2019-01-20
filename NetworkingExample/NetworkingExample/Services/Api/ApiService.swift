@@ -24,15 +24,6 @@ final class ApiService: NetworkService, ApiServiceProtocol {
             failure(error)
         })
     }
-
-    @discardableResult
-    func tokenRefreshExample(success: @escaping () -> Void, failure: @escaping Failure) -> CancellableRequest {
-        return request(for: ApiEndpoint.bearer, success: { (response: AuthorizedRequestResponse) in
-            success()
-        }, failure: { error in
-            failure(error)
-        })
-    }
 }
 
 private final class SlideshowResponse: Decodable {
@@ -41,9 +32,4 @@ private final class SlideshowResponse: Decodable {
 
 private final class ContactResponse: Decodable {
     let form: Contact
-}
-
-private final class AuthorizedRequestResponse: Decodable {
-    let authenticated: Bool
-    let token: String
 }
