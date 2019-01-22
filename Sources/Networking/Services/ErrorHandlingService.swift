@@ -17,58 +17,53 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
     }
 
     public func handleError<T>(_ requestError: RequestError<T>, retrying: @escaping () -> Void, failure: @escaping Failure) {
-        var previousErrorHandler: ErrorHandler?
-        func handleErrorRecursive<T>(_ error: RequestError<T>) {
-            guard let errorHandler = nextErrorHandler(for: error, previousErrorHandler: previousErrorHandler) else {
-                failure(requestError.underlyingError)
-                return
-            }
-
-            errorHandler.handleError(requestError) { result in
-                switch result {
-                case .continueErrorHandling(with: let error):
-                    let updatedRequestError = RequestError(endpoint: requestError.endpoint,
-                                                           underlyingError: error,
-                                                           response: requestError.response)
-                    handleErrorRecursive(updatedRequestError)
-                case .continueFailure(with: let error):
-                    failure(error)
-                case .retryNeeded:
-                    retrying()
-                }
-            }
+        guard let errorHandler = errorHandlers.first else {
+            failure(requestError.underlyingError)
+            return
         }
 
-        handleErrorRecursive(requestError)
+        handleErrorRecursive(requestError, errorHandler: errorHandler, retrying: retrying, failure: failure)
     }
 
     // MARK: - Private
 
-    private func nextErrorHandler<T>(for requestError: RequestError<T>,
-                                     previousErrorHandler: ErrorHandler? = nil) -> ErrorHandler? {
-        #warning("FIXME")
-        fatalError()
-//        var startIndex = 0
-//
-//        // Update start index if needed
-//        if let previousErrorHandler = previousErrorHandler {
-//            let previousErrorHandlerIndexOrNil = errorHandlers.firstIndex { $0 === previousErrorHandler }
-//            if let previousErrorHandlerIndex = previousErrorHandlerIndexOrNil {
-//                startIndex = previousErrorHandlerIndex
-//            }
-//        }
-//
-//        // Find index of appropriate error handler from unchecked error handlers
-//        let uncheckedErrorHandlers = errorHandlers[startIndex..<errorHandlers.count]
-//        let errorHandlerIndexOrNil = uncheckedErrorHandlers.firstIndex { errorHandler in
-//            return errorHandler.canHandleError(requestError)
-//        }
-//
-//        if let errorHandlerIndex = errorHandlerIndexOrNil {
-//            // Error handler found
-//            return errorHandlers[errorHandlerIndex]
-//        } else {
-//            return nil
-//        }
+    private func handleErrorRecursive<T>(_ requestError: RequestError<T>,
+                                         errorHandler: ErrorHandler,
+                                         retrying: @escaping () -> Void,
+                                         failure: @escaping Failure) {
+        var nextErrorHandler: ErrorHandler?
+        if errorHandler !== errorHandlers.last {
+            let errorHandlerIndexOrNil = errorHandlers.firstIndex { $0 === errorHandler }
+            if let errorHandlerIndex = errorHandlerIndexOrNil {
+                nextErrorHandler = errorHandlers[errorHandlerIndex + 1]
+            }
+        }
+
+        errorHandler.handleError(requestError) { [weak self] result in
+            guard let `self` = self else {
+                return
+            }
+
+            switch result {
+            case .retryNeeded:
+                retrying()
+            case .continueFailure(with: let error):
+                failure(error)
+            case .continueErrorHandling(with: let error):
+                guard let nextErrorHandler = nextErrorHandler else {
+                    failure(error)
+                    return
+                }
+
+                // In this case current error handler return result with new error (underlyingError of RequestError)
+                // Which we should be sent to the next error handler
+                let newError = RequestError(endpoint: requestError.endpoint, underlyingError: error, response: requestError.response)
+                self.handleErrorRecursive(newError,
+                                          errorHandler: nextErrorHandler,
+                                          retrying: retrying,
+                                          failure: failure)
+            }
+        }
+
     }
 }

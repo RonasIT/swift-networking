@@ -7,6 +7,11 @@ import XCTest
 import Networking
 import Alamofire
 
+private enum PartialErrorHandlingChainTestKind {
+    case testWithFailure
+    case testWithRetry
+}
+
 final class ErrorHandlingTests: XCTestCase {
 
     private var request: CancellableRequest?
@@ -24,40 +29,66 @@ final class ErrorHandlingTests: XCTestCase {
     }
 
     func testFullErrorHandlingChain() {
-        let errors = [MockError(), MockError(), MockError()]
-        var errorHandlers = [ErrorHandler]()
-        errorHandlers.reserveCapacity(errors.count)
-        for i in 0..<errors.count {
-            let previousError: MockError? = i > 0 ? errors[i - 1] : nil
-            errorHandlers.append(MockErrorHandler { error, completion in
-                // Validate error if we have expected error
-                if let expectedError = previousError {
-                    guard let error = error as? MockError else {
-                        XCTFail("Test uses mock errors")
-                        return
-                    }
-                    XCTAssertTrue(error === expectedError)
-                }
-                completion(.continueErrorHandling(with: errors[i]))
-            })
-        }
-
         let errorHandlingTriggeredExpectation = expectation(description: "Expecting error handling triggered multiple times")
         errorHandlingTriggeredExpectation.assertForOverFulfill = true
-        errorHandlingTriggeredExpectation.expectedFulfillmentCount = errors.count
+
+        let failureTriggeredExpectation = expectation(description: "Expecting request failure")
+        failureTriggeredExpectation.expectedFulfillmentCount = 1
+        failureTriggeredExpectation.assertForOverFulfill = true
+
+        let firstError = MockError()
+        let secondError = MockError()
+        let thirdError = MockError()
+        errorHandlingTriggeredExpectation.expectedFulfillmentCount = 3
+
+        let errorHandlers = [
+            MockErrorHandler { error, completion in
+                errorHandlingTriggeredExpectation.fulfill()
+                completion(.continueErrorHandling(with: firstError))
+            },
+            MockErrorHandler { error, completion in
+                guard let error = error as? MockError else {
+                    XCTFail("Test uses mock errors")
+                    return
+                }
+                XCTAssertTrue(error === firstError)
+                errorHandlingTriggeredExpectation.fulfill()
+                completion(.continueErrorHandling(with: secondError))
+            },
+            MockErrorHandler { error, completion in
+                guard let error = error as? MockError else {
+                    XCTFail("Test uses mock errors")
+                    return
+                }
+                XCTAssertTrue(error === secondError)
+                errorHandlingTriggeredExpectation.fulfill()
+                completion(.continueErrorHandling(with: thirdError))
+            }
+        ]
 
         let errorHandlingService = ErrorHandlingService(errorHandlers: errorHandlers)
         let networkService = NetworkService(errorHandlingService: errorHandlingService)
         request = networkService.request(for: HTTPBinEndpoint.status(500), success: {
-
+            XCTFail("Invalid case")
         }, failure: { error in
-            guard let error = error as? MockError,
-                  let expectedError = errors.last else {
-                XCTFail("Invalid case")
+            guard let error = error as? MockError else {
+                XCTFail("Test uses mock errors")
                 return
             }
-            XCTAssertTrue(error === expectedError)
+            XCTAssertTrue(error === thirdError)
+            failureTriggeredExpectation.fulfill()
         })
+
+        let expectations = [errorHandlingTriggeredExpectation, failureTriggeredExpectation]
+        wait(for: expectations, timeout: 10, enforceOrder: true)
+    }
+
+    func testPartialErrorHandlingChainWithFailure() {
+        testPartialErrorHandlingChain(testKind: .testWithFailure)
+    }
+    
+    func testPartialErrorHandlingChainWithRetry() {
+        testPartialErrorHandlingChain(testKind: .testWithRetry)
     }
 
     func testFailureWithoutErrorHandling() {
@@ -73,5 +104,72 @@ final class ErrorHandlingTests: XCTestCase {
         })
 
         wait(for: [failureExpectation], timeout: 10)
+    }
+
+    // MARK: - Private
+
+    private func testPartialErrorHandlingChain(testKind: PartialErrorHandlingChainTestKind) {
+        let errorHandlingTriggeredExpectation = XCTestExpectation(description: "Expecting error handling triggered multiple times")
+        errorHandlingTriggeredExpectation.assertForOverFulfill = true
+
+        let failureTriggeredExpectation = XCTestExpectation(description: "Expecting request failure")
+        failureTriggeredExpectation.assertForOverFulfill = true
+
+        let firstError = MockError()
+        let secondError = MockError()
+        errorHandlingTriggeredExpectation.expectedFulfillmentCount = 2
+
+        let errorHandlers = [
+            MockErrorHandler { error, completion in
+                errorHandlingTriggeredExpectation.fulfill()
+                completion(.continueErrorHandling(with: firstError))
+            },
+            MockErrorHandler { error, completion in
+                guard let error = error as? MockError else {
+                    XCTFail("Test uses mock errors")
+                    return
+                }
+                XCTAssertTrue(error === firstError)
+                errorHandlingTriggeredExpectation.fulfill()
+
+                switch testKind {
+                case .testWithFailure:
+                    completion(.continueFailure(with: secondError))
+                case .testWithRetry:
+                    completion(.retryNeeded)
+                }
+            },
+            MockErrorHandler { _, _ in
+                XCTFail("Error handling should be interrupted on second error handler")
+            }
+        ]
+
+        let errorHandlingService = ErrorHandlingService(errorHandlers: errorHandlers)
+        let networkService = NetworkService(errorHandlingService: errorHandlingService)
+        request = networkService.request(for: HTTPBinEndpoint.status(500), success: {
+            XCTFail("Invalid case")
+        }, failure: { error in
+            switch testKind {
+            case .testWithFailure:
+                guard let error = error as? MockError else {
+                    XCTFail("Test uses mock errors")
+                    return
+                }
+                XCTAssertTrue(error === secondError)
+            case .testWithRetry:
+                XCTFail("Retry error handling result should't trigger request failure")
+            }
+            failureTriggeredExpectation.fulfill()
+        })
+
+        var expectations: [XCTestExpectation]
+        switch testKind {
+        case .testWithFailure:
+            expectations = [errorHandlingTriggeredExpectation, failureTriggeredExpectation]
+        case .testWithRetry:
+            expectations = [errorHandlingTriggeredExpectation]
+        }
+        
+        wait(for: expectations, timeout: 10, enforceOrder: true)
     }
 }
