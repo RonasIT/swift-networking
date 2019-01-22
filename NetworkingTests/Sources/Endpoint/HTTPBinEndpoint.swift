@@ -95,4 +95,13 @@ enum HTTPBinEndpoint: UploadEndpoint {
             return []
         }
     }
+    
+    var isAuthorized: Bool {
+        switch self {
+        case .bearer:
+            return true
+        default:
+            return false
+        }
+    }
 }

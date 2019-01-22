@@ -20,81 +20,44 @@ final class ErrorHandlingTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         request = nil
-        errorHandler.canHandleError = nil
         errorHandler.errorHandling = nil
     }
-    
-    func testLifecycle() {
-        let canHandleErrorExpectation = expectation(description: "Expecting `canHandleErrorHandler` call")
-        canHandleErrorExpectation.assertForOverFulfill = true
-        let errorHandlingExpectation = expectation(description: "Expecting `errorHandling` call")
-        errorHandlingExpectation.assertForOverFulfill = true
-        let requestFailureExpectation = expectation(description: "Expecting request failure")
-        requestFailureExpectation.assertForOverFulfill = true
-        
-        errorHandler.canHandleError = { error in
-            guard let responseCode = (error as? AFError)?.responseCode else {
-                XCTFail("Invalid error")
-                return false
+
+    func testFullErrorHandlingChain() {
+        let errors = [MockError(), MockError(), MockError()]
+        var errorHandlers = [ErrorHandler]()
+        errorHandlers.reserveCapacity(errors.count)
+        for i in 0..<errors.count {
+            let previousError: MockError? = i > 0 ? errors[i - 1] : nil
+            errorHandlers.append(MockErrorHandler { error, completion in
+                // Validate error if we have expected error
+                if let expectedError = previousError {
+                    guard let error = error as? MockError else {
+                        XCTFail("Test uses mock errors")
+                        return
+                    }
+                    XCTAssertTrue(error === expectedError)
+                }
+                completion(.continueErrorHandling(with: errors[i]))
+            })
+        }
+
+        let errorHandlingTriggeredExpectation = expectation(description: "Expecting error handling triggered multiple times")
+        errorHandlingTriggeredExpectation.assertForOverFulfill = true
+        errorHandlingTriggeredExpectation.expectedFulfillmentCount = errors.count
+
+        let errorHandlingService = ErrorHandlingService(errorHandlers: errorHandlers)
+        let networkService = NetworkService(errorHandlingService: errorHandlingService)
+        request = networkService.request(for: HTTPBinEndpoint.status(500), success: {
+
+        }, failure: { error in
+            guard let error = error as? MockError,
+                  let expectedError = errors.last else {
+                XCTFail("Invalid case")
+                return
             }
-            XCTAssertEqual(responseCode, 404, "404 response code expected")
-            canHandleErrorExpectation.fulfill()
-            return true
-        }
-        errorHandler.errorHandling = { error, completion in
-            errorHandlingExpectation.fulfill()
-            completion(.continueFailure(with: error))
-        }
-        request = networkService.request(for: HTTPBinEndpoint.status(404), success: {
-            XCTFail("Invalid case")
-        }, failure: { error in
-            requestFailureExpectation.fulfill()
+            XCTAssertTrue(error === expectedError)
         })
-        
-        let expectations = [canHandleErrorExpectation, errorHandlingExpectation, requestFailureExpectation]
-        wait(for: expectations, timeout: 10, enforceOrder: true)
-    }
-    
-    func testErrorHandlingShouldNotTriggered() {
-        let requestFailedExpectation = expectation(description: "Expecting request failure")
-        requestFailedExpectation.assertForOverFulfill = true
-
-        errorHandler.canHandleError = { error in
-            return false
-        }
-        errorHandler.errorHandling = { error, completion in
-            XCTFail("Invalid case")
-        }
-        request = networkService.request(for: HTTPBinEndpoint.status(404), success: {
-            XCTFail("Invalid case")
-        }, failure: { _ in
-            requestFailedExpectation.fulfill()
-        })
-
-        wait(for: [requestFailedExpectation], timeout: 10)
-    }
-    
-    func testErrorMapping() {
-        final class MappedError: Error {}
-        
-        let mappedErrorExpectation = expectation(description: "Expecting mapped error")
-        mappedErrorExpectation.assertForOverFulfill = true
-        
-        let mappedError = MappedError()
-        errorHandler.canHandleError = { error in
-            return true
-        }
-        errorHandler.errorHandling = { error, completion in
-            completion(.continueFailure(with: mappedError))
-        }
-        request = networkService.request(for: HTTPBinEndpoint.status(404), success: {
-            XCTFail("Invalid case")
-        }, failure: { error in
-            XCTAssertTrue((error as? MappedError) === mappedError)
-            mappedErrorExpectation.fulfill()
-        })
-        
-        wait(for: [mappedErrorExpectation], timeout: 10)
     }
 
     func testFailureWithoutErrorHandling() {

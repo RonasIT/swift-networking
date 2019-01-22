@@ -21,7 +21,6 @@ final class RequestTests: XCTestCase {
         super.tearDown()
         request = nil
         errorHandler.errorHandling = nil
-        errorHandler.canHandleError = nil
     }
 
     func testCancellation() {

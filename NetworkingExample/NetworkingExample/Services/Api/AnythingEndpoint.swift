@@ -47,4 +47,8 @@ enum AnythingEndpoint: Endpoint {
     var parameterEncoding: ParameterEncoding {
         return URLEncoding.default
     }
+
+    var isAuthorized: Bool {
+        return false
+    }
 }

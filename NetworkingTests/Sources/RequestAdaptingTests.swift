@@ -30,7 +30,6 @@ final class RequestAdaptingTests: XCTestCase {
         super.tearDown()
         request = nil
         requestAdapter.adapting = nil
-        errorHandler.canHandleError = nil
         errorHandler.errorHandling = nil
     }
     
@@ -78,9 +77,6 @@ final class RequestAdaptingTests: XCTestCase {
 
         requestAdapter.adapting = { request in
             requestAdaptedOnRetryExpectation.fulfill()
-        }
-        errorHandler.canHandleError = { _ in
-            return true
         }
         errorHandler.errorHandling = { error, completion in
             completion(.retryNeeded)

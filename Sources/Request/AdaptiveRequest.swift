@@ -5,6 +5,7 @@
 
 public protocol AdaptiveRequest {
 
+    var endpoint: Endpoint { get }
     var headers: [RequestHeader] { get }
 
     func appendHeader(_ header: RequestHeader)

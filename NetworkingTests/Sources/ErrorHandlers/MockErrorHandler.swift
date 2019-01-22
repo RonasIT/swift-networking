@@ -5,13 +5,15 @@
 
 import Networking
 
+final class MockError: Error {}
+
 final class MockErrorHandler: ErrorHandler {
 
-    var canHandleError: ((Error) -> Bool)?
     var errorHandling: ((Error, (ErrorHandlingResult) -> Void) -> Void)?
 
-    func canHandleError<T>(_ error: RequestError<T>) -> Bool {
-        return canHandleError?(error.underlyingError) ?? false
+    convenience init(errorHandling: @escaping ((Error, (ErrorHandlingResult) -> Void) -> Void)) {
+        self.init()
+        self.errorHandling = errorHandling
     }
 
     func handleError<T>(_ error: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {

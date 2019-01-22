@@ -18,6 +18,11 @@ final class MockSessionService: SessionServiceProtocol {
         return token
     }
 
+    var refreshAuthToken: String? {
+        // FIXME: correct
+        return nil
+    }
+
     func clearToken() {
         token = nil
     }

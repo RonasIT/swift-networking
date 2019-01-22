@@ -68,18 +68,9 @@ open class NetworkService {
         }
 
         let requestError = RequestError(endpoint: request.endpoint, underlyingError: error, response: response)
-        errorHandlingService.handleError(requestError) { [weak self] result in
-            guard let `self` = self else {
-                return
-            }
-            switch result {
-            case .continueFailure(let error):
-                failure(error)
-            case .retryNeeded:
-                self.requestAdaptingService?.adapt(request)
-                request.retry()
-            }
-        }
+        errorHandlingService.handleError(requestError, retrying: { [weak request] in
+            request?.retry()
+        }, failure: failure)
     }
 }
 

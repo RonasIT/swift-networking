@@ -16,6 +16,11 @@ final class SessionService: SessionServiceProtocol {
         return nil
     }
 
+    var refreshAuthToken: String? {
+        // FIXME: update code
+        return nil
+    }
+
     func updateToken(to token: String?) {
         self.token = token
     }

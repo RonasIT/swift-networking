@@ -10,6 +10,7 @@ public protocol UploadEndpoint: Endpoint {
 }
 
 public extension UploadEndpoint {
+
     var method: HTTPMethod {
         return .post
     }

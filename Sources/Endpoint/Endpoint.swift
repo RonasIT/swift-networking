@@ -6,13 +6,14 @@
 import Alamofire
 import UIKit.UIDevice
 
-public protocol Endpoint: EndpointError {
+public protocol Endpoint {
     var baseURL: URL { get }
     var path: String { get }
     var method: HTTPMethod { get }
     var headers: [RequestHeader] { get }
     var parameters: Parameters? { get }
     var parameterEncoding: ParameterEncoding { get }
+    var isAuthorized: Bool { get }
 }
 
 public protocol RequestHeader {

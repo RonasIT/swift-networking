@@ -6,6 +6,21 @@
 public protocol SessionServiceProtocol {
 
     var authToken: String? { get }
+    var refreshAuthToken: String? { get }
 
     func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void)
+}
+
+public extension SessionServiceProtocol {
+
+    var authTokenHeader: RequestHeader? {
+        guard let authToken = authToken else {
+            return nil
+        }
+        return RequestHeaders.authorization(authToken)
+    }
+    
+    var refreshAuthTokenHeader: RequestHeader? {
+        return nil
+    }
 }
