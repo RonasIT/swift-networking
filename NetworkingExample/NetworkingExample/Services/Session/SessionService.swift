@@ -8,28 +8,19 @@ import Networking
 
 final class SessionService: SessionServiceProtocol {
 
-    weak var output: SessionServiceOutput?
+    private var token: AuthToken?
 
-    private var token: String?
-
-    var authToken: String? {
-        return nil
-    }
-
-    var refreshAuthToken: String? {
-        // FIXME: update code
-        return nil
-    }
-
-    func updateToken(to token: String?) {
-        self.token = token
+    var authToken: AuthToken? {
+        return token
     }
 
     func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
-        output?.sessionServiceDidStartTokenRefresh()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-            self?.updateToken(to: "token")
-            failure(AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401)))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            let expiryDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
+            self.token = AuthToken(token: "token", expiryDate: expiryDate)
         }
     }
 }

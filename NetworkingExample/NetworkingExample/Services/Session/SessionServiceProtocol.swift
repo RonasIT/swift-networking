@@ -10,12 +10,4 @@ protocol HasSessionService {
     var sessionService: SessionServiceProtocol { get }
 }
 
-protocol SessionServiceProtocol: Networking.SessionServiceProtocol {
-
-    func updateToken(to token: String?)
-}
-
-protocol SessionServiceOutput: AnyObject {
-
-    func sessionServiceDidStartTokenRefresh()
-}
+protocol SessionServiceProtocol: Networking.SessionServiceProtocol {}

@@ -70,8 +70,7 @@ final class MockRequest<Result>: BaseRequest<Result> {
         completion(successResponse())
     }
 
-    private func completeHeadersValidationRequest(with appendedHeaders: [RequestHeader],
-                                                  completion: @escaping Completion) {
+    private func completeHeadersValidationRequest(with appendedHeaders: [RequestHeader], completion: @escaping Completion) {
         appendedHeaders.forEach { header in
             let headerExists = headers.contains { $0.key == header.key && $0.value == header.value }
             guard headerExists else {
