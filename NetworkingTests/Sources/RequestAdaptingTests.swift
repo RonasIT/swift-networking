@@ -21,8 +21,8 @@ final class RequestAdaptingTests: XCTestCase {
     private lazy var networkService: NetworkService = {
         let requestAdaptingService = RequestAdaptingService(requestAdapters: [requestAdapter])
         let errorHandlingService = ErrorHandlingService(errorHandlers: [errorHandler])
-        let networkService = NetworkService(requestAdaptingService: requestAdaptingService,
-                                            errorHandlingService: errorHandlingService)
+        let networkService = MockNetworkService(requestAdaptingService: requestAdaptingService,
+                                                errorHandlingService: errorHandlingService)
         return networkService
     }()
 
@@ -42,33 +42,17 @@ final class RequestAdaptingTests: XCTestCase {
             XCTAssertEqual(request.headers.count, 1)
         }
 
-        let headerReceivedBackExpectation = expectation(description: "Custom header received back")
-        headerReceivedBackExpectation.assertForOverFulfill = true
-        
-        request = networkService.request(for: HTTPBinEndpoint.anythingJSON([:]), success: { (json: [String: Any]) in
-            guard let headers = json["headers"] as? [String: String] else {
-                XCTFail("Invalid response")
-                return
-            }
+        let successExpectation = expectation(description: "Custom header received back")
+        successExpectation.assertForOverFulfill = true
 
-            let headerOrNil = headers.first { header in
-                // Headers can change string case
-                return header.key.caseInsensitiveCompare(customHeader.key) == .orderedSame
-            }
-
-            guard let header = headerOrNil,
-                  // Values can change string case
-                  header.value.caseInsensitiveCompare(customHeader.value) == .orderedSame else {
-                XCTFail("Header not found")
-                return
-            }
-
-            headerReceivedBackExpectation.fulfill()
+        let endpoint = MockEndpoint.headersValidation([customHeader])
+        request = networkService.request(for: endpoint, success: {
+            successExpectation.fulfill()
         }, failure: { _ in
             XCTFail("Invalid case")
         })
 
-        wait(for: [headerReceivedBackExpectation], timeout: 10)
+        wait(for: [successExpectation], timeout: 10)
     }
 
     func testRequestAdaptingOnRetry() {
@@ -81,7 +65,7 @@ final class RequestAdaptingTests: XCTestCase {
         errorHandler.errorHandling = { error, completion in
             completion(.retryNeeded)
         }
-        request = networkService.request(for: HTTPBinEndpoint.status(404), success: {
+        request = networkService.request(for: MockEndpoint.failure, success: {
             print("test")
         }, failure: { _ in
             print("test")

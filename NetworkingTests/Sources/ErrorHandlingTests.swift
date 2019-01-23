@@ -67,8 +67,8 @@ final class ErrorHandlingTests: XCTestCase {
         ]
 
         let errorHandlingService = ErrorHandlingService(errorHandlers: errorHandlers)
-        let networkService = NetworkService(errorHandlingService: errorHandlingService)
-        request = networkService.request(for: HTTPBinEndpoint.status(500), success: {
+        let networkService = MockNetworkService(errorHandlingService: errorHandlingService)
+        request = networkService.request(for: MockEndpoint.failure, success: {
             XCTFail("Invalid case")
         }, failure: { error in
             guard let error = error as? MockError else {
@@ -97,7 +97,7 @@ final class ErrorHandlingTests: XCTestCase {
         let failureExpectation = expectation(description: "Expecting failure response")
         failureExpectation.assertForOverFulfill = true
 
-        request = networkService.request(for: HTTPBinEndpoint.status(404), success: {
+        request = networkService.request(for: MockEndpoint.failure, success: {
             XCTFail("Invalid case")
         }, failure: { _ in
             failureExpectation.fulfill()
@@ -146,7 +146,7 @@ final class ErrorHandlingTests: XCTestCase {
 
         let errorHandlingService = ErrorHandlingService(errorHandlers: errorHandlers)
         let networkService = NetworkService(errorHandlingService: errorHandlingService)
-        request = networkService.request(for: HTTPBinEndpoint.status(500), success: {
+        request = networkService.request(for: MockEndpoint.failure, success: {
             XCTFail("Invalid case")
         }, failure: { error in
             switch testKind {

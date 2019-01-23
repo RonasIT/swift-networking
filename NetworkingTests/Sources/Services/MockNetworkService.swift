@@ -1,0 +1,27 @@
+//
+// Created by Nikita Zatsepilov on 2019-01-23.
+// Copyright (c) 2019 Ronas IT. All rights reserved.
+//
+
+import XCTest
+import Alamofire
+@testable import Networking
+
+final class MockNetworkService: NetworkService {
+
+    override func request<Result>(for endpoint: Endpoint,
+                                  responseSerializer: DataResponseSerializer<Result>,
+                                  success: @escaping Success<Result>,
+                                  failure: @escaping Failure) -> CancellableRequest {
+        let request = MockRequest(endpoint: endpoint, responseSerializer: responseSerializer)
+        return response(for: request, success: success, failure: failure)
+    }
+
+    override func uploadRequest<Result>(for endpoint: UploadEndpoint,
+                                        responseSerializer: DataResponseSerializer<Result>,
+                                        success: @escaping Success<Result>,
+                                        failure: @escaping Failure) -> CancellableRequest {
+        let request = MockRequest(endpoint: endpoint, responseSerializer: responseSerializer)
+        return response(for: request, success: success, failure: failure)
+    }
+}

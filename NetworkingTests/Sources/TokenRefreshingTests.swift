@@ -26,8 +26,8 @@ final class TokenRefreshingTests: XCTestCase {
     }()
 
     private lazy var networkService: NetworkService = {
-        return NetworkService(requestAdaptingService: requestAdaptingService,
-                              errorHandlingService: errorHandlingService)
+        return MockNetworkService(requestAdaptingService: requestAdaptingService,
+                                  errorHandlingService: errorHandlingService)
     }()
     
     private var request: CancellableRequest?
@@ -44,16 +44,14 @@ final class TokenRefreshingTests: XCTestCase {
         let successResponseExpectation = expectation(description: "Expecting success in response")
         successResponseExpectation.assertForOverFulfill = true
 
-        let newToken = "token"
+        let newToken = MockSessionService.Constants.validToken
         sessionService.tokenRefreshHandler = { success, _ in
             tokenRefreshingStartedExpectation.fulfill()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 success?(newToken)
             }
         }
-        request = networkService.request(for: HTTPBinEndpoint.bearer, success: { (response: BearerResponse) in
-            XCTAssertTrue(response.authenticated)
-            XCTAssertEqual(response.token, newToken)
+        request = networkService.request(for: MockEndpoint.authorized, success: {
             successResponseExpectation.fulfill()
         }, failure: { error in
             XCTFail("Invalid case")
@@ -69,25 +67,22 @@ final class TokenRefreshingTests: XCTestCase {
         let failureResponseExpectation = expectation(description: "Expecting failure in response")
         failureResponseExpectation.assertForOverFulfill = true
 
-        let tokenRefreshError = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 500))
+        let tokenRefreshError = MockError()
         sessionService.tokenRefreshHandler = { _, failure in
             tokenRefreshingStartedExpectation.fulfill()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                failure?(tokenRefreshError)
-            }
+            failure?(tokenRefreshError)
         }
-        request = networkService.request(for: HTTPBinEndpoint.bearer, success: { (response: BearerResponse) in
+        request = networkService.request(for: MockEndpoint.authorized, success: {
             XCTFail("Invalid case")
         }, failure: { error in
+            if let error = error as? MockError {
+                XCTAssertFalse(error === tokenRefreshError, "Request shouldn't fail with error of token refreshing")
+            }
+
             failureResponseExpectation.fulfill()
         })
 
         let expectations = [tokenRefreshingStartedExpectation, failureResponseExpectation]
         wait(for: expectations, timeout: 10, enforceOrder: true)
     }
-}
-
-private final class BearerResponse: Codable {
-    let authenticated: Bool
-    let token: String
 }

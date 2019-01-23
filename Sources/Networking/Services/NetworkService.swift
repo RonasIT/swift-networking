@@ -22,27 +22,25 @@ open class NetworkService {
         self.errorHandlingService = errorHandlingService
     }
 
-    // MARK: - Private
-
-    private func request<Result>(for endpoint: Endpoint,
-                                 responseSerializer: DataResponseSerializer<Result>,
-                                 success: @escaping Success<Result>,
-                                 failure: @escaping Failure) -> CancellableRequest {
+    func request<Result>(for endpoint: Endpoint,
+                         responseSerializer: DataResponseSerializer<Result>,
+                         success: @escaping Success<Result>,
+                         failure: @escaping Failure) -> CancellableRequest {
         let request = Request(sessionManager: sessionManager, endpoint: endpoint, responseSerializer: responseSerializer)
         return response(for: request, success: success, failure: failure)
     }
 
-    private func uploadRequest<Result>(for endpoint: UploadEndpoint,
-                                       responseSerializer: DataResponseSerializer<Result>,
-                                       success: @escaping Success<Result>,
-                                       failure: @escaping Failure) -> CancellableRequest {
+    func uploadRequest<Result>(for endpoint: UploadEndpoint,
+                               responseSerializer: DataResponseSerializer<Result>,
+                               success: @escaping Success<Result>,
+                               failure: @escaping Failure) -> CancellableRequest {
         let request = UploadRequest(sessionManager: sessionManager, endpoint: endpoint, responseSerializer: responseSerializer)
         return response(for: request, success: success, failure: failure)
     }
 
-    private func response<Result>(for request: BaseRequest<Result>,
-                                  success: @escaping Success<Result>,
-                                  failure: @escaping Failure) -> CancellableRequest {
+    func response<Result>(for request: BaseRequest<Result>,
+                          success: @escaping Success<Result>,
+                          failure: @escaping Failure) -> CancellableRequest {
         requestAdaptingService?.adapt(request)
         request.response { [weak self, weak request] response in
             guard let `self` = self, let `request` = request else {
@@ -58,25 +56,7 @@ open class NetworkService {
         return request
     }
 
-    private func handleResponseError<Result>(_ error: Error,
-                                             response: DataResponse<Result>,
-                                             request: BaseRequest<Result>,
-                                             failure: @escaping Failure) {
-        guard let errorHandlingService = errorHandlingService else {
-            failure(error)
-            return
-        }
-
-        let requestError = RequestError(endpoint: request.endpoint, underlyingError: error, response: response)
-        errorHandlingService.handleError(requestError, retrying: { [weak request] in
-            request?.retry()
-        }, failure: failure)
-    }
-}
-
-// MARK: - Requests
-
-extension NetworkService {
+    // MARK: - Requests
 
     @discardableResult
     public func request(for endpoint: Endpoint,
@@ -122,11 +102,8 @@ extension NetworkService {
             success(())
         }, failure: failure)
     }
-}
 
-// MARK: - Upload requests
-
-extension NetworkService {
+    // MARK: - Upload requests
 
     @discardableResult
     public func uploadRequest(for endpoint: UploadEndpoint,
@@ -170,6 +147,28 @@ extension NetworkService {
         let responseSerializer = DataRequest.dataResponseSerializer()
         return uploadRequest(for: endpoint, responseSerializer: responseSerializer, success: { _ in
             success(())
+        }, failure: failure)
+    }
+
+    // MARK: - Private
+
+    func handleResponseError<Result>(_ error: Error,
+                                     response: DataResponse<Result>,
+                                     request: BaseRequest<Result>,
+                                     failure: @escaping Failure) {
+        guard let errorHandlingService = errorHandlingService else {
+            failure(error)
+            return
+        }
+
+        let requestError = RequestError(endpoint: request.endpoint, underlyingError: error, response: response)
+        errorHandlingService.handleError(requestError, retrying: { [weak self, weak request] in
+            guard let `self` = self,
+                  let `request` = request else {
+                return
+            }
+            self.requestAdaptingService?.adapt(request)
+            request.retry()
         }, failure: failure)
     }
 }

@@ -7,6 +7,11 @@ import Networking
 
 final class MockSessionService: SessionServiceProtocol {
 
+    enum Constants {
+        static let validToken = "validToken"
+        static let validAuthHeader = RequestHeaders.authorization(validToken)
+    }
+
     typealias TokenRefreshCompletion = (String) -> Void
     typealias TokenRefreshFailure = (Error) -> Void
     
@@ -19,7 +24,6 @@ final class MockSessionService: SessionServiceProtocol {
     }
 
     var refreshAuthToken: String? {
-        // FIXME: correct
         return nil
     }
 
