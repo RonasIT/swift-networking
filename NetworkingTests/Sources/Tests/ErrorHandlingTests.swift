@@ -129,6 +129,28 @@ final class ErrorHandlingTests: XCTestCase {
         wait(for: [failureExpectation], timeout: 10)
     }
 
+    func testErrorHandlingMemoryLeaks() {
+        let lifecycleExpectation = expectation(description: "Expecting nil in weak network service")
+
+        let errorHandler = MockErrorHandler { _, _ in
+            XCTFail("Memory leak happened")
+        }
+
+        var networkService: NetworkService? = NetworkService(errorHandlingService: ErrorHandlingService(errorHandlers: [errorHandler]))
+        weak var weakNetworkService = networkService
+
+        networkService?.request(for: MockEndpoint.failure, success: {
+            XCTFail("Invalid case")
+        }, failure: { _ in
+            XCTFail("Invalid case")
+        })
+        networkService = nil
+
+        _ = XCTWaiter.wait(for: [lifecycleExpectation], timeout: 3)
+        XCTAssertNil(weakNetworkService)
+        lifecycleExpectation.fulfill()
+    }
+
     // MARK: - Private
 
     private func testPartialErrorHandlingChain(testKind: PartialErrorHandlingChainTestKind) {
