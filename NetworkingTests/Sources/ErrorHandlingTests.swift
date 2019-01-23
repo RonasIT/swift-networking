@@ -91,6 +91,29 @@ final class ErrorHandlingTests: XCTestCase {
         testPartialErrorHandlingChain(testKind: .testWithRetry)
     }
 
+    func testFailureWithEndpointError() {
+        let errorHandlingService = ErrorHandlingService(errorHandlers: [GeneralErrorHandler()])
+        let networkService = MockNetworkService(errorHandlingService: errorHandlingService)
+
+        let failureExpectation = expectation(description: "Expecting failure response")
+        failureExpectation.assertForOverFulfill = true
+
+        let expectedError = MockError()
+        request = networkService.request(for: MockEndpoint.failureWithError(expectedError), success: {
+            XCTFail("Invalid case")
+        }, failure: { error in
+            guard let error = error as? MockError else {
+                XCTFail("Test uses mock error")
+                return
+            }
+
+            XCTAssertTrue(error === expectedError, "Expecting error from endpoint")
+            failureExpectation.fulfill()
+        })
+
+        wait(for: [failureExpectation], timeout: 10)
+    }
+
     func testFailureWithoutErrorHandling() {
         let networkService = NetworkService()
 

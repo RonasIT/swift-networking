@@ -7,15 +7,4 @@ public enum ErrorHandlingResult {
     case continueFailure(with: Error)
     case continueErrorHandling(with: Error)
     case retryNeeded
-
-    public var error: Error? {
-        switch self {
-        case .continueFailure(with: let error):
-            return error
-        case .continueErrorHandling(with: let error):
-            return error
-        case .retryNeeded:
-            return nil
-        }
-    }
 }

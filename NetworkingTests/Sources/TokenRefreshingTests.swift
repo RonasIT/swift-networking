@@ -30,32 +30,36 @@ final class TokenRefreshingTests: XCTestCase {
                                   errorHandlingService: errorHandlingService)
     }()
     
-    private var request: CancellableRequest?
+    private var requests: [CancellableRequest] = []
 
     override func tearDown() {
         super.tearDown()
-        request = nil
+        requests = []
         sessionService.clearToken()
     }
 
     func testTokenRefreshingWithRequestRetrying() {
         let tokenRefreshingStartedExpectation = expectation(description: "Expecting token refreshing")
         tokenRefreshingStartedExpectation.assertForOverFulfill = true
+
         let successResponseExpectation = expectation(description: "Expecting success in response")
         successResponseExpectation.assertForOverFulfill = true
+        successResponseExpectation.expectedFulfillmentCount = 3
 
         let newToken = MockSessionService.Constants.validToken
         sessionService.tokenRefreshHandler = { success, _ in
             tokenRefreshingStartedExpectation.fulfill()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                success?(newToken)
-            }
+            success?(newToken)
         }
-        request = networkService.request(for: MockEndpoint.authorized, success: {
-            successResponseExpectation.fulfill()
-        }, failure: { error in
-            XCTFail("Invalid case")
-        })
+
+        for _ in 0..<successResponseExpectation.expectedFulfillmentCount {
+            let request = networkService.request(for: MockEndpoint.authorized, success: {
+                successResponseExpectation.fulfill()
+            }, failure: { error in
+                XCTFail("Invalid case")
+            })
+            requests.append(request)
+        }
 
         let expectations = [tokenRefreshingStartedExpectation, successResponseExpectation]
         wait(for: expectations, timeout: 10, enforceOrder: true)
@@ -64,23 +68,28 @@ final class TokenRefreshingTests: XCTestCase {
     func testTokenRefreshingFailure() {
         let tokenRefreshingStartedExpectation = expectation(description: "Expecting token refresh")
         tokenRefreshingStartedExpectation.assertForOverFulfill = true
+        
         let failureResponseExpectation = expectation(description: "Expecting failure in response")
         failureResponseExpectation.assertForOverFulfill = true
+        failureResponseExpectation.expectedFulfillmentCount = 5
 
         let tokenRefreshError = MockError()
         sessionService.tokenRefreshHandler = { _, failure in
             tokenRefreshingStartedExpectation.fulfill()
             failure?(tokenRefreshError)
         }
-        request = networkService.request(for: MockEndpoint.authorized, success: {
-            XCTFail("Invalid case")
-        }, failure: { error in
-            if let error = error as? MockError {
-                XCTAssertFalse(error === tokenRefreshError, "Request shouldn't fail with error of token refreshing")
-            }
-
-            failureResponseExpectation.fulfill()
-        })
+        
+        for _ in 0..<failureResponseExpectation.expectedFulfillmentCount {
+            let request = networkService.request(for: MockEndpoint.authorized, success: {
+                XCTFail("Invalid case")
+            }, failure: { error in
+                if let error = error as? MockError {
+                    XCTAssertFalse(error === tokenRefreshError, "Request shouldn't fail with error of token refreshing")
+                }
+                failureResponseExpectation.fulfill()
+            })
+            requests.append(request)
+        }
 
         let expectations = [tokenRefreshingStartedExpectation, failureResponseExpectation]
         wait(for: expectations, timeout: 10, enforceOrder: true)

@@ -3,24 +3,22 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
-public protocol SessionServiceProtocol {
+import Foundation
 
-    var authToken: String? { get }
-    var refreshAuthToken: String? { get }
+public final class AuthToken {
 
-    func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void)
+    let token: String
+    let expiryDate: Date
+
+    public init(token: String, expiryDate: Date) {
+        self.token = token
+        self.expiryDate = expiryDate
+    }
 }
 
-public extension SessionServiceProtocol {
+public protocol SessionServiceProtocol {
 
-    var authTokenHeader: RequestHeader? {
-        guard let authToken = authToken else {
-            return nil
-        }
-        return RequestHeaders.authorization(authToken)
-    }
-    
-    var refreshAuthTokenHeader: RequestHeader? {
-        return nil
-    }
+    var authToken: AuthToken? { get }
+
+    func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void)
 }

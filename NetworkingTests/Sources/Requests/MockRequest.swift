@@ -30,6 +30,8 @@ final class MockRequest<Result>: BaseRequest<Result> {
                 completion(self.successResponse())
             case .failure:
                 completion(self.errorResponse(statusCode: 500))
+            case .failureWithError(let error):
+                completion(self.errorResponse(statusCode: 400, error: error))
             case .authorized:
                 self.completeAuthorizedRequest(with: completion)
             case .headersValidation(let appendedHeaders):
@@ -80,19 +82,21 @@ final class MockRequest<Result>: BaseRequest<Result> {
         completion(successResponse())
     }
 
-    private func errorResponse(statusCode: Int) -> DataResponse<Result> {
+    private func errorResponse(statusCode: Int, error: Error? = nil) -> DataResponse<Result> {
         let urlResponse = HTTPURLResponse(url: endpoint.url,
                                           statusCode: statusCode,
                                           httpVersion: nil,
                                           headerFields: nil)
-        let error = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: statusCode))
-        return DataResponse(request: nil, response: urlResponse, data: nil, result: .failure(error))
+        let error = error ?? AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: statusCode))
+        let timeline = Timeline(requestCompletedTime: CFAbsoluteTimeGetCurrent())
+        return DataResponse(request: nil, response: urlResponse, data: nil, result: .failure(error), timeline: timeline)
     }
 
     private func successResponse(with json: [String: Any] = [:]) -> DataResponse<Result> {
         let data = try? JSONSerialization.data(withJSONObject: json)
         let result = responseSerializer.serializeResponse(nil, nil, data, nil)
         let urlResponse = HTTPURLResponse(url: endpoint.url, statusCode: 200, httpVersion: nil, headerFields: nil)
-        return DataResponse(request: nil, response: urlResponse, data: data, result: result)
+        let timeline = Timeline(requestCompletedTime: CFAbsoluteTimeGetCurrent())
+        return DataResponse(request: nil, response: urlResponse, data: data, result: result, timeline: timeline)
     }
 }

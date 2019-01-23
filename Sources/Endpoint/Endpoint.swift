@@ -6,7 +6,7 @@
 import Alamofire
 import UIKit.UIDevice
 
-public protocol Endpoint {
+public protocol Endpoint: EndpointError {
     var baseURL: URL { get }
     var path: String { get }
     var method: HTTPMethod { get }
@@ -70,6 +70,14 @@ public extension Endpoint {
 
     var url: URL {
         return baseURL + path
+    }
+
+    func error(for urlError: URLError) -> Error? {
+        return nil
+    }
+
+    func error(forResponseCode responseCode: Int) -> Error? {
+        return nil
     }
 }
 

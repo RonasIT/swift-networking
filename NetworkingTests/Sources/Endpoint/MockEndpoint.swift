@@ -12,6 +12,7 @@ enum MockEndpoint: UploadEndpoint {
     case failure
     case authorized
     case headersValidation([RequestHeader])
+    case failureWithError(Error)
 
     var baseURL: URL {
         return URL(string: "localhost")!
@@ -49,5 +50,22 @@ enum MockEndpoint: UploadEndpoint {
         default:
             return false
         }
+    }
+
+    private var error: Error? {
+        switch self {
+        case .failureWithError(let error):
+            return error
+        default:
+            return nil
+        }
+    }
+
+    func error(forResponseCode responseCode: Int) -> Error? {
+        return error
+    }
+
+    func error(forURLErrorCode errorCode: Int) -> Error? {
+        return error
     }
 }

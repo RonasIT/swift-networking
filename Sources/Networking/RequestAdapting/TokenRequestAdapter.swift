@@ -3,8 +3,6 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
-
-
 public class TokenRequestAdapter: RequestAdapter {
 
     private let sessionService: SessionServiceProtocol
@@ -14,18 +12,9 @@ public class TokenRequestAdapter: RequestAdapter {
     }
 
     public func adapt(_ request: AdaptiveRequest) {
-        guard request.endpoint.isAuthorized,
-              let header = sessionService.authTokenHeader else {
-            return
+        if request.endpoint.isAuthorized,
+           let authToken = sessionService.authToken {
+            request.appendHeader(RequestHeaders.authorization(authToken.token))
         }
-        request.appendHeader(header)
-    }
-
-    func adaptForRetry(_ request: AdaptiveRequest) {
-        guard request.endpoint.isAuthorized,
-              let header = sessionService.refreshAuthTokenHeader else {
-            return
-        }
-        request.appendHeader(header)
     }
 }

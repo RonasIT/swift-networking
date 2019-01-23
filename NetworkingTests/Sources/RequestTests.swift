@@ -20,15 +20,20 @@ final class RequestTests: XCTestCase {
         let responseExpectation = expectation(description: "Expecting cancellation error in response")
         responseExpectation.assertForOverFulfill = true
 
-        let networkService = NetworkService()
+        let errorHandlingService = ErrorHandlingService(errorHandlers: [GeneralErrorHandler()])
+        let networkService = NetworkService(errorHandlingService: errorHandlingService)
 
         // Cancellation logic are in real requests
         // So there is one way to test it - use real requests
         request = networkService.request(for: HTTPBinEndpoint.status(200), success: {
             XCTFail("Invalid case")
         }, failure: { error in
-            XCTAssertTrue((error as NSError).code == NSURLErrorCancelled)
-            responseExpectation.fulfill()
+            switch error {
+            case let error as GeneralRequestError where error == .cancelled:
+                responseExpectation.fulfill()
+            default:
+                XCTFail("Invalid error")
+            }
         })
         request?.cancel()
 
@@ -39,12 +44,17 @@ final class RequestTests: XCTestCase {
         let responseExpectation = expectation(description: "Expecting cancellation error in response")
         responseExpectation.assertForOverFulfill = true
 
-        let networkService = NetworkService()
+        let errorHandlingService = ErrorHandlingService(errorHandlers: [GeneralErrorHandler()])
+        let networkService = NetworkService(errorHandlingService: errorHandlingService)
         request = networkService.uploadRequest(for: HTTPBinEndpoint.uploadStatus(200), success: {
             XCTFail("Invalid case")
         }, failure: { error in
-            XCTAssertTrue((error as NSError).code == NSURLErrorCancelled)
-            responseExpectation.fulfill()
+            switch error {
+            case let error as GeneralRequestError where error == .cancelled:
+                responseExpectation.fulfill()
+            default:
+                XCTFail("Invalid error")
+            }
         })
         request?.cancel()
 

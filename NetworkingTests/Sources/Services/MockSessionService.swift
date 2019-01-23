@@ -15,16 +15,12 @@ final class MockSessionService: SessionServiceProtocol {
     typealias TokenRefreshCompletion = (String) -> Void
     typealias TokenRefreshFailure = (Error) -> Void
     
-    private var token: String?
+    private var token: AuthToken?
 
     var tokenRefreshHandler: ((TokenRefreshCompletion?, TokenRefreshFailure?) -> Void)?
 
-    var authToken: String? {
+    var authToken: AuthToken? {
         return token
-    }
-
-    var refreshAuthToken: String? {
-        return nil
     }
 
     func clearToken() {
@@ -33,7 +29,12 @@ final class MockSessionService: SessionServiceProtocol {
 
     func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
         tokenRefreshHandler?({ [weak self] token in
-            self?.token = token
+            guard let `self` = self else {
+                return
+            }
+            // Token expires in 24 hours
+            let expiryDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
+            self.token = AuthToken(token: token, expiryDate: expiryDate)
             success()
         }, { [weak self] error in
             self?.token = nil

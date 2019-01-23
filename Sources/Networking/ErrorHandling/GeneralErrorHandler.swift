@@ -3,48 +3,66 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
-import Foundation
+import Alamofire
 
 open class GeneralErrorHandler: ErrorHandler {
 
     public init() {}
 
     public func handleError<T>(_ error: RequestError<T>, completion: @escaping Completion) {
-        if let statusCode = error.response.response?.statusCode {
-            handleError(error, statusCode: statusCode, completion: completion)
-        } else {
-            let urlErrorCode = (error.underlyingError as NSError).code
-            handleError(error, urlErrorCode: urlErrorCode, completion: completion)
+        let endpoint = error.endpoint
+        switch error.underlyingError {
+        case let error as AFError:
+            handleError(error, endpoint: endpoint, completion: completion)
+        case let error as URLError:
+            handleError(error, endpoint: endpoint, completion: completion)
+        default:
+            completion(.continueErrorHandling(with: error.underlyingError))
         }
     }
 
     // MARK: - Private
 
-    private func handleError<T>(_ requestError: RequestError<T>, statusCode: Int, completion: @escaping Completion) {
-        var error: Error
-        switch statusCode {
-        case 401:
-            error = GeneralRequestError.noAuth
-        case 404:
-            error = GeneralRequestError.notFound
-        default:
-            error = requestError.underlyingError
+    private func handleError(_ error: AFError, endpoint: Endpoint, completion: @escaping Completion) {
+        guard let responseCode = error.responseCode else {
+            completion(.continueErrorHandling(with: error))
+            return
         }
-        completion(.continueErrorHandling(with: error))
+
+        if let endpointError = endpoint.error(forResponseCode: responseCode) {
+            completion(.continueErrorHandling(with: endpointError))
+            return
+        }
+
+        var mappedError: Error
+        switch responseCode {
+        case 401:
+            mappedError = GeneralRequestError.noAuth
+        case 404:
+            mappedError = GeneralRequestError.notFound
+        default:
+            mappedError = error
+        }
+        completion(.continueErrorHandling(with: mappedError))
     }
 
-    private func handleError<T>(_ requestError: RequestError<T>, urlErrorCode: Int, completion: @escaping Completion) {
-        var error: Error
-        switch urlErrorCode {
-        case NSURLErrorNotConnectedToInternet:
-            error = GeneralRequestError.noInternetConnection
-        case NSURLErrorTimedOut:
-            error = GeneralRequestError.timedOut
-        case NSURLErrorCancelled:
-            error = GeneralRequestError.cancelled
-        default:
-            error = requestError.underlyingError
+    private func handleError(_ error: URLError, endpoint: Endpoint, completion: @escaping Completion) {
+        if let endpointError = endpoint.error(for: error) {
+            completion(.continueErrorHandling(with: endpointError))
+            return
         }
-        completion(.continueErrorHandling(with: error))
+
+        var mappedError: Error
+        switch error {
+        case URLError.notConnectedToInternet:
+            mappedError = GeneralRequestError.noInternetConnection
+        case URLError.timedOut:
+            mappedError = GeneralRequestError.timedOut
+        case URLError.cancelled:
+            mappedError = GeneralRequestError.cancelled
+        default:
+            mappedError = error
+        }
+        completion(.continueErrorHandling(with: mappedError))
     }
 }
