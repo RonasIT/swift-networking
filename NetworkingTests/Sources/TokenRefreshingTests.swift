@@ -38,7 +38,7 @@ final class TokenRefreshingTests: XCTestCase {
         sessionService.clearToken()
     }
 
-    func testTokenRefreshingWithRequestRetrying() {
+    func testTokenRefreshingWithSuccess() {
         let tokenRefreshingStartedExpectation = expectation(description: "Expecting token refreshing")
         tokenRefreshingStartedExpectation.assertForOverFulfill = true
 
@@ -65,7 +65,7 @@ final class TokenRefreshingTests: XCTestCase {
         wait(for: expectations, timeout: 10, enforceOrder: true)
     }
 
-    func testTokenRefreshingFailure() {
+    func testTokenRefreshingWithFailure() {
         let tokenRefreshingStartedExpectation = expectation(description: "Expecting token refresh")
         tokenRefreshingStartedExpectation.assertForOverFulfill = true
         
