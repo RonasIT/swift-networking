@@ -16,14 +16,12 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         self.sessionService = sessionService
     }
 
-    public func canHandleError<T>(_ error: RequestError<T>) -> Bool {
-        guard let statusCode = error.response.response?.statusCode else {
-            return false
-        }
-        return statusCode == 401
-    }
-
     public func handleError<T>(_ error: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
+        guard error.response.response?.statusCode == 401 else {
+            completion(.continueErrorHandling(with: error.underlyingError))
+            return
+        }
+
         items.append(AuthorizationErrorHandlerItem(error: error.underlyingError, completion: completion))
         refreshTokenIfNeeded()
     }
