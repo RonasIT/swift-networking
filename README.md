@@ -194,7 +194,7 @@ enum ProfileEndpoint: UploadEndpoint {
 By default you should use `Endpoint` protocol. But if you need to use upload requests like in example above, use `UploadEndpoint`, which has additional `imageBodyParts` variable.  
 Each endpoint provides `isAuthorized` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
 access token will be attached only for requests with authorized endpoints.  
-You can also provide custom errors for endpoints, see [error handling](#error-handling) for more.
+You can also provide custom errors for endpoints using `GeneralErrorHandler`, see [error handling](#error-handling) for more.
 
 ### Request adapting
 
@@ -203,7 +203,7 @@ You can also provide custom errors for endpoints, see [error handling](#error-ha
 Request adapting allows you to provide additional information within request.
 
 Request adapting includes:
-1. `RequestAdapter`s, provides request adapting logic
+1. `RequestAdapter`s, which provide request adapting logic
 2. `RequestAdaptingService`, which manages request adapting chain for multiple request adapters  
 3. Your `NetworkService`, which notifies request adapting service about request sending/retrying
 
@@ -238,7 +238,7 @@ lazy var generalRequestAdaptingService: RequestAdaptingServiceProtocol = {
 }()
 ```
 
-3. Create your subclass of `NetworkService` with your error handling service:
+3. Create your subclass of `NetworkService` with your request adapting service:
 ```swift
 lazy var profileService: ProfileServiceProtocol = {
     return ProfileService(requestAdaptingService: generalRequestAdaptingService)  
@@ -250,7 +250,7 @@ lazy var profileService: ProfileServiceProtocol = {
 This feature provides more efficient error handling for failed requests.
 
 There are three components of error handling:
-1. `ErrorHandler`s provides error handling logic
+1. `ErrorHandler`s provide error handling logic
 2. `ErrorHandlingService` stores error handlers, manages error handling chain logic
 3. Your `NetworkService`, which notifies `ErrorHandlingService` about an error
 
@@ -272,16 +272,17 @@ final class LoggingErrorHandler: ErrorHandler {
         print("Error: \(error.underlyingError)")
         print("Response: \(error.response)")
         
-        // Error will be passed to the next error handler
-        // Once error handling completed, you should call completion handler with result, which affects error handling chain:
-        // - Use `continueErrorHandling(with: error)` to redirect your error to the next error handler. 
-        //   If there is no other error handlers, request will be failed.
-        // - Use `continueFailure(with: error)` fail request with your error right now
-        // - Use `retryNeeded` to retry failed request
+        // Redirect error to the next error handler
         completion(.continueErrorHandling(with: error.underlyingError))
     }
 }
 ```
+
+Once error handling completed, you should call completion handler with result,
+which affects error handling chain:
+- Use `continueErrorHandling(with: error)` to redirect your error to the next error handler. If there is no other error handlers, request will be failed.
+- Use `continueFailure(with: error)` fail request with your error right now
+- Use `retryNeeded` to retry failed request
 
 2. Create error handling service with your error handler:
 ```swift
@@ -300,7 +301,8 @@ lazy var profileService: ProfileServiceProtocol = {
 #### `GeneralErrorHandler`
 
 To simplify error handling for some general errors, any `ErrorHandlingService` uses built-in `GeneralErrorHandler` by default.
-You don't need to check error code or response status code manually. `GeneralErrorHandler` will help you with it.
+You don't need to check error code or response status code manually. `GeneralErrorHandler` will help you with it by mapping errors to
+`GeneralRequestError`.
 There is a list of supported errors:
 ```swift
 public enum GeneralRequestError: Error {
@@ -317,7 +319,7 @@ public enum GeneralRequestError: Error {
 }
 ```
 
-With `GeneralErrorHandler` you also can provide custom errors right from `Endpoint`.  
+With `GeneralErrorHandler` you can also provide custom errors right from `Endpoint`.  
 Just implement `func error(forResponseCode responseCode: Int) -> Error?` or `func error(for urlError: URLError) -> Error?` like below.  
 If this methods return `nil`, error will be provided by `GeneralErrorHandler`.
 ```swift
@@ -376,12 +378,11 @@ final class SessionService: SessionServiceProtocol, NetworkService {
     
     private var token: AuthToken?
     private var refreshAuthToken: String?
+    private var tokenRefreshingRequest: CancellableRequest?
     
     var authToken: AuthToken? {
         return token
     }
-    
-    private var tokenRefreshingRequest: CancellableRequest?
     
     func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
         guard let refreshAuthToken = refreshAuthToken else {
@@ -428,5 +429,11 @@ lazy var profileService: ProfileServiceProtocol = {
     return ProfileService(requestAdaptingService: requestAdaptingService, errorHandlingService: errorHandlingService)
 }()
 ```
+
+If all is correct, you can expect this result:
+1. First, unauthorized error will trigger token refreshing in your `SessionService`.
+2. While we're refreshing token, all new failed requests with "unauthorized" error will be collected for future.
+3. Once token refreshing completed, failed requests will be adapted (access token changed, we should update request headers) and retried.
+4. If token refreshing failed, all pending requests will be failed.
 
 To learn more, please check example project.
