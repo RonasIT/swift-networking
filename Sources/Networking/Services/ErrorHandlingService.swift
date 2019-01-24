@@ -64,6 +64,5 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
                                           failure: failure)
             }
         }
-
     }
 }
