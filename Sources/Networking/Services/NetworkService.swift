@@ -85,11 +85,11 @@ open class NetworkService {
     }
 
     @discardableResult
-    public func request<Key, Value>(for endpoint: Endpoint,
-                                    readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                                    success: @escaping Success<[Key: Value]>,
-                                    failure: @escaping Failure) -> CancellableRequest where Key: Hashable, Value: Any {
-        let responseSerializer: DataResponseSerializer<[Key: Value]> = DataRequest.jsonResponseSerializer(with: readingOptions)
+    public func request(for endpoint: Endpoint,
+                        readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
+                        success: @escaping Success<[String: Any]>,
+                        failure: @escaping Failure) -> CancellableRequest {
+        let responseSerializer: DataResponseSerializer<[String: Any]> = DataRequest.jsonResponseSerializer(with: readingOptions)
         return request(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
     }
 
@@ -132,11 +132,11 @@ open class NetworkService {
     }
 
     @discardableResult
-    public func uploadRequest<Key, Value>(for endpoint: UploadEndpoint,
+    public func uploadRequest(for endpoint: UploadEndpoint,
                                           readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                                          success: @escaping Success<[Key: Value]>,
-                                          failure: @escaping Failure) -> CancellableRequest where Key: Hashable, Value: Any {
-        let responseSerializer: DataResponseSerializer<[Key: Value]> = DataRequest.jsonResponseSerializer(with: readingOptions)
+                                          success: @escaping Success<[String: Any]>,
+                                          failure: @escaping Failure) -> CancellableRequest {
+        let responseSerializer: DataResponseSerializer<[String: Any]> = DataRequest.jsonResponseSerializer(with: readingOptions)
         return uploadRequest(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
     }
 
