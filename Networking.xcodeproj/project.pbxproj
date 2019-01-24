@@ -11,6 +11,7 @@
 		1B5CD19AE3BE12438905DFD8 /* BaseRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD181B961E974327DEC33 /* BaseRequest.swift */; };
 		1B5CD22B4FFE9A53FA23D925 /* EndpointError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDCABE43D2AF7B8BBF4F7 /* EndpointError.swift */; };
 		1B5CD2A6CB4630FEC2255EC0 /* DataRequest+JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDE9A96BA987176D8A815 /* DataRequest+JSON.swift */; };
+		1B5CD38DDB73D25FF6435656 /* ReachabilitySubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD171E766DC86A37B3DA5 /* ReachabilitySubscription.swift */; };
 		1B5CD3911684C3147A2E70E3 /* ErrorHandlingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD3A5639F0216351C6D42 /* ErrorHandlingTests.swift */; };
 		1B5CD5B64BE6908D33F0D472 /* ErrorHandlingResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD9F249BFCB9814B964B9 /* ErrorHandlingResult.swift */; };
 		1B5CD672AB737A8905584921 /* RequestAdaptingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD521A45CF7F99D353C33 /* RequestAdaptingService.swift */; };
@@ -66,6 +67,7 @@
 
 /* Begin PBXFileReference section */
 		1B5CD0A8B67662380E486B35 /* UnauthorizedErrorHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnauthorizedErrorHandler.swift; sourceTree = "<group>"; };
+		1B5CD171E766DC86A37B3DA5 /* ReachabilitySubscription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilitySubscription.swift; sourceTree = "<group>"; };
 		1B5CD181B961E974327DEC33 /* BaseRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseRequest.swift; sourceTree = "<group>"; };
 		1B5CD288D364A46ECC4C4622 /* HTTPBinEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPBinEndpoint.swift; sourceTree = "<group>"; };
 		1B5CD302B4B2134D348B8391 /* TokenRequestAdapter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenRequestAdapter.swift; sourceTree = "<group>"; };
@@ -347,6 +349,7 @@
 			children = (
 				6D9F10CC216BBBF200CDB8EE /* ReachabilityService.swift */,
 				6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */,
+				1B5CD171E766DC86A37B3DA5 /* ReachabilitySubscription.swift */,
 			);
 			path = Reachability;
 			sourceTree = "<group>";
@@ -538,6 +541,7 @@
 				1B5CD9A68D9A6D3A235FD82B /* GeneralErrorHandler.swift in Sources */,
 				1B5CDF334AC96DBE0B86A0C5 /* GeneralRequestError.swift in Sources */,
 				1B5CD22B4FFE9A53FA23D925 /* EndpointError.swift in Sources */,
+				1B5CD38DDB73D25FF6435656 /* ReachabilitySubscription.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

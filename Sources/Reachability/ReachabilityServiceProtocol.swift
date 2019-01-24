@@ -4,6 +4,7 @@
 //
 
 public protocol HasReachabilityService {
+
     var reachabilityService: ReachabilityServiceProtocol { get }
 }
 
@@ -13,4 +14,5 @@ public protocol ReachabilityServiceProtocol {
 
     func startMonitoring()
     func stopMonitoring()
+    func subscribe(with handler: @escaping (Bool) -> Void) -> ReachabilitySubscription
 }
