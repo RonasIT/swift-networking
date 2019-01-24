@@ -18,7 +18,7 @@ Networking is a network abstraction layer built on top of [Alamofire](https://gi
 
 ### Making a Request
 
-To send requests with specific endpoint you need to subclass `NetworkService`, like this:
+To make requests with specific endpoint you need to subclass `NetworkService`:
 ```swift
 import Networking
 
@@ -119,7 +119,7 @@ Except you are using `GeneralErrorHandler`, which transforms this error to `Gene
 
 ### Endpoint
 
-Each request uses specified endpoint. Endpoint contains information, where and how request should be sent.
+Each request uses specific endpoint. Endpoint contains information, where and how request should be sent.
 
 #### Usage
 
@@ -191,19 +191,21 @@ enum ProfileEndpoint: UploadEndpoint {
 }
 ```
 
-By default you should use `Endpoint` implement protocol. But if you need to use upload requests like example above, use `UploadEndpoint`, which has additional `imageBodyParts` variable.  
+By default you should use `Endpoint` protocol. But if you need to use upload requests like in example above, use `UploadEndpoint`, which has additional `imageBodyParts` variable.  
 Each endpoint provides `isAuthorized` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
 access token will be attached only for requests with authorized endpoints.  
-You can also provide specified errors for endpoints, see [error handling](#error-handling) for more.
+You can also provide custom errors for endpoints, see [error handling](#error-handling) for more.
 
 ### Request adapting
 
 ⚠️ Currently supports only appending headers ⚠️
 
-Request adapting allows you to provide additional information within request.  
-The main aim of this feature is the ability to attach access token within request on sending and retrying.  
-There are some other useful cases. For example, you can implement custom request adapter to attach some information about an app, 
-like below.
+Request adapting allows you to provide additional information within request.
+
+Request adapting includes:
+1. `RequestAdapter`s, provides request adapting logic
+2. `RequestAdaptingService`, which manages request adapting chain for multiple request adapters  
+3. Your `NetworkService`, which notifies request adapting service about request sending/retrying
 
 If you need to attach access token through request adapter, there is built-in `TokenRequestAdapter`. See [automatic token refreshing](#automatic-token-refreshing-and-request-retrying) for more. 
 
@@ -218,7 +220,7 @@ import UIKit.UIDevice
 final class GeneralRequestAdapter: RequestAdapter {
 
     func adapt(_ request: AdaptiveRequest) {
-        // Let's append some information about app within requests
+        // Let's append some information about the app
         request.appendHeader(RequestHeaders.dpi(scale: UIScreen.main.scale))
         if let appInfo = Bundle.main.infoDictionary,
            let appVersion = appInfo["CFBundleShortVersionString"] as? String {
@@ -245,10 +247,15 @@ lazy var profileService: ProfileServiceProtocol = {
 
 ### Error handling
 
-This feature provides more efficient error handling for failed requests.  
-You can wrap some logic for specified errors using `ErrorHandler`s.
-For example, you can log errors or redirect user to the login screen once app received specific error.
-Multiple error handlers together can provide error handling chain.
+This feature provides more efficient error handling for failed requests.
+
+There are three components of error handling:
+1. `ErrorHandler`s provides error handling logic
+2. `ErrorHandlingService` stores error handlers, manages error handling chain logic
+3. Your `NetworkService`, which notifies `ErrorHandlingService` about an error
+
+Error handlers can be useful in many cases. For example, you can log errors or redirect user to the login screen.
+Built-in automatic token refreshing also implemented using custom error handler.
 
 #### Usage  
    
@@ -266,16 +273,15 @@ final class LoggingErrorHandler: ErrorHandler {
         print("Response: \(error.response)")
         
         // Error will be passed to the next error handler
+        // Once error handling completed, you should call completion handler with result, which affects error handling chain:
+        // - Use `continueErrorHandling(with: error)` to redirect your error to the next error handler. 
+        //   If there is no other error handlers, request will be failed.
+        // - Use `continueFailure(with: error)` fail request with your error right now
+        // - Use `retryNeeded` to retry failed request
         completion(.continueErrorHandling(with: error.underlyingError))
     }
 }
 ```
-
-Each error handler should call completion handler with one of results:
-* `continueErrorHandling(with: error)` - to continue error handling chain, error will be passed to the next error handler.  
-If there is **no other** error handlers, request will be failed with passed error.
-* `continueFailure(with: error)` - to interrupt error handling chain and fail request with passed error.
-* `retryNeeded` - to interrupt error handling chain and retry request.
 
 2. Create error handling service with your error handler:
 ```swift
@@ -294,15 +300,15 @@ lazy var profileService: ProfileServiceProtocol = {
 #### `GeneralErrorHandler`
 
 To simplify error handling for some general errors, any `ErrorHandlingService` uses built-in `GeneralErrorHandler` by default.
-You don't need to check error code or response status code manually. `GeneralErrorHandler` will map this errors for you.
-There is list of supported errors:
+You don't need to check error code or response status code manually. `GeneralErrorHandler` will help you with it.
+There is a list of supported errors:
 ```swift
 public enum GeneralRequestError: Error {
     // For `URLError.notConnectedToInternet`
     case noInternetConnection
     // For `URLError.timedOut`
     case timedOut
-    // For `AFError` with 401 response status code
+    // For `AFError` (Alamofire error) with 401 response status code
     case noAuth
     // For `AFError` with 404 response status code
     case notFound
@@ -352,14 +358,14 @@ enum ProfileEndpoint: Endpoint {
 
 `Networking` can automatically refresh tokens and retry failed requests.
 
-How it works:
-1. Built-in `UnauthorizedErrorHandler` provides catching and handling `Unauthorized` error with 401 status code
-2. Built-in `TokenRequestAdapter` provides auth token attaching on request sending or retrying
-3. Your `SessionService`, which implements `SessionServiceProtocol` provides auth token and auth token refreshing
+There are three components of this feature:
+1. `UnauthorizedErrorHandler` provides error handling logic for "unauthorized" errors with 401 status code
+2. `TokenRequestAdapter` provides auth token attaching on request sending/retrying
+3. Your service, which implements `SessionServiceProtocol` provides auth token and auth token refreshing logic
 
 #### Usage
 
-1. Create your service, which implements `Networking.SessionServiceProtocol`:
+1. Create your service and implement `SessionServiceProtocol`:
 
 ```swift
 import Networking
@@ -395,7 +401,7 @@ final class SessionService: SessionServiceProtocol, NetworkService {
 }
 ```
 
-2. Add `TokenRequestAdapter` to your request adapting service:
+2. Create `RequestAdaptingService` with `TokenRequestAdapter`
 
 ```swift
 lazy var sessionService: SessionServiceProtocol = {
@@ -403,27 +409,24 @@ lazy var sessionService: SessionServiceProtocol = {
 }()
 
 lazy var requestAdaptingService: RequestAdaptingServiceProtocol = {
-    // `TokenRequestAdapter` depends on session service
     let tokenRequestAdapter = TokenRequestAdapter(sessionService: sessionService)  
     return RequestAdaptingService(requestAdapters: [tokenRequestAdapter])
 }()
 ```
 
-3. Add `UnauthorizedErrorHandler` to your error handling service:
+3. Create `ErrorHandlingService` with `UnauthorizedErrorHandler`:
 ```swift
 lazy var errorHandlingService: ErrorHandlingServiceProtocol = {
-    // `UnauthorizedErrorHandler` depends on session service
     let unauthorizedErrorHandler = UnauthorizedErrorHandler(sessionService: sessionService)  
     return ErrorHandlingService(errorHandlers: [unauthorizedErrorHandler])
 }()
 ```
 
-4. Add your request adapting service and error handling service to `NetworkService` subclass:
+4. Create `NetworkService` with your error handling and request adapting services:
 ```swift
 lazy var profileService: ProfileServiceProtocol = {
     return ProfileService(requestAdaptingService: requestAdaptingService, errorHandlingService: errorHandlingService)
 }()
 ```
-
 
 To learn more, please check example project.
