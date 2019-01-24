@@ -24,6 +24,7 @@ final class NetworkReachabilitySubscription: ReachabilitySubscription {
     init(unsubscribeHandler: @escaping UnsubscribeHandler,
          notificationHandler: @escaping NotificationHandler) {
         self.unsubscribeHandler = unsubscribeHandler
+        self.notificationHandler = notificationHandler
     }
 
     func unsubscribe() {
