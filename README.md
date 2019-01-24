@@ -4,7 +4,7 @@ Networking is a network abstraction layer built on top of [Alamofire](https://gi
 
 ## Features
 
-- [x] `Endpoint` support
+- [x] [`Endpoint` support](#endpoint)
 - [x] [Flexible response](#making-a-request), including:
   * `Data`
   * `String`
@@ -117,6 +117,87 @@ request.cancel()
 As usual, cancelled request fails with `NSURLErrorCancelled` error code.
 Except you are using `GeneralErrorHandler`, which transforms this error to `GeneralRequestError.cancelled`.
 
+### Endpoint
+
+Each request uses specified endpoint. Endpoint contains information, where and how request should be sent.
+
+#### Usage
+
+```swift
+import Networking
+import Alamofire
+
+enum ProfileEndpoint: UploadEndpoint {
+    
+    case profile(profileId: String)
+    case updateAddress(Address)
+    case uploadImage(imageData: Data)
+
+    var baseURL: URL {
+        return URL(string: "https://api-url.com")!
+    }
+
+    var path: String {
+        switch self {
+        case .profile(let profileId):
+            return "profile/\(profileId)"
+        case .updateAddress(let address):
+            return "profile/address/\(address.id)"
+        case uploadImage:
+            return "profile/image"
+        }
+    }
+
+    var method: HTTPMethod {
+        switch self {
+        case .profile:
+            return .get
+        case .updateAddress:
+            return .post
+        case uploadImage:
+            return .post
+        }
+    }
+
+    var headers: [RequestHeader] {
+        return []
+    }
+
+    var parameters: Parameters? {
+        switch self {
+        case .updateAddress(let address):
+            return address.asDictionary()
+        default:
+            return nil
+        }
+    }
+
+    var parameterEncoding: ParameterEncoding {
+        return URLEncoding.default
+    }
+    
+    var imageBodyParts: [ImageBodyPart] {
+        switch self {
+        case .uploadImage(let imageData):
+            return [ImageBodyPart(imageData: imageData)]
+        default:
+            return []
+        }
+    }
+
+    var isAuthorized: Bool {
+        return true
+    }
+}
+```
+
+By default you should use `Endpoint` implement protocol. But if you need to use upload requests like example above, use `UploadEndpoint`, which has additional `imageBodyParts` variable.  
+Each endpoint provides `isAuthorized` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
+access token will be attached only for requests with authorized endpoints.  
+You can also provide errors for specified endpoints, just implement 
+`func error(forResponseCode responseCode: Int) -> Error?` or `func error(forURLErrorCode errorCode: Int) -> Error?` methods and 
+add `GeneralErrorHandler` to your error handling service. See [error handling](#error-handling) for more.
+
 ### Request adapting
 
 ⚠️ Currently supports only appending headers ⚠️
@@ -214,13 +295,13 @@ lazy var profileService: ProfileServiceProtocol = {
 
 ### Automatic token refreshing and request retrying
 
-⚠️ Supports OAuth 2.0 Bearer Token ⚠️
+⚠️ Supports only OAuth 2.0 Bearer Token ⚠️
 
 `Networking` can automatically refresh tokens and retry failed requests.
 
 How it works:
-1. Build-in `UnauthorizedErrorHandler` provides catching and handling `Unauthorized` error with 401 status code
-2. Build-in `TokenRequestAdapter` provides auth token attaching on request sending or retrying
+1. Built-in `UnauthorizedErrorHandler` provides catching and handling `Unauthorized` error with 401 status code
+2. Built-in `TokenRequestAdapter` provides auth token attaching on request sending or retrying
 3. Your `SessionService`, which implements `SessionServiceProtocol` provides auth token and auth token refreshing
 
 #### Usage
@@ -261,7 +342,7 @@ final class SessionService: SessionServiceProtocol, NetworkService {
 }
 ```
 
-2. Add `TokenRequestAdapter` to your request adapting service, which depends on your session service:
+2. Add `TokenRequestAdapter` to your request adapting service:
 
 ```swift
 lazy var sessionService: SessionServiceProtocol = {
@@ -269,14 +350,16 @@ lazy var sessionService: SessionServiceProtocol = {
 }()
 
 lazy var requestAdaptingService: RequestAdaptingServiceProtocol = {
+    // `TokenRequestAdapter` depends on session service
     let tokenRequestAdapter = TokenRequestAdapter(sessionService: sessionService)  
     return RequestAdaptingService(requestAdapters: [tokenRequestAdapter])
 }()
 ```
 
-3. Add `UnauthorizedErrorHandler` to your error handling service, which also depends on your session service:
+3. Add `UnauthorizedErrorHandler` to your error handling service:
 ```swift
 lazy var errorHandlingService: ErrorHandlingServiceProtocol = {
+    // `UnauthorizedErrorHandler` depends on session service
     let unauthorizedErrorHandler = UnauthorizedErrorHandler(sessionService: sessionService)  
     return ErrorHandlingService(errorHandlers: [unauthorizedErrorHandler])
 }()
