@@ -11,15 +11,13 @@ public extension JSONDecoder {
         var description = "❌ Decoding error:\n"
         do {
             return try decode(T.self, from: data)
-        }
-        catch let decodingError as DecodingError {
+        } catch let decodingError as DecodingError {
             description += decodingError.description
             if let json = String(data: data, encoding: .utf8) {
                 description += "\n📄 for JSON: \(json)"
             }
             throw Error.with(description)
-        }
-        catch {
+        } catch {
             description += error.localizedDescription
             throw Error.with(description)
         }

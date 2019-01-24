@@ -13,25 +13,11 @@ extension DataRequest {
                 return .failure(error)
             }
 
-            guard let data = data else {
-                let error = AFError.responseSerializationFailed(reason: .inputDataNil)
-                return .failure(error)
-            }
-
             do {
-                return .success(try decoder.decode(from: data))
-            }
-            catch {
+                return .success(try decoder.decode(from: data ?? Data()))
+            } catch {
                 return .failure(error)
             }
         }
-    }
-
-    @discardableResult
-    func responseObject<Object: Decodable>(queue: DispatchQueue? = nil,
-                                           decoder: JSONDecoder = JSONDecoder(),
-                                           completionHandler: @escaping (DataResponse<Object>) -> Void) -> Self {
-        let responseSerializer: DataResponseSerializer<Object> = DataRequest.decodableResponseSerializer(with: decoder)
-        return response(queue: queue, responseSerializer: responseSerializer, completionHandler: completionHandler)
     }
 }
