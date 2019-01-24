@@ -103,12 +103,12 @@ request(for: endpoint, success: {
 
 ⚠️ Important ⚠️
 
-`Networking` doesn't keep strong references to sent requests.   
-To correctly execute any request, you should keep `strong` reference to it until completion handler will be executed.
+`Networking` expects you will keep strong references to sent request objects till completion.  
+Otherwise completion handlers will be not called because request object will not exist at the response handling time. 
 
 ### Cancelling request
 
-Instance of `CancellableRequest` provide request cancellation:
+Instance of `CancellableRequest` provides request cancellation:
 
 ```swift
 request.cancel()
@@ -194,9 +194,7 @@ enum ProfileEndpoint: UploadEndpoint {
 By default you should use `Endpoint` implement protocol. But if you need to use upload requests like example above, use `UploadEndpoint`, which has additional `imageBodyParts` variable.  
 Each endpoint provides `isAuthorized` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
 access token will be attached only for requests with authorized endpoints.  
-You can also provide errors for specified endpoints, just implement 
-`func error(forResponseCode responseCode: Int) -> Error?` or `func error(forURLErrorCode errorCode: Int) -> Error?` methods and 
-add `GeneralErrorHandler` to your error handling service. See [error handling](#error-handling) for more.
+You can also provide specified errors for endpoints, see [error handling](#error-handling) for more.
 
 ### Request adapting
 
@@ -292,6 +290,61 @@ lazy var profileService: ProfileServiceProtocol = {
     return ProfileService(errorHandlingService: generalErrorHandlingService)  
 }()
 ```
+
+#### `GeneralErrorHandler`
+
+To simplify error handling for some general errors, any `ErrorHandlingService` uses built-in `GeneralErrorHandler` by default.
+You don't need to check error code or response status code manually. `GeneralErrorHandler` will map this errors for you.
+There is list of supported errors:
+```swift
+public enum GeneralRequestError: Error {
+    // For `URLError.notConnectedToInternet`
+    case noInternetConnection
+    // For `URLError.timedOut`
+    case timedOut
+    // For `AFError` with 401 response status code
+    case noAuth
+    // For `AFError` with 404 response status code
+    case notFound
+    // For `URLError.cancelled`
+    case cancelled
+}
+```
+
+With `GeneralErrorHandler` you also can provide custom errors right from `Endpoint`.  
+Just implement `func error(forResponseCode responseCode: Int) -> Error?` or `func error(for urlError: URLError) -> Error?` like below.  
+If this methods return `nil`, error will be provided by `GeneralErrorHandler`.
+```swift
+enum ProfileEndpoint: Endpoint {
+    case profile(profileId: String)
+    case uploadImage(imageData: Data)
+    
+    func error(forResponseCode responseCode: Int) -> Error? {
+        if case let ProfileEndpoint.profile(profileId: let profileId) = self {
+            switch responseCode {
+                case 404:
+                    return ProfileError.notFound(profileId: profileId)
+                default:
+                    return nil            
+            }
+        }
+        return nil
+    }
+    
+    func error(for urlError: URLError) -> Error? {
+        if case let ProfileEndpoint.uploadImage = self {
+            switch urlError {
+            case URLError.timedOut:
+                return ProfileError.imageTooLarge
+            default:
+                return nil
+            }
+        }
+        return nil
+    }
+}
+```
+
 
 ### Automatic token refreshing and request retrying
 
