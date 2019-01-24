@@ -101,10 +101,10 @@ request(for: endpoint, success: {
 })
 ````
 
-⚠️ Important ⚠️
+⚠️ Request lifecycle ⚠️
 
-`Networking` expects you will keep strong references to sent request objects till completion.  
-Otherwise completion handlers will be not called because request object will not exist at the response handling time. 
+`Networking` expects you will keep strong references to sent requests.  
+Otherwise request object will not exist at response handling time and success/failure handler will be not called. 
 
 ### Cancelling request
 
