@@ -12,7 +12,10 @@ final class SlideshowViewController: UIViewController {
     @IBOutlet var activityView: ActivityView!
 
     private lazy var apiService: ApiServiceProtocol = Services.apiService
+    private let reachabilityService: ReachabilityServiceProtocol = Services.reachabilityService
+
     private var request: CancellableRequest?
+    private var reachabilitySubscription: ReachabilitySubscription?
 
     private var slideshow: Slideshow?
 
@@ -21,6 +24,21 @@ final class SlideshowViewController: UIViewController {
         collectionView.register(SlideCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: SlideCollectionViewCell.self))
 
         loadSlideshow()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reachabilitySubscription = reachabilityService.subscribe { [weak self] isReachable in
+            if !isReachable {
+                self?.presentAlertController(withTitle: "Reachability", message: "You are not connected to the internet")
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        reachabilitySubscription?.unsubscribe()
+        reachabilitySubscription = nil
     }
 
     private func loadSlideshow() {

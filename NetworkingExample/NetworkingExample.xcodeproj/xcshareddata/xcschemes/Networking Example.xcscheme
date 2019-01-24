@@ -74,15 +74,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6D3EF77C21675CFA00251869"
-            BuildableName = "Networking.framework"
-            BlueprintName = "Networking"
-            ReferencedContainer = "container:Networking.xcodeproj">
+            BlueprintIdentifier = "6D3EF79021676A2F00251869"
+            BuildableName = "NetworkingExample.app"
+            BlueprintName = "NetworkingExample"
+            ReferencedContainer = "container:NetworkingExample.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

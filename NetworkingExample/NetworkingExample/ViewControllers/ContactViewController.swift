@@ -12,7 +12,11 @@ final class ContactViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
 
     private let apiService: ApiServiceProtocol = Services.apiService
+    private let reachabilityService: ReachabilityServiceProtocol = Services.reachabilityService
+
     private var request: CancellableRequest?
+    private var reachabilitySubscription: ReachabilitySubscription?
+
     private var contact: Contact?
 
     override func viewDidLoad() {
@@ -22,11 +26,19 @@ final class ContactViewController: UIViewController {
         postContact(Contact(id: "345", name: "James", url: URL(string: "https://www.jamesexample.com")!))
     }
 
-    private func presentAlert(for error: Error) {
-        let actions = [UIAlertAction(title: "OK", style: .default, handler: nil)]
-        let alertController = UIAlertController(title: "Error", message: error.localizedDescription,
-                                                preferredStyle: .alert, actions: actions)
-        present(alertController, animated: true)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reachabilitySubscription = reachabilityService.subscribe { [weak self] isReachable in
+            if !isReachable {
+                self?.presentAlertController(withTitle: "Reachability", message: "You are not connected to the internet")
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        reachabilitySubscription?.unsubscribe()
+        reachabilitySubscription = nil
     }
 
     private func startLoading() {
@@ -93,6 +105,4 @@ extension ContactViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 
-extension ContactViewController: UITableViewDelegate {
-
-}
+extension ContactViewController: UITableViewDelegate {}

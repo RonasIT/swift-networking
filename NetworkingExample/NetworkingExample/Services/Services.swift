@@ -6,7 +6,8 @@
 import Networking
 
 typealias HasServices = HasApiService &
-                        HasSessionService
+                        HasSessionService &
+                        HasReachabilityService
 
 var Services: HasServices = MainServices() // swiftlint:disable:this variable_name
 
@@ -16,7 +17,20 @@ final class MainServices: HasServices {
         return SessionService()
     }()
 
-    lazy var apiRequestAdaptingService: RequestAdaptingServiceProtocol = {
+    lazy var apiService: ApiServiceProtocol = {
+        return ApiService(requestAdaptingService: apiRequestAdaptingService,
+                          errorHandlingService: apiErrorHandlingService)
+    }()
+
+    lazy var reachabilityService: ReachabilityServiceProtocol = {
+        let reachabilityService = ReachabilityService()
+        reachabilityService.startMonitoring()
+        return reachabilityService
+    }()
+
+    // MARK: - Private
+
+    private lazy var apiRequestAdaptingService: RequestAdaptingServiceProtocol = {
         let requestAdapters: [RequestAdapter] = [
             AppRequestAdapter(),
             TokenRequestAdapter(sessionService: sessionService)
@@ -24,13 +38,8 @@ final class MainServices: HasServices {
         return RequestAdaptingService(requestAdapters: requestAdapters)
     }()
 
-    lazy var apiErrorHandlingService: ErrorHandlingServiceProtocol = {
+    private lazy var apiErrorHandlingService: ErrorHandlingServiceProtocol = {
         let errorHandlers: [ErrorHandler] = [LoggingErrorHandler(), GeneralErrorHandler()]
         return ErrorHandlingService(errorHandlers: errorHandlers)
-    }()
-
-    lazy var apiService: ApiServiceProtocol = {
-        return ApiService(requestAdaptingService: apiRequestAdaptingService,
-                          errorHandlingService: apiErrorHandlingService)
     }()
 }
