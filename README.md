@@ -10,6 +10,7 @@ Networking is a network abstraction layer built on top of [Alamofire](https://gi
   * `String`
   * `Decodable`
   * `[Key: Value]`
+- [x] [Reachability](#reachability)
 - [x] [Request adapting](#request-adapting)
 - [x] [Error handling](#error-handling)
 - [x] [Automatic token refreshing and request retrying](#automatic-token-refreshing-and-request-retrying) 
@@ -196,6 +197,36 @@ Each endpoint provides `isAuthorized` variable. If you are using `TokenRequestAd
 access token will be attached only for requests with authorized endpoints.  
 You can also provide custom errors for endpoints using `GeneralErrorHandler`, see [error handling](#error-handling) for more.
 
+### Reachability
+
+`Networking` has built-in `ReachabilityService` to observe internet connection.
+
+#### Usage
+
+```swift
+
+// Create service
+let reachabilityService: ReachabilityServiceProtocol = ReachabilityService()
+
+// Start monitoring internet connection
+reachabilityService.startMonitoring()
+
+// Stop monitoring internet connection
+reachabilityService.stopMonitoring()
+
+// Subscribe on internet connection change events
+let subscription = reachabilityService.subscribe { isReachable in
+    // Handler will be called while subscription is active
+}
+
+// Use to stop receive internet connection change events
+subscription.unsubscribe()
+
+// You also can check internet connection directly from service
+let isNetworkConnectionAvailable = reachabilityService.isReachable
+
+```
+
 ### Request adapting
 
 ⚠️ Currently supports only appending headers ⚠️
@@ -266,14 +297,14 @@ import Networking
 
 final class LoggingErrorHandler: ErrorHandler {
     
-    func handleError<T>(_ error: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
+    func handleError<T>(_ requestError: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
         // Request errors appear here
-        print("Request failure at: \(error.endpoint.path)")
-        print("Error: \(error.underlyingError)")
-        print("Response: \(error.response)")
+        print("Request failure at: \(requestError.endpoint.path)")
+        print("Error: \(requestError.underlyingError)")
+        print("Response: \(requestError.response)")
         
         // Redirect error to the next error handler
-        completion(.continueErrorHandling(with: error.underlyingError))
+        completion(.continueErrorHandling(with: requestError.underlyingError))
     }
 }
 ```
