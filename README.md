@@ -217,7 +217,7 @@ let subscription = reachabilityService.subscribe { isReachable in
     // Handler will be called while subscription is active
 }
 
-// Use to stop receive internet connection change events
+// Use to stop receive internet connection change events in subscription handler
 subscription.unsubscribe()
 
 // You also can check internet connection directly from service
@@ -310,7 +310,7 @@ final class LoggingErrorHandler: ErrorHandler {
 Once error handling completed, you should call completion handler with result,
 which affects error handling chain:
 - Use `continueErrorHandling(with: error)` to redirect your error to the next error handler. If there is no other error handlers, request will be failed.
-- Use `continueFailure(with: error)` fail request with your error right now
+- Use `continueFailure(with: error)` to fail request with your error right now
 - Use `retryNeeded` to retry failed request
 
 2. Create error handling service with your error handler:
@@ -330,7 +330,7 @@ lazy var profileService: ProfileServiceProtocol = {
 #### `GeneralErrorHandler`
 
 To simplify error handling for some general errors, any `ErrorHandlingService` uses built-in `GeneralErrorHandler` by default.
-You don't need to check error code or response status code manually. `GeneralErrorHandler` will help you with it by mapping errors to
+You don't need to check error code or response status code manually. `GeneralErrorHandler` will map some errors to
 `GeneralRequestError`.
 There is a list of supported errors:
 ```swift
@@ -387,7 +387,7 @@ enum ProfileEndpoint: Endpoint {
 
 ⚠️ Supports only OAuth 2.0 Bearer Token ⚠️
 
-`Networking` can automatically refresh tokens and retry failed requests.
+`Networking` can automatically refresh access tokens and retry failed requests.
 
 There are three components of this feature:
 1. `UnauthorizedErrorHandler` provides error handling logic for "unauthorized" errors with 401 status code
@@ -431,7 +431,7 @@ final class SessionService: SessionServiceProtocol, NetworkService {
 }
 ```
 
-2. Create `RequestAdaptingService` with `TokenRequestAdapter`
+2. Create `RequestAdaptingService` with `TokenRequestAdapter`:
 
 ```swift
 lazy var sessionService: SessionServiceProtocol = {
@@ -459,10 +459,6 @@ lazy var profileService: ProfileServiceProtocol = {
 }()
 ```
 
-If all is correct, you can expect this result:
-1. First, unauthorized error will trigger token refreshing in your `SessionService`.
-2. While we're refreshing token, all new failed requests with "unauthorized" error will be collected for future.
-3. Once token refreshing completed, failed requests will be adapted (access token changed, we should update request headers) and retried.
-4. If token refreshing failed, all pending requests will be failed.
+If all is correct, you can forgot about problem with expired tokens in your app.
 
 To learn more, please check example project.
