@@ -147,7 +147,7 @@ final class ErrorHandlingTests: XCTestCase {
         })
         networkService = nil
 
-        _ = XCTWaiter.wait(for: [lifecycleExpectation], timeout: 3)
+        _ = XCTWaiter.wait(for: [lifecycleExpectation], timeout: 5)
         XCTAssertNil(weakNetworkService)
         lifecycleExpectation.fulfill()
     }
