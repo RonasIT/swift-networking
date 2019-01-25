@@ -161,7 +161,7 @@ open class NetworkService {
             return
         }
 
-        let requestError = RequestError(endpoint: request.endpoint, underlyingError: error, response: response)
+        let requestError = RequestError(endpoint: request.endpoint, error: error, response: response)
         errorHandlingService.handleError(requestError, retrying: { [weak self, weak request] in
             guard let `self` = self,
                   let `request` = request else {

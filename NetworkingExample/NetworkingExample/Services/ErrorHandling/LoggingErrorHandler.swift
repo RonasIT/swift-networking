@@ -9,7 +9,7 @@ import Alamofire
 final class LoggingErrorHandler: ErrorHandler {
 
     func handleError<T>(_ requestError: RequestError<T>, completion: @escaping Completion) {
-        print("Received request failure: \(requestError.underlyingError)")
-        completion(.continueErrorHandling(with: requestError.underlyingError))
+        print("Received request failure: \(requestError.error)")
+        completion(.continueErrorHandling(with: requestError.error))
     }
 }

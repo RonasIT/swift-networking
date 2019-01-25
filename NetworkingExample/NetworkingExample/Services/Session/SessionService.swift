@@ -20,7 +20,7 @@ final class SessionService: SessionServiceProtocol {
                 return
             }
             let expiryDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
-            self.token = AuthToken(token: "token", expiryDate: expiryDate)
+            self.token = AuthToken(token: "token", expirationDate: expiryDate)
         }
     }
 }

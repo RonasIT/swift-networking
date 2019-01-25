@@ -136,7 +136,8 @@ final class ErrorHandlingTests: XCTestCase {
             XCTFail("Memory leak happened")
         }
 
-        var networkService: NetworkService? = NetworkService(errorHandlingService: ErrorHandlingService(errorHandlers: [errorHandler]))
+        let errorHandlingService = ErrorHandlingService(errorHandlers: [errorHandler])
+        var networkService: NetworkService? = NetworkService(errorHandlingService: errorHandlingService)
         weak var weakNetworkService = networkService
 
         networkService?.request(for: MockEndpoint.failure, success: {

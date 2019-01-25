@@ -7,7 +7,6 @@ import Alamofire
 import XCTest
 @testable import Networking
 
-
 final class MockRequest<Result>: BaseRequest<Result> {
 
     private var completion: Completion?

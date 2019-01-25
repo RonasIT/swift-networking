@@ -17,6 +17,6 @@ final class MockErrorHandler: ErrorHandler {
     }
 
     func handleError<T>(_ error: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
-        errorHandling?(error.underlyingError, completion)
+        errorHandling?(error.error, completion)
     }
 }

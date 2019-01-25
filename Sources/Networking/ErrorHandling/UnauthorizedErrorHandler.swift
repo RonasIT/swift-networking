@@ -20,7 +20,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
     public func handleError<T>(_ error: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
         guard let response = error.response.response,
               response.statusCode == 401 else {
-            completion(.continueErrorHandling(with: error.underlyingError))
+            completion(.continueErrorHandling(with: error.error))
             return
         }
 
@@ -28,20 +28,31 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         let requestCompletedTime = error.response.timeline.requestCompletedTime
         let requestFailureDate = Date(timeIntervalSinceReferenceDate: requestCompletedTime)
 
-        // Since multiple requests can be sent at same time, we have to avoid race conditions
-        // For example 5 requests sent in parallel shouldn't trigger token refreshing multiple times
-        // 1. Retry all requests, if token is already refreshed
-        // 2. Fail all requests, if token refreshing has recently failed
-        if let authToken = sessionService.authToken, authToken.expiryDate > requestFailureDate {
+        // Since multiple requests can be failed in short time (for example during 10 seconds),
+        // we have to avoid race conditions.
+
+        // 1. We sent two requests - REQUEST_A and REQUEST_B
+        // 2. We received error for REQUEST_A, but REQUEST_B still not received response
+        // 3. Error of REQUEST_A triggered token refreshing, while REQUEST_B still not received response
+        // 4. Token refreshing completed, but we still waiting response of REQUEST_B
+        // 5. REQUEST_B failed with unauthorized error
+        // 6. What to do next? Token is valid, so we have to retry REQUEST_B instead of triggering token refreshing
+        // To achieve logic in point 6, we should check token before token refreshing.
+        // Same we need to do when token refreshing failed, but with date of token refreshing failure
+        // For more check `TokenRefreshingTests.swift`
+
+        if let authToken = sessionService.authToken, authToken.expirationDate > requestFailureDate {
+            // Token has been refreshed recently
             completion(.retryNeeded)
             return
         } else if let tokenRefreshFailureDate = lastTokenRefreshFailureDate,
                   tokenRefreshFailureDate <= requestFailureDate {
-            completion(.continueErrorHandling(with: error.underlyingError))
+            // Token refreshing has been failed recently
+            completion(.continueErrorHandling(with: error.error))
             return
         }
 
-        items.append(AuthorizationErrorHandlerItem(error: error.underlyingError, completion: completion))
+        items.append(AuthorizationErrorHandlerItem(error: error.error, completion: completion))
         startTokenRefreshingIfNeeded()
     }
 

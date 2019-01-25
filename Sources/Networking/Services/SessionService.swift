@@ -8,11 +8,15 @@ import Foundation
 public final class AuthToken {
 
     let token: String
-    let expiryDate: Date
 
-    public init(token: String, expiryDate: Date) {
+    // Expiration date provides token validation
+    // For example, to trigger token refreshing, we must be sure, that current token is not valid
+    // Otherwise token refreshing may be triggered multiple times
+    let expirationDate: Date
+
+    public init(token: String, expirationDate: Date) {
         self.token = token
-        self.expiryDate = expiryDate
+        self.expirationDate = expirationDate
     }
 }
 

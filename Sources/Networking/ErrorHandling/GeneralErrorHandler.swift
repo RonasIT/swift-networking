@@ -11,13 +11,13 @@ open class GeneralErrorHandler: ErrorHandler {
 
     public func handleError<T>(_ error: RequestError<T>, completion: @escaping Completion) {
         let endpoint = error.endpoint
-        switch error.underlyingError {
+        switch error.error {
         case let error as AFError:
             handleError(error, endpoint: endpoint, completion: completion)
         case let error as URLError:
             handleError(error, endpoint: endpoint, completion: completion)
         default:
-            completion(.continueErrorHandling(with: error.underlyingError))
+            completion(.continueErrorHandling(with: error.error))
         }
     }
 
