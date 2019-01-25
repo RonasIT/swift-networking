@@ -67,40 +67,36 @@ final class Profile: Codable {
 }
 ```
 
-This example demonstrates the common usage with `Decodable` response.  
-You also able to use other types of response like below.  
-`[Hashable: Any]` (JSON with generic key):
+The example above uses `Decodable` response. But you also able to use other types of response like below:
 ```swift
+// `[String: Any]`
 request(for: endpoint, readingOptions: .allowFragments, success: { (response: [String: Any]) in
 
 }, failure: { error in
     
 })
-````
-`String`:
-```swift
+
+// `String`
 request(for: endpoint, encoding: .utf8, success: { (response: String) in
 
 }, failure: { error in
     
 })
-````
-`Data`:
-```swift
+
+// `Data`
 request(for: endpoint, success: { (response: Data) in
 
 }, failure: { error in
     
 })
-````
-Or empty:
-```swift
+
+// Or empty
 request(for: endpoint, success: {
 
 }, failure: { error in
     
 })
-````
+```
 
 ⚠️ Request lifecycle ⚠️
 
