@@ -1,8 +1,8 @@
-# Networking
+# ⚡ Networking
 
 Networking is a network abstraction layer built on top of [Alamofire](https://github.com/Alamofire/Alamofire).
 
-## Features
+## Features ✔️
 
 - [x] [`Endpoint` support](#endpoint)
 - [x] [Flexible response](#making-a-request), including:
@@ -14,7 +14,7 @@ Networking is a network abstraction layer built on top of [Alamofire](https://gi
 - [x] [Error handling](#error-handling)
 - [x] [Automatic token refreshing and request retrying](#automatic-token-refreshing-and-request-retrying) 
 
-## Usage
+## Usage 🔨
 
 ### Making a Request
 
