@@ -188,10 +188,12 @@ enum ProfileEndpoint: UploadEndpoint {
 }
 ```
 
-By default you should use `Endpoint` protocol. But if you need to use upload requests like in example above, use `UploadEndpoint`, which has additional `imageBodyParts` variable.  
-Each endpoint provides `isAuthorized` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
+Notes:
+- By default you should use `Endpoint` protocol. But if you need to use upload requests like in example above, use `UploadEndpoint`, 
+which has additional `imageBodyParts` variable.  
+- Each endpoint provides `isAuthorized` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
 access token will be attached only for requests with authorized endpoints.  
-You can also provide custom errors for endpoints using `GeneralErrorHandler`, see [error handling](#error-handling) for more.
+- You can also provide custom errors for endpoints using `GeneralErrorHandler`, see [error handling](#error-handling) for more.
 
 ### Reachability
 
