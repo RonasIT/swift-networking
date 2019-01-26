@@ -8,9 +8,13 @@ import Foundation
 import XCTest
 @testable import Networking
 
-final class MockRequest<Result>: BaseRequest<Result> {
+final class MockRequest<Result>: Networking.Request<Result> {
 
     private var completion: Completion?
+
+    init(endpoint: Endpoint, responseSerializer: DataResponseSerializer<Result>) {
+        super.init(sessionManager: .default, endpoint: endpoint, responseSerializer: responseSerializer)
+    }
 
     override func response(completion: @escaping Completion) {
         self.completion = completion
@@ -44,10 +48,6 @@ final class MockRequest<Result>: BaseRequest<Result> {
                 return
             }
         }
-    }
-
-    override func cancel() {
-        XCTFail("Mock request can't be cancelled, please use non-mock network service")
     }
 
     override func retry() {

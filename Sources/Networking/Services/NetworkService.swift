@@ -38,11 +38,10 @@ open class NetworkService {
         return response(for: request, success: success, failure: failure)
     }
 
-    func response<Result>(for request: BaseRequest<Result>,
+    func response<Result>(for request: Request<Result>,
                           success: @escaping Success<Result>,
                           failure: @escaping Failure) -> CancellableRequest {
-        requestAdaptingService?.adapt(request)
-        request.response { [weak self, weak request] response in
+        request.response { [weak self, weak request] (response: DataResponse<Result>) in
             guard let `self` = self, let `request` = request else {
                 return
             }
@@ -150,10 +149,12 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    func handleResponseError<Result>(_ error: Error,
-                                     response: DataResponse<Result>,
-                                     request: BaseRequest<Result>,
-                                     failure: @escaping Failure) {
+    // MARK: - Private
+
+    private func handleResponseError<Result>(_ error: Error,
+                                             response: DataResponse<Result>,
+                                             request: RetryableRequest,
+                                             failure: @escaping Failure) {
         guard let errorHandlingService = errorHandlingService else {
             failure(error)
             return

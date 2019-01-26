@@ -7,7 +7,7 @@ import Networking
 
 final class MockRequestAdapter: RequestAdapter {
 
-    var adapting: ((AdaptiveRequest) -> Void)?
+    var adapting: ((MutableRequest) -> Void)?
 
     func adapt(_ request: AdaptiveRequest) {
         adapting?(request)
