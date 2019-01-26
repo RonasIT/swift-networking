@@ -182,7 +182,7 @@ enum ProfileEndpoint: UploadEndpoint {
         }
     }
 
-    var isAuthorized: Bool {
+    var requiresAuthorization: Bool {
         return true
     }
 }
@@ -191,7 +191,7 @@ enum ProfileEndpoint: UploadEndpoint {
 Notes:
 - By default you should use `Endpoint` protocol. But if you need to use upload requests like in example above, use `UploadEndpoint`, 
 which has additional `imageBodyParts` variable.  
-- Each endpoint provides `isAuthorized` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
+- Each endpoint provides `requiresAuthorization` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
 access token will be attached only for requests with authorized endpoints.  
 - You can also provide custom errors for endpoints using `GeneralErrorHandler`, see [error handling](#error-handling) for more.
 
@@ -296,13 +296,12 @@ import Networking
 final class LoggingErrorHandler: ErrorHandler {
     
     func handleError<T>(_ requestError: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
-        // Request errors appear here
         print("Request failure at: \(requestError.endpoint.path)")
-        print("Error: \(requestError.underlyingError)")
+        print("Error: \(requestError.error)")
         print("Response: \(requestError.response)")
         
-        // Redirect error to the next error handler
-        completion(.continueErrorHandling(with: requestError.underlyingError))
+        // Error will be redirected to the next error handler
+        completion(.continueErrorHandling(with: requestError.error))
     }
 }
 ```
