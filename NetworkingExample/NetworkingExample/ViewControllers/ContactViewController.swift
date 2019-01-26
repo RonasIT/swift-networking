@@ -19,26 +19,30 @@ final class ContactViewController: UIViewController {
 
     private var contact: Contact?
 
+    deinit {
+        request?.cancel()
+        reachabilitySubscription?.unsubscribe()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: String(describing: UITableViewCell.self))
-        postContact(Contact(id: "345", name: "James", url: URL(string: "https://www.jamesexample.com")!))
-    }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+        if reachabilityService.isReachable {
+            postContact(makeContact())
+        } else {
+            presentNoConnectionAlert()
+        }
+
         reachabilitySubscription = reachabilityService.subscribe { [weak self] isReachable in
-            if !isReachable {
-                self?.presentAlertController(withTitle: "Reachability", message: "You are not connected to the internet")
+            guard let `self` = self else {
+                return
+            }
+            if isReachable, self.contact == nil {
+                self.postContact(self.makeContact())
             }
         }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        reachabilitySubscription?.unsubscribe()
-        reachabilitySubscription = nil
     }
 
     private func startLoading() {
@@ -52,6 +56,11 @@ final class ContactViewController: UIViewController {
     }
 
     private func postContact(_ contact: Contact) {
+        guard reachabilityService.isReachable else {
+            presentNoConnectionAlert()
+            return
+        }
+
         startLoading()
         request = apiService.postContact(contact, success: { [weak self] contact in
             guard let `self` = self else {
@@ -67,6 +76,14 @@ final class ContactViewController: UIViewController {
             self.stopLoading()
             self.presentAlertController(for: error)
         })
+    }
+
+    private func presentNoConnectionAlert() {
+        presentAlertController(withTitle: "Oops", message: "You are not connected to the internet")
+    }
+
+    private func makeContact() -> Contact {
+        return Contact(id: "345", name: "James", url: URL(string: "https://www.jamesexample.com")!)
     }
 }
 

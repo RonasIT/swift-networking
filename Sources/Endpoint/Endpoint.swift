@@ -13,7 +13,7 @@ public protocol Endpoint: EndpointError {
     var headers: [RequestHeader] { get }
     var parameters: Parameters? { get }
     var parameterEncoding: ParameterEncoding { get }
-    var isAuthorized: Bool { get }
+    var requiresAuthorization: Bool { get }
 }
 
 public protocol RequestHeader {

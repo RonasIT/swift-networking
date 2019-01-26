@@ -19,19 +19,17 @@ final class NetworkReachabilitySubscription: ReachabilitySubscription {
     let unsubscribeHandler: UnsubscribeHandler
     let notificationHandler: NotificationHandler
 
-    private var isUnsubscribed: Bool = false
+    private var isActive: Bool = true
 
-    init(unsubscribeHandler: @escaping UnsubscribeHandler,
-         notificationHandler: @escaping NotificationHandler) {
+    init(unsubscribeHandler: @escaping UnsubscribeHandler, notificationHandler: @escaping NotificationHandler) {
         self.unsubscribeHandler = unsubscribeHandler
         self.notificationHandler = notificationHandler
     }
 
     func unsubscribe() {
-        guard !isUnsubscribed else {
-            return
+        if isActive {
+            unsubscribeHandler(id)
+            isActive = false
         }
-        unsubscribeHandler(id)
-        isUnsubscribed = true
     }
 }

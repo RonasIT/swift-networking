@@ -16,11 +16,9 @@ final class SessionService: SessionServiceProtocol {
 
     func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            guard let `self` = self else {
-                return
-            }
-            let expiryDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
-            self.token = AuthToken(token: "token", expirationDate: expiryDate)
+            // token will be valid next 24 hours
+            let expirationDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
+            self?.token = AuthToken(token: "token", expirationDate: expirationDate)
         }
     }
 }

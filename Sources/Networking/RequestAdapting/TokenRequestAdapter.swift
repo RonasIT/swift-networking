@@ -12,7 +12,7 @@ public class TokenRequestAdapter: RequestAdapter {
     }
 
     public func adapt(_ request: AdaptiveRequest) {
-        if request.endpoint.isAuthorized,
+        if request.endpoint.requiresAuthorization,
            let authToken = sessionService.authToken {
             request.appendHeader(RequestHeaders.authorization(authToken.token))
         }
