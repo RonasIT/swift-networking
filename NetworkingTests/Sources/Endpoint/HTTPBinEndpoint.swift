@@ -45,7 +45,7 @@ enum HTTPBinEndpoint: UploadEndpoint {
         return URLEncoding.default
     }
 
-    var isAuthorized: Bool {
+    var requiresAuthorization: Bool {
         return false
     }
 

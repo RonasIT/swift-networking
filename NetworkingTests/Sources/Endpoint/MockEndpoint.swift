@@ -43,7 +43,7 @@ enum MockEndpoint: UploadEndpoint {
         return URLEncoding.default
     }
 
-    var isAuthorized: Bool {
+    var requiresAuthorization: Bool {
         switch self {
         case .authorized:
             return true
