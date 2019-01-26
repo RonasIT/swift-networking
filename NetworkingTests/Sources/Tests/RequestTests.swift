@@ -20,11 +20,9 @@ final class RequestTests: XCTestCase {
         let responseExpectation = expectation(description: "Expecting cancellation error in response")
         responseExpectation.assertForOverFulfill = true
 
-        let errorHandlingService = ErrorHandlingService(errorHandlers: [GeneralErrorHandler()])
+        // We have to test implementation of real request
+        let errorHandlingService = ErrorHandlingService()
         let networkService = NetworkService(errorHandlingService: errorHandlingService)
-
-        // Cancellation logic are in real requests
-        // So there is one way to test it - use real requests
         request = networkService.request(for: HTTPBinEndpoint.status(200), success: {
             XCTFail("Invalid case")
         }, failure: { error in
@@ -44,7 +42,8 @@ final class RequestTests: XCTestCase {
         let responseExpectation = expectation(description: "Expecting cancellation error in response")
         responseExpectation.assertForOverFulfill = true
 
-        let errorHandlingService = ErrorHandlingService(errorHandlers: [GeneralErrorHandler()])
+        // We have to test implementation of real request
+        let errorHandlingService = ErrorHandlingService()
         let networkService = NetworkService(errorHandlingService: errorHandlingService)
         request = networkService.uploadRequest(for: HTTPBinEndpoint.uploadStatus(200), success: {
             XCTFail("Invalid case")
@@ -64,8 +63,9 @@ final class RequestTests: XCTestCase {
     func testRequestMemoryLeak() {
         let lifecycleExpectation = expectation(description: "Expecting request callbacks are not called")
 
-        let networkService = MockNetworkService()
-        weak var request = networkService.request(for: MockEndpoint.success, success: {
+        // We have to test implementation of real request
+        let networkService = NetworkService()
+        weak var request = networkService.request(for: HTTPBinEndpoint.status(200), success: {
             XCTFail("Invalid case")
         }, failure: { _ in
             XCTFail("Invalid case")
@@ -79,8 +79,9 @@ final class RequestTests: XCTestCase {
     func testUploadRequestMemoryLeak() {
         let lifecycleExpectation = expectation(description: "Expecting request callbacks are not called")
 
-        let networkService = MockNetworkService()
-        weak var request = networkService.uploadRequest(for: MockEndpoint.successUpload, success: {
+        // We have to test implementation of real request
+        let networkService = NetworkService()
+        weak var request = networkService.uploadRequest(for: HTTPBinEndpoint.status(200), success: {
             XCTFail("Invalid case")
         }, failure: { _ in
             XCTFail("Invalid case")

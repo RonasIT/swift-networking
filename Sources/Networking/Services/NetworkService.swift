@@ -150,8 +150,6 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - Private
-
     func handleResponseError<Result>(_ error: Error,
                                      response: DataResponse<Result>,
                                      request: BaseRequest<Result>,

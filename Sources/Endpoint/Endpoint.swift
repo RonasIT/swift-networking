@@ -29,16 +29,6 @@ public enum RequestHeaders: RequestHeader {
     case userAgent(osVersion: String, appVersion: String)
     case dpi(scale: CGFloat)
 
-    public static let `default`: [RequestHeader] = {
-        var headers = [RequestHeaders.dpi(scale: UIScreen.main.scale)]
-        if let appInfo = Bundle.main.infoDictionary,
-            let appVersion = appInfo["CFBundleShortVersionString"] as? String {
-            headers.append(RequestHeaders.userAgent(osVersion: UIDevice.current.systemVersion,
-                                                    appVersion: appVersion))
-        }
-        return headers
-    }()
-
     public var key: String {
         switch self {
         case .authorization:
@@ -72,11 +62,11 @@ public extension Endpoint {
         return baseURL + path
     }
 
-    func error(for urlError: URLError) -> Error? {
+    func error(forResponseCode responseCode: Int) -> Error? {
         return nil
     }
 
-    func error(forResponseCode responseCode: Int) -> Error? {
+    func error(for urlErrorCode: URLError.Code) -> Error? {
         return nil
     }
 }

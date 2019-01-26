@@ -13,9 +13,10 @@ open class GeneralErrorHandler: ErrorHandler {
         let endpoint = error.endpoint
         switch error.error {
         case let error as AFError:
-            handleError(error, endpoint: endpoint, completion: completion)
-        case let error as URLError:
-            handleError(error, endpoint: endpoint, completion: completion)
+            handleAFError(error, endpoint: endpoint, completion: completion)
+        case let error as NSError where error.domain == NSURLErrorDomain:
+            let code = URLError.Code(rawValue: error.code)
+            handleError(with: code, endpoint: endpoint, completion: completion)
         default:
             completion(.continueErrorHandling(with: error.error))
         }
@@ -23,7 +24,7 @@ open class GeneralErrorHandler: ErrorHandler {
 
     // MARK: - Private
 
-    private func handleError(_ error: AFError, endpoint: Endpoint, completion: @escaping Completion) {
+    private func handleAFError(_ error: AFError, endpoint: Endpoint, completion: @escaping Completion) {
         guard let responseCode = error.responseCode else {
             completion(.continueErrorHandling(with: error))
             return
@@ -46,14 +47,14 @@ open class GeneralErrorHandler: ErrorHandler {
         completion(.continueErrorHandling(with: mappedError))
     }
 
-    private func handleError(_ error: URLError, endpoint: Endpoint, completion: @escaping Completion) {
-        if let endpointError = endpoint.error(for: error) {
-            completion(.continueErrorHandling(with: endpointError))
+    private func handleError(with urlErrorCode: URLError.Code, endpoint: Endpoint, completion: @escaping Completion) {
+        if let error = endpoint.error(for: urlErrorCode) {
+            completion(.continueErrorHandling(with: error))
             return
         }
 
         var mappedError: Error
-        switch error {
+        switch urlErrorCode {
         case URLError.notConnectedToInternet:
             mappedError = GeneralRequestError.noInternetConnection
         case URLError.timedOut:
@@ -61,7 +62,7 @@ open class GeneralErrorHandler: ErrorHandler {
         case URLError.cancelled:
             mappedError = GeneralRequestError.cancelled
         default:
-            mappedError = error
+            mappedError = NSError(domain: NSURLErrorDomain, code: urlErrorCode.rawValue)
         }
         completion(.continueErrorHandling(with: mappedError))
     }

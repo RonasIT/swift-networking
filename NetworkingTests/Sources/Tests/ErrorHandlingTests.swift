@@ -12,20 +12,25 @@ private enum PartialErrorHandlingChainTestKind {
     case testWithRetry
 }
 
-final class ErrorHandlingTests: XCTestCase {
+private enum EndpointErrorMappingTestKind {
+    case mappedErrorWithResponseCode(Int, to: MockError)
+    case mappedURLError(with: URLError.Code, to: MockError)
+}
 
-    private var request: CancellableRequest?
+final class ErrorHandlingTests: XCTestCase {
 
     private lazy var errorHandler: MockErrorHandler = .init()
     private lazy var networkService: NetworkService = {
         let errorHandlingService = ErrorHandlingService(errorHandlers: [errorHandler])
         return NetworkService(errorHandlingService: errorHandlingService)
     }()
+
+    private var request: CancellableRequest?
     
     override func tearDown() {
         super.tearDown()
-        request = nil
         errorHandler.errorHandling = nil
+        request = nil
     }
 
     func testFullErrorHandlingChain() {
@@ -81,6 +86,7 @@ final class ErrorHandlingTests: XCTestCase {
 
         let expectations = [errorHandlingTriggeredExpectation, failureTriggeredExpectation]
         wait(for: expectations, timeout: 10, enforceOrder: true)
+        request = nil
     }
 
     func testPartialErrorHandlingChainWithFailure() {
@@ -89,29 +95,6 @@ final class ErrorHandlingTests: XCTestCase {
     
     func testPartialErrorHandlingChainWithRetry() {
         testPartialErrorHandlingChain(testKind: .testWithRetry)
-    }
-
-    func testFailureWithEndpointError() {
-        let errorHandlingService = ErrorHandlingService(errorHandlers: [GeneralErrorHandler()])
-        let networkService = MockNetworkService(errorHandlingService: errorHandlingService)
-
-        let failureExpectation = expectation(description: "Expecting failure response")
-        failureExpectation.assertForOverFulfill = true
-
-        let expectedError = MockError()
-        request = networkService.request(for: MockEndpoint.failureWithError(expectedError), success: {
-            XCTFail("Invalid case")
-        }, failure: { error in
-            guard let error = error as? MockError else {
-                XCTFail("Test uses mock error")
-                return
-            }
-
-            XCTAssertTrue(error === expectedError, "Expecting error from endpoint")
-            failureExpectation.fulfill()
-        })
-
-        wait(for: [failureExpectation], timeout: 10)
     }
 
     func testFailureWithoutErrorHandling() {
@@ -127,6 +110,16 @@ final class ErrorHandlingTests: XCTestCase {
         })
 
         wait(for: [failureExpectation], timeout: 10)
+    }
+
+    func testErrorHandlingWithMappedEndpointErrorByResponseCode() {
+        let mappedError = MockError()
+        testErrorHandlingWithMappedEndpointError(testKind: .mappedErrorWithResponseCode(400, to: mappedError))
+    }
+
+    func testErrorHandlingWithMappedEndpointErrorByURLErrorCode() {
+        let mappedError = MockError()
+        testErrorHandlingWithMappedEndpointError(testKind: .mappedURLError(with: .badServerResponse, to: mappedError))
     }
 
     func testErrorHandlingMemoryLeaks() {
@@ -217,5 +210,38 @@ final class ErrorHandlingTests: XCTestCase {
         }
         
         wait(for: expectations, timeout: 10, enforceOrder: true)
+    }
+
+    private func testErrorHandlingWithMappedEndpointError(testKind: EndpointErrorMappingTestKind) {
+        var endpoint: Endpoint
+        var expectedError: MockError
+        switch testKind {
+        case .mappedErrorWithResponseCode(let responseCode, to: let mappedError):
+            endpoint = MockEndpoint.mappedErrorForResponseCode(responseCode, mappedError: mappedError)
+            expectedError = mappedError
+        case .mappedURLError(with: let urlErrorCode, to: let mappedError):
+            endpoint = MockEndpoint.mappedErrorForURLErrorCode(urlErrorCode, mappedError: mappedError)
+            expectedError = mappedError
+        }
+
+        let errorHandlingService = ErrorHandlingService(errorHandlers: [GeneralErrorHandler()])
+        let networkService = MockNetworkService(errorHandlingService: errorHandlingService)
+
+        let failureExpectation = expectation(description: "Expecting failure response")
+        failureExpectation.assertForOverFulfill = true
+
+        request = networkService.request(for: endpoint, success: {
+            XCTFail("Invalid case")
+        }, failure: { error in
+            guard let error = error as? MockError else {
+                XCTFail("Test uses mock error")
+                return
+            }
+
+            XCTAssertTrue(error === expectedError, "Expecting error from endpoint")
+            failureExpectation.fulfill()
+        })
+
+        wait(for: [failureExpectation], timeout: 10)
     }
 }

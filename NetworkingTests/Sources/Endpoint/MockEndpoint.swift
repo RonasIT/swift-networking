@@ -11,15 +11,27 @@ enum MockEndpoint: UploadEndpoint {
     case successUpload
     case failure
     case authorized
+    case mappedErrorForURLErrorCode(URLError.Code, mappedError: Error)
+    case mappedErrorForResponseCode(Int, mappedError: Error)
     case headersValidation([RequestHeader])
-    case failureWithError(Error)
+    case urlValidation(baseURL: URL, path: String)
 
     var baseURL: URL {
-        return URL(string: "localhost")!
+        switch self {
+        case .urlValidation(baseURL: let baseURL, path: _):
+            return baseURL
+        default:
+            return URL(string: "localhost")!
+        }
     }
 
     var path: String {
-        return "mock"
+        switch self {
+        case .urlValidation(baseURL: _, path: let path):
+            return path
+        default:
+            return "mock"
+        }
     }
 
     var method: HTTPMethod {
@@ -52,20 +64,29 @@ enum MockEndpoint: UploadEndpoint {
         }
     }
 
-    private var error: Error? {
+    func error(forResponseCode responseCode: Int) -> Error? {
+        let receivedResponseCode = responseCode
         switch self {
-        case .failureWithError(let error):
-            return error
+        case .mappedErrorForResponseCode(let responseCode, mappedError: let error):
+            if responseCode == receivedResponseCode {
+                return error
+            }
         default:
             return nil
         }
+        return nil
     }
 
-    func error(forResponseCode responseCode: Int) -> Error? {
-        return error
-    }
-
-    func error(forURLErrorCode errorCode: Int) -> Error? {
-        return error
+    func error(for urlErrorCode: URLError.Code) -> Error? {
+        let receivedURLErrorCode = urlErrorCode
+        switch self {
+        case .mappedErrorForURLErrorCode(let urlErrorCode, mappedError: let error):
+            if urlErrorCode == receivedURLErrorCode {
+                return error
+            }
+        default:
+            return nil
+        }
+        return nil
     }
 }

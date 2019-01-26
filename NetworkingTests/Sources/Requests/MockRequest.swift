@@ -4,6 +4,7 @@
 //
 
 import Alamofire
+import Foundation
 import XCTest
 @testable import Networking
 
@@ -28,15 +29,18 @@ final class MockRequest<Result>: BaseRequest<Result> {
             case .success:
                 completion(self.successResponse())
             case .failure:
-                completion(self.errorResponse(statusCode: 500))
-            case .failureWithError(let error):
-                completion(self.errorResponse(statusCode: 400, error: error))
+                completion(self.errorResponse(withStatusCode: 400))
+            case .mappedErrorForResponseCode(let responseCode, mappedError: _):
+                completion(self.errorResponse(withStatusCode: responseCode))
+            case .mappedErrorForURLErrorCode(let urlErrorCode, mappedError: _):
+                let error = NSError(domain: NSURLErrorDomain, code: urlErrorCode.rawValue)
+                completion(self.errorResponse(withStatusCode: 500, error: error))
             case .authorized:
                 self.completeAuthorizedRequest(with: completion)
             case .headersValidation(let appendedHeaders):
                 self.completeHeadersValidationRequest(with: appendedHeaders, completion: completion)
             default:
-                XCTFail("Unsupported case")
+                XCTFail("Unsupported endpoint")
                 return
             }
         }
@@ -63,7 +67,7 @@ final class MockRequest<Result>: BaseRequest<Result> {
                    header.value == expectedAuthHeader.value
         }
         guard hasAuthHeader else {
-            completion(errorResponse(statusCode: 401))
+            completion(errorResponse(withStatusCode: 401))
             return
         }
         completion(successResponse())
@@ -73,14 +77,14 @@ final class MockRequest<Result>: BaseRequest<Result> {
         appendedHeaders.forEach { header in
             let headerExists = headers.contains { $0.key == header.key && $0.value == header.value }
             guard headerExists else {
-                completion(errorResponse(statusCode: 400))
+                completion(errorResponse(withStatusCode: 400))
                 return
             }
         }
         completion(successResponse())
     }
 
-    private func errorResponse(statusCode: Int, error: Error? = nil) -> DataResponse<Result> {
+    private func errorResponse(withStatusCode statusCode: Int, error: Error? = nil) -> DataResponse<Result> {
         let urlResponse = HTTPURLResponse(url: endpoint.url,
                                           statusCode: statusCode,
                                           httpVersion: nil,
