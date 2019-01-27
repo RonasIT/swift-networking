@@ -13,6 +13,11 @@ final class MockNetworkService: NetworkService {
                                   responseSerializer: DataResponseSerializer<Result>,
                                   success: @escaping Success<Result>,
                                   failure: @escaping Failure) -> CancellableRequest {
+        guard let endpoint = endpoint as? MockEndpoint else {
+            XCTFail("Mock endpoint required")
+            fatalError()
+        }
+
         let request = MockRequest(endpoint: endpoint, responseSerializer: responseSerializer)
         return response(for: request, success: success, failure: failure)
     }
@@ -21,6 +26,11 @@ final class MockNetworkService: NetworkService {
                                         responseSerializer: DataResponseSerializer<Result>,
                                         success: @escaping Success<Result>,
                                         failure: @escaping Failure) -> CancellableRequest {
+        guard let endpoint = endpoint as? MockEndpoint else {
+            XCTFail("Mock endpoint required")
+            fatalError()
+        }
+
         let request = MockRequest(endpoint: endpoint, responseSerializer: responseSerializer)
         return response(for: request, success: success, failure: failure)
     }

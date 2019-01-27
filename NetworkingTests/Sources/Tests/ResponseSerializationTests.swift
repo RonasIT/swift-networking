@@ -9,20 +9,38 @@ import XCTest
 
 final class ResponseSerializationTests: XCTestCase {
 
-    func testResponseJSONSerialization() {
+    func testJSONResponseSerialization() {
         let invalidJSON = "{ key: \"value\" }"
         let validJSON = "{ \"key\": \"value\" }"
 
         let invalidJSONData = invalidJSON.data(using: .utf8)!
         let validJSONData = validJSON.data(using: .utf8)!
 
-        let serializer = DataRequest.jsonResponseSerializer(with: .allowFragments)
-        let result = serializer.serializeResponse(nil, nil, nil, nil)
-        
-        XCTAssertTrue(result.isFailure)
-        XCTAssertTrue(serializer.serializeResponse(nil, nil, Data(), nil).isFailure)
-        XCTAssertTrue(serializer.serializeResponse(nil, nil, nil, NSError()).isFailure)
-        XCTAssertTrue(serializer.serializeResponse(nil, nil, invalidJSONData, nil).isFailure)
-        XCTAssertTrue(serializer.serializeResponse(nil, nil, validJSONData, nil).isSuccess)
+        let serializer = JSONResponseSerializer(readingOptions: .allowFragments)
+        XCTAssertTrue(serializer.serializeResponse(with: nil, request: nil, response: nil, error: nil).isFailure)
+        XCTAssertTrue(serializer.serializeResponse(with: Data(), request: nil, response: nil, error: nil).isFailure)
+        XCTAssertTrue(serializer.serializeResponse(with: nil, request: nil, response: nil, error: NSError()).isFailure)
+        XCTAssertTrue(serializer.serializeResponse(with: invalidJSONData, request: nil, response: nil, error: nil).isFailure)
+        XCTAssertTrue(serializer.serializeResponse(with: validJSONData, request: nil, response: nil, error: nil).isSuccess)
+    }
+
+    func testDecodableResponseSerialization() {
+        final class User: Decodable {
+            let name: String
+            let email: String
+        }
+
+        let invalidJSON = "{ name: \"Test\", email: \"mail@mail.com\" }"
+        let validJSON = "{ \"name\": \"Test\", \"email\": \"mail@mail.com\" }"
+
+        let invalidJSONData = invalidJSON.data(using: .utf8)!
+        let validJSONData = validJSON.data(using: .utf8)!
+
+        let serializer: DecodableResponseSerializer<User> = DecodableResponseSerializer()
+        XCTAssertTrue(serializer.serializeResponse(with: nil, request: nil, response: nil, error: nil).isFailure)
+        XCTAssertTrue(serializer.serializeResponse(with: Data(), request: nil, response: nil, error: nil).isFailure)
+        XCTAssertTrue(serializer.serializeResponse(with: nil, request: nil, response: nil, error: NSError()).isFailure)
+        XCTAssertTrue(serializer.serializeResponse(with: invalidJSONData, request: nil, response: nil, error: nil).isFailure)
+        XCTAssertTrue(serializer.serializeResponse(with: validJSONData, request: nil, response: nil, error: nil).isSuccess)
     }
 }

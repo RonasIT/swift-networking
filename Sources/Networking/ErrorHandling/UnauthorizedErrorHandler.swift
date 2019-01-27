@@ -17,15 +17,15 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         self.sessionService = sessionService
     }
 
-    public func handleError<T>(_ error: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
-        guard let response = error.response.response,
-              response.statusCode == 401 else {
-            completion(.continueErrorHandling(with: error.error))
+    public func handleError<T>(_ requestError: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
+        guard let error = requestError.error as? AFError,
+              error.responseCode == 401 else {
+            completion(.continueErrorHandling(with: requestError.error))
             return
         }
 
         // `requestCompletedTime` is time interval since reference date
-        let requestCompletedTime = error.response.timeline.requestCompletedTime
+        let requestCompletedTime = requestError.response.timeline.requestCompletedTime
         let requestFailureDate = Date(timeIntervalSinceReferenceDate: requestCompletedTime)
 
         // Since multiple requests can be failed in short time (for example during 10 seconds),
@@ -48,11 +48,11 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         } else if let tokenRefreshFailureDate = lastTokenRefreshFailureDate,
                   tokenRefreshFailureDate <= requestFailureDate {
             // Token refreshing has been failed recently
-            completion(.continueErrorHandling(with: error.error))
+            completion(.continueErrorHandling(with: requestError.error))
             return
         }
 
-        items.append(AuthorizationErrorHandlerItem(error: error.error, completion: completion))
+        items.append(AuthorizationErrorHandlerItem(error: requestError.error, completion: completion))
         startTokenRefreshingIfNeeded()
     }
 

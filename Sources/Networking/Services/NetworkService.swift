@@ -41,6 +41,7 @@ open class NetworkService {
     func response<Result>(for request: Request<Result>,
                           success: @escaping Success<Result>,
                           failure: @escaping Failure) -> CancellableRequest {
+        requestAdaptingService?.adapt(request)
         request.response { [weak self, weak request] (response: DataResponse<Result>) in
             guard let `self` = self, let `request` = request else {
                 return
@@ -79,8 +80,9 @@ open class NetworkService {
                                 decoder: JSONDecoder = JSONDecoder(),
                                 success: @escaping Success<Object>,
                                 failure: @escaping Failure) -> CancellableRequest where Object: Decodable {
-        let responseSerializer: DataResponseSerializer<Object> = DataRequest.decodableResponseSerializer(with: decoder)
-        return request(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
+        let responseSerializer: DecodableResponseSerializer<Object> = .init(decoder: decoder)
+        let dataResponseSerializer = responseSerializer.asDataResponseSerializer()
+        return request(for: endpoint, responseSerializer: dataResponseSerializer, success: success, failure: failure)
     }
 
     @discardableResult
@@ -88,8 +90,9 @@ open class NetworkService {
                         readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
                         success: @escaping Success<[String: Any]>,
                         failure: @escaping Failure) -> CancellableRequest {
-        let responseSerializer: DataResponseSerializer<[String: Any]> = DataRequest.jsonResponseSerializer(with: readingOptions)
-        return request(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
+        let responseSerializer = JSONResponseSerializer(readingOptions:readingOptions)
+        let dataResponseSerializer = responseSerializer.asDataResponseSerializer()
+        return request(for: endpoint, responseSerializer: dataResponseSerializer, success: success, failure: failure)
     }
 
     @discardableResult
@@ -126,8 +129,9 @@ open class NetworkService {
                                       decoder: JSONDecoder = JSONDecoder(),
                                       success: @escaping Success<Object>,
                                       failure: @escaping Failure) -> CancellableRequest where Object: Decodable {
-        let responseSerializer: DataResponseSerializer<Object> = DataRequest.decodableResponseSerializer(with: decoder)
-        return uploadRequest(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
+        let responseSerializer: DecodableResponseSerializer<Object> = .init(decoder: decoder)
+        let dataResponseSerializer = responseSerializer.asDataResponseSerializer()
+        return uploadRequest(for: endpoint, responseSerializer: dataResponseSerializer, success: success, failure: failure)
     }
 
     @discardableResult
@@ -135,8 +139,9 @@ open class NetworkService {
                                           readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
                                           success: @escaping Success<[String: Any]>,
                                           failure: @escaping Failure) -> CancellableRequest {
-        let responseSerializer: DataResponseSerializer<[String: Any]> = DataRequest.jsonResponseSerializer(with: readingOptions)
-        return uploadRequest(for: endpoint, responseSerializer: responseSerializer, success: success, failure: failure)
+        let responseSerializer = JSONResponseSerializer(readingOptions: readingOptions)
+        let dataResponseSerializer = responseSerializer.asDataResponseSerializer()
+        return uploadRequest(for: endpoint, responseSerializer: dataResponseSerializer, success: success, failure: failure)
     }
 
     @discardableResult

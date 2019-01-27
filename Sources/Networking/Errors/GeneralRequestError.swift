@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
-public enum GeneralRequestError: Error {
+public enum GeneralRequestError: Error, Equatable {
     case noInternetConnection
     case timedOut
     case noAuth

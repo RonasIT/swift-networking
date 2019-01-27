@@ -6,87 +6,55 @@
 import Alamofire
 import Networking
 
-enum MockEndpoint: UploadEndpoint {
-    case success
-    case successUpload
-    case failure
-    case authorized
-    case mappedErrorForURLErrorCode(URLError.Code, mappedError: Error)
-    case mappedErrorForResponseCode(Int, mappedError: Error)
-    case headersValidation([RequestHeader])
-    case urlValidation(baseURL: URL, path: String)
+final class MockEndpoint: UploadEndpoint {
 
-    var baseURL: URL {
-        switch self {
-        case .urlValidation(baseURL: let baseURL, path: _):
-            return baseURL
-        default:
-            return URL(string: "localhost")!
-        }
+    enum Result {
+        case failure(with: Error)
+        case success(with: Data)
     }
 
-    var path: String {
-        switch self {
-        case .urlValidation(baseURL: _, path: let path):
-            return path
-        default:
-            return "mock"
-        }
+    let result: Result
+
+    var baseURL: URL = URL(string: "localhost")!
+    var path: String = "mock"
+    var method: HTTPMethod = .get
+    var headers: [RequestHeader] = []
+    var parameters: Parameters? = nil
+    var parameterEncoding: ParameterEncoding = URLEncoding.default
+    var requiresAuthorization: Bool = false
+    var imageBodyParts: [ImageBodyPart] = []
+
+    var errorForResposneCode: Error?
+    var errorForURLErrorCode: Error?
+
+    var expectedHeaders: [RequestHeader] = []
+    var expectedAuthToken: AuthToken?
+
+    init(result: String, encoding: String.Encoding = .utf8) {
+        self.result = .success(with: result.data(using: encoding)!)
     }
 
-    var method: HTTPMethod {
-        switch self {
-        case .successUpload:
-            return .post
-        default:
-            return .get
-        }
+    init(result: Data = Data()) {
+        self.result = .success(with: result)
     }
 
-    var headers: [RequestHeader] {
-        return []
+    init(result: [String: Any], options: JSONSerialization.WritingOptions = .prettyPrinted) {
+        self.result = .success(with: try! JSONSerialization.data(withJSONObject: result, options: options))
     }
 
-    var parameters: Parameters? {
-        return nil
+    init<T>(result: T, encoder: JSONEncoder = JSONEncoder()) where T: Codable {
+        self.result = .success(with: try! encoder.encode(result))
     }
 
-    var parameterEncoding: ParameterEncoding {
-        return URLEncoding.default
-    }
-
-    var requiresAuthorization: Bool {
-        switch self {
-        case .authorized:
-            return true
-        default:
-            return false
-        }
-    }
-
-    func error(forResponseCode responseCode: Int) -> Error? {
-        let receivedResponseCode = responseCode
-        switch self {
-        case .mappedErrorForResponseCode(let responseCode, mappedError: let error):
-            if responseCode == receivedResponseCode {
-                return error
-            }
-        default:
-            return nil
-        }
-        return nil
+    init(result: Error) {
+        self.result = .failure(with: result)
     }
 
     func error(for urlErrorCode: URLError.Code) -> Error? {
-        let receivedURLErrorCode = urlErrorCode
-        switch self {
-        case .mappedErrorForURLErrorCode(let urlErrorCode, mappedError: let error):
-            if urlErrorCode == receivedURLErrorCode {
-                return error
-            }
-        default:
-            return nil
-        }
-        return nil
+        return errorForURLErrorCode
+    }
+
+    func error(forResponseCode responseCode: Int) -> Error? {
+        return errorForResposneCode
     }
 }

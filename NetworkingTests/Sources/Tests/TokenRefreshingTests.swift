@@ -3,8 +3,8 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
+@testable import Networking
 import XCTest
-import Networking
 import Alamofire
 
 final class TokenRefreshingTests: XCTestCase {
@@ -43,14 +43,17 @@ final class TokenRefreshingTests: XCTestCase {
         successResponseExpectation.assertForOverFulfill = true
         successResponseExpectation.expectedFulfillmentCount = 10
 
-        let newToken = MockSessionService.Constants.validToken
+        let validToken = MockSessionService.Constants.validAuthToken
         sessionService.tokenRefreshHandler = { success, _ in
             tokenRefreshingStartedExpectation.fulfill()
-            success?(newToken)
+            success?(validToken)
         }
 
+        let endpoint = MockEndpoint()
+        endpoint.requiresAuthorization = true
+        endpoint.expectedAuthToken = validToken
         let requests = (0..<successResponseExpectation.expectedFulfillmentCount).map { _ in
-            return networkService.request(for: MockEndpoint.authorized, success: {
+            return networkService.request(for: endpoint, success: {
                 successResponseExpectation.fulfill()
             }, failure: { error in
                 XCTFail("Invalid case")
@@ -75,9 +78,12 @@ final class TokenRefreshingTests: XCTestCase {
             tokenRefreshingStartedExpectation.fulfill()
             failure?(tokenRefreshError)
         }
-        
+
+        let endpoint = MockEndpoint()
+        endpoint.requiresAuthorization = true
+        endpoint.expectedAuthToken = MockSessionService.Constants.validAuthToken
         let requests = (0..<failureResponseExpectation.expectedFulfillmentCount).map { _ in
-            return networkService.request(for: MockEndpoint.authorized, success: {
+            return networkService.request(for: endpoint, success: {
                 XCTFail("Invalid case")
             }, failure: { error in
                 if let error = error as? MockError {
@@ -90,5 +96,26 @@ final class TokenRefreshingTests: XCTestCase {
 
         let expectations = [tokenRefreshingStartedExpectation, failureResponseExpectation]
         wait(for: expectations, timeout: 10, enforceOrder: true)
+    }
+
+    func testUnauthorizedErrorHandlerWithUnsupportedError() {
+        let errorHandler = UnauthorizedErrorHandler(sessionService: sessionService)
+        let unsupportedError = MockError()
+        let response: DataResponse<Any> = .init(request: nil, response: nil, data: nil, result: .failure(unsupportedError))
+        let endpoint = MockEndpoint(result: unsupportedError)
+        let requestError = RequestError(endpoint: endpoint, error: unsupportedError, response: response)
+
+        let expectation = self.expectation(description: "Expecting continue error handling result")
+        expectation.assertForOverFulfill = true
+        errorHandler.handleError(requestError) { result in
+            switch result {
+            case .continueErrorHandling(with: let error as MockError) where error === unsupportedError:
+                expectation.fulfill()
+            default:
+                XCTFail("Unexpected result")
+            }
+        }
+
+        wait(for: [expectation], timeout: 3)
     }
 }

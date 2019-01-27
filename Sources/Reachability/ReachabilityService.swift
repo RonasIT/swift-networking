@@ -8,7 +8,7 @@ import Alamofire
 public class ReachabilityService: ReachabilityServiceProtocol {
 
     private lazy var reachabilityManager: NetworkReachabilityManager = NetworkReachabilityManager()!
-    private lazy var subscriptions: [String: NetworkReachabilitySubscription] = [:]
+    private(set) lazy var subscriptions: [String: NetworkReachabilitySubscription] = [:]
 
     public var isReachable: Bool {
         return reachabilityManager.isReachable

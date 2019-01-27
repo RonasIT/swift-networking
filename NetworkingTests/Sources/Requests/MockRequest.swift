@@ -12,41 +12,34 @@ final class MockRequest<Result>: Networking.Request<Result> {
 
     private var completion: Completion?
 
-    init(endpoint: Endpoint, responseSerializer: DataResponseSerializer<Result>) {
+    private let mockEndpoint: MockEndpoint
+
+    init(endpoint: MockEndpoint, responseSerializer: DataResponseSerializer<Result>) {
+        self.mockEndpoint = endpoint
         super.init(sessionManager: .default, endpoint: endpoint, responseSerializer: responseSerializer)
     }
 
     override func response(completion: @escaping Completion) {
         self.completion = completion
 
-        guard let endpoint = endpoint as? MockEndpoint else {
-            XCTFail("Mock request uses mock endpoint")
-            fatalError()
-        }
-
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             guard let `self` = self else {
                 return
             }
 
-            switch endpoint {
-            case .success:
-                completion(self.successResponse())
-            case .failure:
-                completion(self.errorResponse(withStatusCode: 400))
-            case .mappedErrorForResponseCode(let responseCode, mappedError: _):
-                completion(self.errorResponse(withStatusCode: responseCode))
-            case .mappedErrorForURLErrorCode(let urlErrorCode, mappedError: _):
-                let error = NSError(domain: NSURLErrorDomain, code: urlErrorCode.rawValue)
-                completion(self.errorResponse(withStatusCode: 500, error: error))
-            case .authorized:
-                self.completeAuthorizedRequest(with: completion)
-            case .headersValidation(let appendedHeaders):
-                self.completeHeadersValidationRequest(with: appendedHeaders, completion: completion)
-            default:
-                XCTFail("Unsupported endpoint")
+            guard self.hasValidAuth() else {
+                let error = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401))
+                completion(self.makeResponse(with: error))
                 return
             }
+
+            guard self.hasValidHeaders() else {
+                let error = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
+                completion(self.makeResponse(with: error))
+                return
+            }
+
+            completion(self.makeResponse())
         }
     }
 
@@ -60,45 +53,40 @@ final class MockRequest<Result>: Networking.Request<Result> {
 
     // MARK: - Private
 
-    private func completeAuthorizedRequest(with completion: @escaping Completion) {
-        let expectedAuthHeader = MockSessionService.Constants.validAuthHeader
-        let hasAuthHeader = headers.contains { header in
-            return header.key == expectedAuthHeader.key &&
-                   header.value == expectedAuthHeader.value
+    private func hasValidAuth() -> Bool {
+        let endpoint = mockEndpoint
+        if let token = endpoint.expectedAuthToken?.token {
+            return headers.contains { $0.key == "Authorization" && $0.value == "Bearer \(token)" }
+        } else {
+            return true
         }
-        guard hasAuthHeader else {
-            completion(errorResponse(withStatusCode: 401))
-            return
-        }
-        completion(successResponse())
     }
 
-    private func completeHeadersValidationRequest(with appendedHeaders: [RequestHeader], completion: @escaping Completion) {
-        appendedHeaders.forEach { header in
-            let headerExists = headers.contains { $0.key == header.key && $0.value == header.value }
-            guard headerExists else {
-                completion(errorResponse(withStatusCode: 400))
-                return
+    private func hasValidHeaders() -> Bool {
+        let endpoint = mockEndpoint
+        guard !endpoint.expectedHeaders.isEmpty else {
+            return true
+        }
+
+        return endpoint.expectedHeaders.allSatisfy { header in
+            return headers.contains { $0.key == header.key && $0.value == header.value }
+        }
+    }
+
+    private func makeResponse(with error: Error? = nil) -> DataResponse<Result> {
+        var result: Alamofire.Result<Result>
+        if let error = error {
+            result = .failure(error)
+        } else {
+            switch mockEndpoint.result {
+            case .failure(with: let error):
+                result = .failure(error)
+            case .success(with: let data):
+                result = responseSerializer.serializeResponse(nil, nil, data, nil)
             }
         }
-        completion(successResponse())
-    }
 
-    private func errorResponse(withStatusCode statusCode: Int, error: Error? = nil) -> DataResponse<Result> {
-        let urlResponse = HTTPURLResponse(url: endpoint.url,
-                                          statusCode: statusCode,
-                                          httpVersion: nil,
-                                          headerFields: nil)
-        let error = error ?? AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: statusCode))
         let timeline = Timeline(requestCompletedTime: CFAbsoluteTimeGetCurrent())
-        return DataResponse(request: nil, response: urlResponse, data: nil, result: .failure(error), timeline: timeline)
-    }
-
-    private func successResponse(with json: [String: Any] = [:]) -> DataResponse<Result> {
-        let data = try? JSONSerialization.data(withJSONObject: json)
-        let result = responseSerializer.serializeResponse(nil, nil, data, nil)
-        let urlResponse = HTTPURLResponse(url: endpoint.url, statusCode: 200, httpVersion: nil, headerFields: nil)
-        let timeline = Timeline(requestCompletedTime: CFAbsoluteTimeGetCurrent())
-        return DataResponse(request: nil, response: urlResponse, data: data, result: result, timeline: timeline)
+        return DataResponse(request: nil, response: nil, data: nil, result: result, timeline: timeline)
     }
 }

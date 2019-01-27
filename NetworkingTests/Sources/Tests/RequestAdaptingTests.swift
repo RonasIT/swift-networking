@@ -3,8 +3,8 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
+@testable import Networking
 import XCTest
-import Networking
 import Alamofire
 
 private struct CustomHeader: RequestHeader {
@@ -45,7 +45,8 @@ final class RequestAdaptingTests: XCTestCase {
         let successExpectation = expectation(description: "Custom header received back")
         successExpectation.assertForOverFulfill = true
 
-        let endpoint = MockEndpoint.headersValidation([customHeader])
+        let endpoint = MockEndpoint()
+        endpoint.expectedHeaders = [customHeader]
         request = networkService.request(for: endpoint, success: {
             successExpectation.fulfill()
         }, failure: { _ in
@@ -65,7 +66,9 @@ final class RequestAdaptingTests: XCTestCase {
         errorHandler.errorHandling = { error, completion in
             completion(.retryNeeded)
         }
-        request = networkService.request(for: MockEndpoint.failure, success: {
+
+        let endpoint = MockEndpoint(result: GeneralRequestError.noAuth)
+        request = networkService.request(for: endpoint, success: {
             print("test")
         }, failure: { _ in
             print("test")

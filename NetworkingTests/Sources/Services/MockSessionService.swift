@@ -8,11 +8,11 @@ import Networking
 final class MockSessionService: SessionServiceProtocol {
 
     enum Constants {
-        static let validToken = "validToken"
-        static let validAuthHeader = RequestHeaders.authorization(validToken)
+        // Token expires in 24 hours
+        static let validAuthToken = AuthToken(token: "token", expirationDate: Date(timeIntervalSinceNow: 24 * 60 * 60))
     }
 
-    typealias TokenRefreshCompletion = (String) -> Void
+    typealias TokenRefreshCompletion = (AuthToken) -> Void
     typealias TokenRefreshFailure = (Error) -> Void
     
     private var token: AuthToken?
@@ -32,9 +32,7 @@ final class MockSessionService: SessionServiceProtocol {
             guard let `self` = self else {
                 return
             }
-            // Token expires in 24 hours
-            let expiryDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
-            self.token = AuthToken(token: token, expirationDate: expiryDate)
+            self.token = token
             success()
         }, { [weak self] error in
             self?.token = nil
