@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
-import Networking
+@testable import Networking
 import Alamofire
 import XCTest
 
@@ -63,7 +63,7 @@ final class RequestTests: XCTestCase {
         // We have to test implementation of real request
         let errorHandlingService = ErrorHandlingService()
         let networkService = NetworkService(errorHandlingService: errorHandlingService)
-        request = networkService.request(for: HTTPBinEndpoint.status(200), success: {
+        let request = networkService.request(for: HTTPBinEndpoint.status(200), success: {
             XCTFail("Invalid case")
         }, failure: { error in
             switch error {
@@ -73,8 +73,10 @@ final class RequestTests: XCTestCase {
                 XCTFail("Invalid error")
             }
         })
-        request?.cancel()
+        self.request = request
 
+        XCTAssertTrue(request.cancel(), "Cancellation is allowed")
+        XCTAssertFalse(request.cancel(), "Cancellation is not allowed, since request has been already cancelled")
         wait(for: [responseExpectation], timeout: 10)
     }
     
@@ -85,7 +87,7 @@ final class RequestTests: XCTestCase {
         // We have to test implementation of real request
         let errorHandlingService = ErrorHandlingService()
         let networkService = NetworkService(errorHandlingService: errorHandlingService)
-        request = networkService.uploadRequest(for: HTTPBinEndpoint.uploadStatus(200), success: {
+        let request = networkService.uploadRequest(for: HTTPBinEndpoint.uploadStatus(200), success: {
             XCTFail("Invalid case")
         }, failure: { error in
             switch error {
@@ -95,7 +97,10 @@ final class RequestTests: XCTestCase {
                 XCTFail("Invalid error")
             }
         })
-        request?.cancel()
+        self.request = request
+
+        XCTAssertTrue(request.cancel(), "Cancellation is allowed")
+        XCTAssertFalse(request.cancel(), "Cancellation is not allowed, since request has been already cancelled")
 
         wait(for: [responseExpectation], timeout: 10)
     }
@@ -114,6 +119,26 @@ final class RequestTests: XCTestCase {
         _ = XCTWaiter.wait(for: [lifecycleExpectation], timeout: 3)
         XCTAssertNil(request)
         lifecycleExpectation.fulfill()
+    }
+
+    func testRequestRetrying() {
+        let responseSerializer = DataRequest.dataResponseSerializer()
+        let request = Networking.Request(sessionManager: .default,
+                                         endpoint: HTTPBinEndpoint.status(200),
+                                         responseSerializer: responseSerializer)
+        XCTAssertFalse(request.retry(), "Retrying is not allowed, since request hasn't started yet")
+        request.response { _ in }
+        XCTAssertTrue(request.retry(), "Retrying is allowed")
+    }
+
+    func testUploadRequestRetrying() {
+        let responseSerializer = DataRequest.dataResponseSerializer()
+        let request = Networking.UploadRequest(sessionManager: .default,
+                                               endpoint: HTTPBinEndpoint.uploadStatus(200),
+                                               responseSerializer: responseSerializer)
+        XCTAssertFalse(request.retry(), "Retrying is not allowed, since request hasn't started yet")
+        request.response { _ in }
+        XCTAssertTrue(request.retry(), "Retrying is allowed")
     }
     
     func testUploadRequestMemoryLeak() {
