@@ -33,6 +33,27 @@ final class ErrorHandlingTests: XCTestCase {
         request = nil
     }
 
+    func testEmptyErrorHandlingChain() {
+        let expectation = self.expectation(description: "Expecting request failure")
+        expectation.assertForOverFulfill = true
+
+        let errorHandlingService = ErrorHandlingService(errorHandlers: [])
+        let networkService = MockNetworkService(errorHandlingService: errorHandlingService)
+        let endpoint = MockEndpoint(result: GeneralRequestError.notFound)
+        request = networkService.request(for: endpoint, success: {
+            XCTFail("Invalid case")
+        }, failure: { error in
+            switch error {
+            case GeneralRequestError.notFound:
+                expectation.fulfill()
+            default:
+                XCTFail("Received unexpected error")
+            }
+        })
+        
+        wait(for: [expectation], timeout: 5)
+    }
+
     func testFullErrorHandlingChain() {
         let errorHandlingTriggeredExpectation = expectation(description: "Expecting error handling triggered multiple times")
         errorHandlingTriggeredExpectation.expectedFulfillmentCount = 3
