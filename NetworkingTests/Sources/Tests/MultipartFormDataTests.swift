@@ -15,7 +15,21 @@ final class MultipartFormDataTests: XCTestCase {
         let imageBodyPart = ImageBodyPart(imageData: imageData, name: "image", fileName: "image.jpg", mimeType: "jpg")
         let multipartFormData = MultipartFormData()
         multipartFormData.appendImageBodyParts([imageBodyPart])
-        multipartFormData.appendParametersBodyParts(["parameter": "value"])
+
+        let fileManager = FileManager.default
+        let tempFileURL = fileManager.temporaryDirectory + "imageData.data"
+        try! imageData.write(to: tempFileURL)
+
+        let parameters: [String: Any] = [
+            "Int": Int.max,
+            "UInt": UInt.max,
+            "String": "String",
+            "Data": "data".data(using: .utf8)!,
+            "FileURL": tempFileURL
+        ]
+        multipartFormData.appendParametersBodyParts(parameters)
         XCTAssertNoThrow(try multipartFormData.encode())
+
+        try! fileManager.removeItem(at: tempFileURL)
     }
 }
