@@ -5,7 +5,6 @@
 
 public typealias CancellableRequest = BasicRequest & Cancellable
 public typealias AdaptiveRequest = BasicRequest & MutableRequest
-
 typealias RetryableRequest = AdaptiveRequest & Retryable
 
 public protocol BasicRequest: AnyObject {
@@ -22,10 +21,12 @@ public protocol MutableRequest {
 
 public protocol Cancellable {
 
-    func cancel()
+    @discardableResult
+    func cancel() -> Bool
 }
 
 protocol Retryable {
 
-    func retry()
+    @discardableResult
+    func retry() -> Bool
 }

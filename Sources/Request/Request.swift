@@ -16,7 +16,7 @@ class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
 
     private(set) var headers: [RequestHeader]
 
-    private var request: DataRequest?
+    private var sentRequest: DataRequest?
     private var completion: Completion?
 
     init(sessionManager: SessionManager,
@@ -30,22 +30,31 @@ class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
 
     func response(completion: @escaping (DataResponse<Result>) -> Void) {
         self.completion = completion
-        request = sessionManager.request(endpoint.url,
-                                         method: endpoint.method,
-                                         parameters: endpoint.parameters,
-                                         encoding: endpoint.parameterEncoding,
-                                         headers: headers.httpHeaders).validate()
-        request?.response(responseSerializer: responseSerializer, completionHandler: completion)
+        sentRequest = sessionManager.request(endpoint.url,
+                                             method: endpoint.method,
+                                             parameters: endpoint.parameters,
+                                             encoding: endpoint.parameterEncoding,
+                                             headers: headers.httpHeaders).validate()
+        sentRequest?.response(responseSerializer: responseSerializer, completionHandler: completion)
     }
 
-    func cancel() {
-        request?.cancel()
-    }
-
-    func retry() {
-        if let completion = completion {
-            response(completion: completion)
+    @discardableResult
+    func cancel() -> Bool {
+        guard let request = sentRequest else {
+            return false
         }
+        request.cancel()
+        sentRequest = nil
+        return true
+    }
+
+    @discardableResult
+    func retry() -> Bool {
+        guard let completion = completion else {
+            return false
+        }
+        response(completion: completion)
+        return true
     }
 
     func appendHeader(_ header: RequestHeader) {

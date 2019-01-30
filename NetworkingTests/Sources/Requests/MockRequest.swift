@@ -10,9 +10,9 @@ import XCTest
 
 final class MockRequest<Result>: Networking.Request<Result> {
 
-    private var completion: Completion?
-
     private let mockEndpoint: MockEndpoint
+
+    private var completion: Completion?
 
     init(endpoint: MockEndpoint, responseSerializer: DataResponseSerializer<Result>) {
         self.mockEndpoint = endpoint
@@ -43,12 +43,17 @@ final class MockRequest<Result>: Networking.Request<Result> {
         }
     }
 
-    override func retry() {
-        if let completion = completion {
-            response(completion: completion)
-        } else {
-            XCTFail("Mock request is not sent")
+    override func retry() -> Bool {
+        guard let completion = completion else {
+            return false
         }
+        response(completion: completion)
+        return true
+    }
+
+    override func cancel() -> Bool {
+        XCTFail("Please test cancellation using real requests")
+        return false
     }
 
     // MARK: - Private
