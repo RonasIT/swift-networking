@@ -16,25 +16,16 @@ public extension JSONDecoder {
             if let json = String(data: data, encoding: .utf8) {
                 description += "\n📄 for JSON: \(json)"
             }
-            throw Error.with(description)
+            throw CustomDecodingError(errorDescription: description)
         } catch {
             description += error.localizedDescription
-            throw Error.with(description)
+            throw CustomDecodingError(errorDescription: description)
         }
     }
 }
 
 // MARK: - Error
 
-private enum Error: Swift.Error {
-    case with(String)
-}
-
-extension Error: LocalizedError {
-    var errorDescription: String? {
-        switch self {
-        case let .with(description):
-            return description
-        }
-    }
+private struct CustomDecodingError: LocalizedError {
+    let errorDescription: String
 }
