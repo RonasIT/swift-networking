@@ -5,16 +5,25 @@
 
 import Alamofire
 
+typealias NetworkReachabilityStatus = NetworkReachabilityManager.NetworkReachabilityStatus
+
 public class ReachabilityService: ReachabilityServiceProtocol {
 
-    private lazy var reachabilityManager: NetworkReachabilityManager = NetworkReachabilityManager()!
-    private(set) lazy var subscriptions: [String: NetworkReachabilitySubscription] = [:]
-
     public var isReachable: Bool {
-        return reachabilityManager.isReachable
+        return networkListener.isReachable
     }
 
-    public init() {}
+    private let networkListener: NetworkListener
+    private var subscriptions: [String: NetworkReachabilitySubscription] = [:]
+
+    init(networkListener: NetworkListener) {
+        self.networkListener = networkListener
+    }
+
+    convenience public init() {
+        let networkListener: NetworkListener = NetworkReachabilityManager()!
+        self.init(networkListener: networkListener)
+    }
 
     deinit {
         stopMonitoring()
@@ -29,31 +38,20 @@ public class ReachabilityService: ReachabilityServiceProtocol {
     }
 
     public func startMonitoring() {
-        reachabilityManager.listener = { [weak self] status in
-            guard let `self` = self else {
-                return
-            }
-            let isReachable = status.isReachable
-            self.subscriptions.keys.forEach { key in
-                self.subscriptions[key]?.notificationHandler(isReachable)
-            }
+        networkListener.startListening { [weak self] isReachable in
+            self?.notifySubscribers(isNetworkReachable: isReachable)
         }
-        reachabilityManager.startListening()
     }
 
     public func stopMonitoring() {
-        reachabilityManager.stopListening()
+        networkListener.stopListening()
     }
-}
 
-private extension NetworkReachabilityManager.NetworkReachabilityStatus {
+    // MARK: - Private
 
-    var isReachable: Bool {
-        switch self {
-        case .notReachable, .unknown:
-            return false
-        case .reachable:
-            return true
+    private func notifySubscribers(isNetworkReachable: Bool) {
+        subscriptions.keys.forEach { key in
+            subscriptions[key]?.notificationHandler(isReachable)
         }
     }
 }
