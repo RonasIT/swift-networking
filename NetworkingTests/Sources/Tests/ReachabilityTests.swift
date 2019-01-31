@@ -12,29 +12,23 @@ final class ReachabilityTests: XCTestCase {
     func testReachabilitySubscription() {
         let notificationExpectation = expectation(description: "Expecting notificationHandler notified")
         notificationExpectation.assertForOverFulfill = true
-        let unsubcriptionExpectation = expectation(description: "Expecting unsubscribeHandler called")
-        unsubcriptionExpectation.assertForOverFulfill = true
+        let unsubscriptionExpectation = expectation(description: "Expecting unsubscribeHandler called")
+        unsubscriptionExpectation.assertForOverFulfill = true
 
-        // Without wrapper closure will capture copy of original id
-        // To validate id we wrap string id to the class and provide id from same reference
-        final class WrappedId {
-            var id: String = ""
-        }
-
-        let wrappedId = WrappedId()
+        var expectedId = ""
         let subscription = NetworkReachabilitySubscription(unsubscribeHandler: { id in
-            XCTAssertEqual(id, wrappedId.id)
-            unsubcriptionExpectation.fulfill()
+            XCTAssertEqual(id, expectedId)
+            unsubscriptionExpectation.fulfill()
         }, notificationHandler: { isReachable in
             XCTAssertEqual(isReachable, true)
             notificationExpectation.fulfill()
         })
 
-        wrappedId.id = subscription.id
+        expectedId = subscription.id
         subscription.notificationHandler(true)
         subscription.unsubscribe()
         
-        wait(for: [notificationExpectation, unsubcriptionExpectation], timeout: 3, enforceOrder: true)
+        wait(for: [notificationExpectation, unsubscriptionExpectation], timeout: 3, enforceOrder: true)
     }
 
     func testReachabilitySubscriptionMemoryLeaks() {
@@ -46,5 +40,66 @@ final class ReachabilityTests: XCTestCase {
         subscription = nil
 
         XCTAssertNil(weakSubscription)
+    }
+
+    func testReachabilityServiceIsReachableStatus() {
+        let networkListener = MockNetworkListener()
+        networkListener.isReachable = true
+
+        let reachabilityService = ReachabilityService(networkListener: networkListener)
+        reachabilityService.startMonitoring()
+        XCTAssertTrue(reachabilityService.isReachable)
+
+        networkListener.isReachable = false
+        XCTAssertFalse(reachabilityService.isReachable)
+
+        networkListener.isReachable = true
+        XCTAssertTrue(reachabilityService.isReachable)
+    }
+
+    func testReachabilityServiceWithDefaultNetworkListener() {
+        let reachabilityManager = NetworkReachabilityManager()!
+        reachabilityManager.startListening()
+
+        // Will be initialized with real network listener
+        let reachabilityService = ReachabilityService()
+        reachabilityService.startMonitoring()
+
+        XCTAssertEqual(reachabilityService.isReachable, reachabilityManager.isReachable)
+
+        reachabilityManager.stopListening()
+        reachabilityService.stopMonitoring()
+    }
+
+    func testReachabilityServiceNotifications() {
+        let numberOfSubscribers = 5
+        let numberOfReachabilityChanges = 3
+        let numberOfNotifications = numberOfSubscribers * numberOfReachabilityChanges
+
+        let notificationReceivedExpectation = expectation(description: "Expecting notification")
+        notificationReceivedExpectation.expectedFulfillmentCount = numberOfNotifications
+        notificationReceivedExpectation.assertForOverFulfill = true
+
+        let networkListener = MockNetworkListener()
+        networkListener.isReachable = true
+
+        let reachabilityService = ReachabilityService(networkListener: networkListener)
+        reachabilityService.startMonitoring()
+
+        let subscriptions = (0..<numberOfSubscribers).map { _ in
+            return reachabilityService.subscribe { isReachable in
+                XCTAssertEqual(isReachable, networkListener.isReachable)
+                notificationReceivedExpectation.fulfill()
+            }
+        }
+
+        for _ in 0..<numberOfReachabilityChanges {
+            networkListener.isReachable.toggle()
+        }
+
+        wait(for: [notificationReceivedExpectation], timeout: 5)
+
+        subscriptions.forEach { $0.unsubscribe() }
+        reachabilityService.stopMonitoring()
     }
 }
