@@ -4,22 +4,25 @@
 //
 
 @testable import Networking
+import Alamofire
 
 final class MockNetworkListener: NetworkListener {
 
-    private var notificationHandler: NotificationHandler?
+    var listener: Listener?
 
     var isReachable: Bool = false {
         didSet {
-            notificationHandler?(isReachable)
+            let status: NetworkReachabilityStatus = isReachable ? .reachable(.ethernetOrWiFi) : .notReachable
+            listener?(status)
         }
     }
 
-    func stopListening() {
-        notificationHandler = nil
+    @discardableResult
+    func startListening() -> Bool {
+        return true
     }
 
-    func startListening(with notificationHandler: @escaping NotificationHandler) {
-        self.notificationHandler = notificationHandler
+    func stopListening() {
+        listener = nil
     }
 }

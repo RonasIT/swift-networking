@@ -3,12 +3,16 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
+import Alamofire
+
 protocol NetworkListener: AnyObject {
 
-    typealias NotificationHandler = (Bool) -> Void
+    typealias Listener = NetworkReachabilityManager.Listener
 
+    var listener: Listener? { get set }
     var isReachable: Bool { get }
 
-    func startListening(with notificationHandler: @escaping NotificationHandler)
+    @discardableResult
+    func startListening() -> Bool
     func stopListening()
 }

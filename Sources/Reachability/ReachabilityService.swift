@@ -21,8 +21,7 @@ public class ReachabilityService: ReachabilityServiceProtocol {
     }
 
     convenience public init() {
-        let networkListener: NetworkListener = NetworkReachabilityManager()!
-        self.init(networkListener: networkListener)
+        self.init(networkListener: NetworkReachabilityManager()!)
     }
 
     deinit {
@@ -38,9 +37,10 @@ public class ReachabilityService: ReachabilityServiceProtocol {
     }
 
     public func startMonitoring() {
-        networkListener.startListening { [weak self] isReachable in
-            self?.notifySubscribers(isNetworkReachable: isReachable)
+        networkListener.listener = { [weak self] reachabilityStatus in
+            self?.notifySubscribers(with: reachabilityStatus)
         }
+        networkListener.startListening()
     }
 
     public func stopMonitoring() {
@@ -49,9 +49,23 @@ public class ReachabilityService: ReachabilityServiceProtocol {
 
     // MARK: - Private
 
-    private func notifySubscribers(isNetworkReachable: Bool) {
+    private func notifySubscribers(with reachabilityStatus: NetworkReachabilityStatus) {
+        let isReachable = reachabilityStatus.isReachable
         subscriptions.keys.forEach { key in
             subscriptions[key]?.notificationHandler(isReachable)
+        }
+    }
+}
+
+extension NetworkReachabilityManager: NetworkListener {}
+private extension NetworkReachabilityStatus {
+
+    var isReachable: Bool {
+        switch self {
+        case .reachable:
+            return true
+        case .unknown, .notReachable:
+            return false
         }
     }
 }
