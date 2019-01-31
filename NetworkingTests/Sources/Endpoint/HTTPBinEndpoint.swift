@@ -38,7 +38,12 @@ enum HTTPBinEndpoint: UploadEndpoint {
     }
 
     var parameters: Parameters? {
-        return nil
+        switch self {
+        case .uploadStatus:
+            return [:]
+        default:
+            return nil
+        }
     }
 
     var parameterEncoding: ParameterEncoding {
