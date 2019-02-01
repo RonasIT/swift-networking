@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
-public class TokenRequestAdapter: RequestAdapter {
+public final class TokenRequestAdapter: RequestAdapter {
 
     private let sessionService: SessionServiceProtocol
 

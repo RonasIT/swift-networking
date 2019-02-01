@@ -7,7 +7,7 @@ import Alamofire
 
 typealias NetworkReachabilityStatus = NetworkReachabilityManager.NetworkReachabilityStatus
 
-public class ReachabilityService: ReachabilityServiceProtocol {
+public final class ReachabilityService: ReachabilityServiceProtocol {
 
     public var isReachable: Bool {
         return networkListener.isReachable

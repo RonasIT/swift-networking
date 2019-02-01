@@ -16,7 +16,7 @@ open class RequestAdaptingService: RequestAdaptingServiceProtocol {
         self.requestAdapters = requestAdapters
     }
 
-    public func adapt(_ request: AdaptiveRequest) {
+    public final func adapt(_ request: AdaptiveRequest) {
         requestAdapters.forEach { $0.adapt(request) }
     }
 }

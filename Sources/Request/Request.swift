@@ -9,12 +9,12 @@ class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
 
     typealias Completion = (DataResponse<Result>) -> Void
 
-    public let endpoint: Endpoint
+    public final let endpoint: Endpoint
 
-    let sessionManager: SessionManager
-    let responseSerializer: DataResponseSerializer<Result>
+    final let sessionManager: SessionManager
+    final let responseSerializer: DataResponseSerializer<Result>
 
-    private(set) var headers: [RequestHeader]
+    private(set) final var headers: [RequestHeader]
 
     private var sentRequest: DataRequest?
     private var completion: Completion?
@@ -57,7 +57,7 @@ class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
         return true
     }
 
-    func appendHeader(_ header: RequestHeader) {
+    final func appendHeader(_ header: RequestHeader) {
         let indexOrNil = headers.firstIndex { $0.key == header.key }
         if let index = indexOrNil {
             headers.remove(at: index)

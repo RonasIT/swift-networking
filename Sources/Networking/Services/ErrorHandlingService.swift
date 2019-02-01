@@ -16,13 +16,20 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
         self.errorHandlers = errorHandlers
     }
 
-    public func handleError<T>(_ requestError: RequestError<T>, retrying: @escaping () -> Void, failure: @escaping Failure) {
+    public final func handleError<T>(_ requestError: RequestError<T>,
+                                     retrying: @escaping () -> Void,
+                                     failure: @escaping Failure) {
         guard let errorHandler = errorHandlers.first else {
             failure(requestError.error)
             return
         }
 
-        handleErrorRecursive(requestError, errorHandler: errorHandler, retrying: retrying, failure: failure)
+        handleErrorRecursive(
+            requestError,
+            errorHandler: errorHandler,
+            retrying: retrying,
+            failure: failure
+        )
     }
 
     // MARK: - Private
@@ -57,8 +64,15 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
 
                 // In this case current error handler returns result with new error (error of RequestError)
                 // Which we should be sent to the next error handler
-                let newError = RequestError(endpoint: requestError.endpoint, error: error, response: requestError.response)
-                self.handleErrorRecursive(newError, errorHandler: nextErrorHandler, retrying: retrying, failure: failure)
+                let newError = RequestError(endpoint: requestError.endpoint,
+                                            error: error,
+                                            response: requestError.response)
+                self.handleErrorRecursive(
+                    newError,
+                    errorHandler: nextErrorHandler,
+                    retrying: retrying,
+                    failure: failure
+                )
             }
         }
     }
