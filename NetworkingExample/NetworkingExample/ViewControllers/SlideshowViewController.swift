@@ -5,36 +5,64 @@
 
 import UIKit
 import Networking
-import Alamofire
 
 final class SlideshowViewController: UIViewController {
 
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var activityView: ActivityView!
 
-    private let apiService: ApiServiceProtocol = ApiService()
-    private var request: GeneralRequest?
+    private lazy var apiService: ApiServiceProtocol = Services.apiService
+    private let reachabilityService: ReachabilityServiceProtocol = Services.reachabilityService
+
+    private var request: CancellableRequest?
+    private var reachabilitySubscription: ReachabilitySubscription?
 
     private var slideshow: Slideshow?
 
+    deinit {
+        request?.cancel()
+        reachabilitySubscription?.unsubscribe()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.register(SlideCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: SlideCollectionViewCell.self))
 
-        loadSlideshow()
+        let reuseIdentifier = String(describing: SlideCollectionViewCell.self)
+        collectionView.register(SlideCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+
+        if reachabilityService.isReachable {
+            loadSlideshow()
+        } else {
+            presentNoConnectionAlert()
+        }
+
+        reachabilitySubscription = reachabilityService.subscribe { [weak self] isReachable in
+            guard let `self` = self else {
+                return
+            }
+            if isReachable, self.slideshow == nil {
+                self.loadSlideshow()
+            }
+        }
     }
 
     private func loadSlideshow() {
         startLoading()
         request = apiService.fetchSlideshow(success: { [weak self] slideshow in
-                self?.stopLoading()
-                self?.slideshow = slideshow
-                self?.title = slideshow.author
-                self?.collectionView.reloadData()
-            }, failure: { [weak self] error in
-                self?.stopLoading()
-                self?.presentAlertController(for: error)
-            })
+            guard let `self` = self else {
+                return
+            }
+            self.stopLoading()
+            self.slideshow = slideshow
+            self.title = slideshow.author
+            self.collectionView.reloadData()
+        }, failure: { [weak self] error in
+            guard let `self` = self else {
+                return
+            }
+            self.stopLoading()
+            self.presentAlertController(for: error)
+        })
     }
 
     private func startLoading() {
@@ -45,6 +73,10 @@ final class SlideshowViewController: UIViewController {
     private func stopLoading() {
         activityView.isHidden = true
         activityView.indicator.stopAnimating()
+    }
+
+    private func presentNoConnectionAlert() {
+        presentAlertController(withTitle: "Oops", message: "You are not connected to the internet")
     }
 }
 

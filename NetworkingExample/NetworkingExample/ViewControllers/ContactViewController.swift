@@ -5,29 +5,44 @@
 
 import UIKit
 import Networking
-import Alamofire
 
 final class ContactViewController: UIViewController {
 
     @IBOutlet var activityView: ActivityView!
     @IBOutlet var tableView: UITableView!
 
-    private let apiService: ApiServiceProtocol = ApiService()
-    private var request: GeneralRequest?
+    private let apiService: ApiServiceProtocol = Services.apiService
+    private let reachabilityService: ReachabilityServiceProtocol = Services.reachabilityService
+
+    private var request: CancellableRequest?
+    private var reachabilitySubscription: ReachabilitySubscription?
+
     private var contact: Contact?
+
+    deinit {
+        request?.cancel()
+        reachabilitySubscription?.unsubscribe()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: String(describing: UITableViewCell.self))
-        postContact(Contact(id: "345", name: "James", url: URL(string: "https://www.jamesexample.com")!))
-    }
 
-    private func presentAlert(for error: Error) {
-        let actions = [UIAlertAction(title: "OK", style: .default, handler: nil)]
-        let alertController = UIAlertController(title: "Error", message: error.localizedDescription,
-                                                preferredStyle: .alert, actions: actions)
-        present(alertController, animated: true)
+        if reachabilityService.isReachable {
+            postContact(makeContact())
+        } else {
+            presentNoConnectionAlert()
+        }
+
+        reachabilitySubscription = reachabilityService.subscribe { [weak self] isReachable in
+            guard let `self` = self else {
+                return
+            }
+            if isReachable, self.contact == nil {
+                self.postContact(self.makeContact())
+            }
+        }
     }
 
     private func startLoading() {
@@ -41,15 +56,34 @@ final class ContactViewController: UIViewController {
     }
 
     private func postContact(_ contact: Contact) {
+        guard reachabilityService.isReachable else {
+            presentNoConnectionAlert()
+            return
+        }
+
         startLoading()
-        request = apiService.postContact(contact, success: { [weak self] result in
-                self?.stopLoading()
-                self?.contact = result
-                self?.tableView.reloadData()
-            }) { [weak self] error in
-                self?.stopLoading()
-                self?.presentAlertController(for: error)
+        request = apiService.postContact(contact, success: { [weak self] contact in
+            guard let `self` = self else {
+                return
             }
+            self.stopLoading()
+            self.contact = contact
+            self.tableView.reloadData()
+        }, failure: { [weak self] error in
+            guard let `self` = self else {
+                return
+            }
+            self.stopLoading()
+            self.presentAlertController(for: error)
+        })
+    }
+
+    private func presentNoConnectionAlert() {
+        presentAlertController(withTitle: "Oops", message: "You are not connected to the internet")
+    }
+
+    private func makeContact() -> Contact {
+        return Contact(id: "345", name: "James", url: URL(string: "https://www.jamesexample.com")!)
     }
 }
 
@@ -88,6 +122,4 @@ extension ContactViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 
-extension ContactViewController: UITableViewDelegate {
-
-}
+extension ContactViewController: UITableViewDelegate {}

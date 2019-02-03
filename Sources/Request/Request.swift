@@ -1,53 +1,67 @@
 //
-//  Created by Dmitry Frishbuter on 27/09/2018
-//  Copyright © 2018 Ronas IT. All rights reserved.
+// Created by Nikita Zatsepilov on 2019-01-26.
+// Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
 import Alamofire
 
-public typealias GeneralRequest = Request<GeneralResponse>
+class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
 
-public final class Request<ResponseType>: BaseRequest<ResponseType> {
+    typealias Completion = (DataResponse<Result>) -> Void
 
-    typealias EncodingCompletionHandler = (SessionManager.MultipartFormDataEncodingResult) -> Void
-    private let request: DataRequest
+    public final let endpoint: Endpoint
 
-    override init<U: ResponseBuilder>(endpoint: Endpoint,
-                                      responseBuilder: U,
-                                      sessionManager: SessionManager = SessionManager.default) where U.Response == ResponseType {
-        request = sessionManager.request(endpoint.url,
-                                         method: endpoint.method,
-                                         parameters: endpoint.parameters,
-                                         encoding: endpoint.parameterEncoding,
-                                         headers: endpoint.headers.httpHeaders).validate()
-        super.init(endpoint: endpoint, responseBuilder: responseBuilder, sessionManager: sessionManager)
+    final let sessionManager: SessionManager
+    final let responseSerializer: DataResponseSerializer<Result>
+
+    private(set) final var headers: [RequestHeader]
+
+    private var sentRequest: DataRequest?
+    private var completion: Completion?
+
+    init(sessionManager: SessionManager,
+         endpoint: Endpoint,
+         responseSerializer: DataResponseSerializer<Result>) {
+        self.endpoint = endpoint
+        self.sessionManager = sessionManager
+        self.responseSerializer = responseSerializer
+        headers = endpoint.headers
     }
 
-    func responseJSON(_ handler: @escaping CompletionHandler<ResponseType>) {
-        completionHandler = handler
-        request.responseJSON { (response: DataResponse<Any>) in
-            switch response.result {
-            case .failure(let error):
-                self.handleError(error, forResponse: response)
-            case .success(let json):
-                self.handleResponseData(json)
-            }
+    func response(completion: @escaping (DataResponse<Result>) -> Void) {
+        self.completion = completion
+        sentRequest = sessionManager.request(endpoint.url,
+                                             method: endpoint.method,
+                                             parameters: endpoint.parameters,
+                                             encoding: endpoint.parameterEncoding,
+                                             headers: headers.httpHeaders).validate()
+        sentRequest?.response(responseSerializer: responseSerializer, completionHandler: completion)
+    }
+
+    @discardableResult
+    func cancel() -> Bool {
+        guard let request = sentRequest else {
+            return false
         }
-    }
-
-    func responseData(_ handler: @escaping CompletionHandler<ResponseType>) {
-        completionHandler = handler
-        request.responseData { (response: DataResponse<Data>) in
-            switch response.result {
-            case .failure(let error):
-                self.handleError(error, forResponse: response)
-            case .success(let data):
-                self.handleResponseData(data)
-            }
-        }
-    }
-
-    public func cancel() {
         request.cancel()
+        sentRequest = nil
+        return true
+    }
+
+    @discardableResult
+    func retry() -> Bool {
+        guard let completion = completion else {
+            return false
+        }
+        response(completion: completion)
+        return true
+    }
+
+    final func appendHeader(_ header: RequestHeader) {
+        let indexOrNil = headers.firstIndex { $0.key == header.key }
+        if let index = indexOrNil {
+            headers.remove(at: index)
+        }
+        headers.append(header)
     }
 }

@@ -5,40 +5,67 @@
 
 import Alamofire
 
-class ReachabilityService {
+typealias NetworkReachabilityStatus = NetworkReachabilityManager.NetworkReachabilityStatus
 
-    var handler: ((Bool) -> Void)?
+public final class ReachabilityService: ReachabilityServiceProtocol {
 
-    private let reachabilityManager = Alamofire.NetworkReachabilityManager()
+    public var isReachable: Bool {
+        return networkListener.isReachable
+    }
 
-    // MARK: - Reachable status
+    private let networkListener: NetworkListener
+    private var subscriptions: [String: NetworkReachabilitySubscription] = [:]
 
-    var isReachable: Bool {
-        return reachabilityManager!.isReachable
+    init(networkListener: NetworkListener) {
+        self.networkListener = networkListener
+    }
+
+    convenience public init() {
+        self.init(networkListener: NetworkReachabilityManager()!)
     }
 
     deinit {
         stopMonitoring()
     }
 
-    // MARK: - Monitoring
-
-    func startMonitoring() {
-        reachabilityManager!.listener = { [weak self] status in
-            guard let handler = self?.handler else {
-                return
-            }
-            switch status {
-            case .notReachable, .unknown:
-                handler(false)
-            case .reachable:
-                handler(true)
-            }
-        }
-        reachabilityManager!.startListening()
+    public func subscribe(with handler: @escaping (Bool) -> Void) -> ReachabilitySubscription {
+        let subscription = NetworkReachabilitySubscription(unsubscribeHandler: { [weak self] subscriptionId in
+            self?.subscriptions[subscriptionId] = nil
+        }, notificationHandler: handler)
+        subscriptions[subscription.id] = subscription
+        return subscription
     }
 
-    func stopMonitoring() {
-        reachabilityManager!.stopListening()
+    public func startMonitoring() {
+        networkListener.listener = { [weak self] reachabilityStatus in
+            self?.notifySubscribers(with: reachabilityStatus)
+        }
+        networkListener.startListening()
+    }
+
+    public func stopMonitoring() {
+        networkListener.stopListening()
+    }
+
+    // MARK: - Private
+
+    private func notifySubscribers(with reachabilityStatus: NetworkReachabilityStatus) {
+        let isReachable = reachabilityStatus.isReachable
+        subscriptions.keys.forEach { key in
+            subscriptions[key]?.notificationHandler(isReachable)
+        }
+    }
+}
+
+extension NetworkReachabilityManager: NetworkListener {}
+private extension NetworkReachabilityStatus {
+
+    var isReachable: Bool {
+        switch self {
+        case .reachable:
+            return true
+        case .unknown, .notReachable:
+            return false
+        }
     }
 }

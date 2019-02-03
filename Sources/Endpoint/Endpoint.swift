@@ -13,6 +13,7 @@ public protocol Endpoint: EndpointError {
     var headers: [RequestHeader] { get }
     var parameters: Parameters? { get }
     var parameterEncoding: ParameterEncoding { get }
+    var requiresAuthorization: Bool { get }
 }
 
 public protocol RequestHeader {
@@ -27,16 +28,6 @@ public enum RequestHeaders: RequestHeader {
     case contentType(String)
     case userAgent(osVersion: String, appVersion: String)
     case dpi(scale: CGFloat)
-
-    public static let `default`: [RequestHeader] = {
-        var headers = [RequestHeaders.dpi(scale: UIScreen.main.scale)]
-        if let appInfo = Bundle.main.infoDictionary,
-            let appVersion = appInfo["CFBundleShortVersionString"] as? String {
-            headers.append(RequestHeaders.userAgent(osVersion: UIDevice.current.systemVersion,
-                                                    appVersion: appVersion))
-        }
-        return headers
-    }()
 
     public var key: String {
         switch self {
@@ -66,8 +57,17 @@ public enum RequestHeaders: RequestHeader {
 }
 
 public extension Endpoint {
+
     var url: URL {
         return baseURL + path
+    }
+
+    func error(forResponseCode responseCode: Int) -> Error? {
+        return nil
+    }
+
+    func error(for urlErrorCode: URLError.Code) -> Error? {
+        return nil
     }
 }
 

@@ -1,16 +1,12 @@
 //
-//  Created by Dmitry Frishbuter on 27/09/2018
-//  Copyright © 2018 Ronas IT. All rights reserved.
+// Created by Nikita Zatsepilov on 2019-01-23.
+// Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
 import Foundation
 
 public protocol EndpointError {
-    func error(for code: String, description: String?) -> Error?
-}
 
-public extension EndpointError {
-    func error(for code: String, description: String?) -> Error? {
-        return nil
-    }
+    func error(forResponseCode responseCode: Int) -> Error?
+    func error(for urlErrorCode: URLError.Code) -> Error?
 }

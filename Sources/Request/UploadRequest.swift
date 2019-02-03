@@ -1,102 +1,105 @@
 //
-//  Created by Dmitry Frishbuter on 27/09/2018
-//  Copyright © 2018 Ronas IT. All rights reserved.
+// Created by Nikita Zatsepilov on 03/12/2018.
+// Copyright (c) 2018 Ronas IT. All rights reserved.
 //
 
 import Alamofire
-import UIKit.UIImage
 
-public final class UploadRequest<ResponseType>: BaseRequest<ResponseType> {
+final class UploadRequest<Result>: Request<Result> {
 
-    public typealias CompletionHandler<T> = (T?, Error?) -> Void
-    public typealias EncodingCompletionHandler = (Error?) -> Void
-    public typealias RequestHandler = (DataRequest) -> Void
+    private let imageBodyParts: [ImageBodyPart]
 
-    private var request: DataRequest? {
-        didSet {
-            if let request = request {
-                self.deferredRequestHandler?(request)
-            }
-        }
-    }
-
-    private var deferredRequestHandler: RequestHandler?
+    private var isCreatingMultipartFormData: Bool = false
     private var isCancelled: Bool = false
 
-    init<U: ResponseBuilder>(endpoint: Endpoint,
-                             imageBodyParts: [ImageBodyPart],
-                             responseBuilder: U,
-                             sessionManager: SessionManager = SessionManager.default,
-                             encodingCompletion: @escaping EncodingCompletionHandler) where U.Response == ResponseType {
-        super.init(endpoint: endpoint, responseBuilder: responseBuilder, sessionManager: sessionManager)
+    private var completion: Completion?
+    private var sentRequest: DataRequest?
 
-        sessionManager.upload(multipartFormData: { multipartFormData in
-            multipartFormData.appendImageBodyParts(imageBodyParts)
-            if let parameters = endpoint.parameters {
+    init(sessionManager: SessionManager,
+         endpoint: UploadEndpoint,
+         responseSerializer: DataResponseSerializer<Result>) {
+        imageBodyParts = endpoint.imageBodyParts
+        super.init(sessionManager: sessionManager, endpoint: endpoint, responseSerializer: responseSerializer)
+    }
+
+    override func response(completion: @escaping (DataResponse<Result>) -> Void) {
+        self.completion = completion
+        sentRequest = nil
+        isCancelled = false
+        isCreatingMultipartFormData = true
+        let multipartFormDataHandler = { (multipartFormData: MultipartFormData) in
+            guard !self.isCancelled else {
+                self.failAsCancelled(with: completion)
+                return
+            }
+            multipartFormData.appendImageBodyParts(self.imageBodyParts)
+            if let parameters = self.endpoint.parameters {
                 multipartFormData.appendParametersBodyParts(parameters)
             }
-        }, usingThreshold: SessionManager.multipartFormDataEncodingMemoryThreshold,
-           to: endpoint.url,
-           method: .post,
-           headers: endpoint.headers.httpHeaders,
-           encodingCompletion: { [weak self] encodingResult in
-            guard let `self` = self, !self.isCancelled else {
+        }
+        let encodingCompletion = { (encodingResult: SessionManager.MultipartFormDataEncodingResult) in
+            self.isCreatingMultipartFormData = false
+            guard !self.isCancelled else {
+                self.failAsCancelled(with: completion)
                 return
             }
             switch encodingResult {
             case .success(let request, _, _):
-                self.request = request
+                self.sentRequest = request
                 request.validate()
-                encodingCompletion(nil)
+                request.response(responseSerializer: self.responseSerializer, completionHandler: completion)
             case .failure(let error):
-                encodingCompletion(error)
-            }
-        })
-    }
-
-    func responseJSON(_ handler: @escaping CompletionHandler<ResponseType>) {
-        completionHandler = handler
-        let requestHandler: RequestHandler = { request in
-            request.responseJSON { response in
-                switch response.result {
-                case .failure(let error):
-                    self.handleError(error, forResponse: response)
-                case .success(let json):
-                    self.handleResponseData(json)
-                }
+                completion(DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
             }
         }
-        guard let request = request else {
-            deferredRequestHandler = requestHandler
-            return
-        }
-        requestHandler(request)
+        sessionManager.upload(multipartFormData: multipartFormDataHandler,
+                              usingThreshold: SessionManager.multipartFormDataEncodingMemoryThreshold,
+                              to: endpoint.url,
+                              method: .post,
+                              headers: headers.httpHeaders,
+                              encodingCompletion: encodingCompletion)
     }
 
-    func responseData(_ handler: @escaping CompletionHandler<ResponseType>) {
-        completionHandler = handler
-        let requestHandler: RequestHandler = { request in
-            request.responseData { response in
-                switch response.result {
-                case .failure(let error):
-                    self.handleError(error, forResponse: response)
-                case .success(let data):
-                    self.handleResponseData(data)
-                }
-            }
-        }
-        guard let request = request else {
-            deferredRequestHandler = requestHandler
-            return
-        }
-        requestHandler(request)
-    }
-
-    func cancel() {
-        guard let request = request else {
+    @discardableResult
+    override func cancel() -> Bool {
+        // 1. Request is not sent, but we are waiting multipart-form data
+        if isCreatingMultipartFormData, !isCancelled {
             isCancelled = true
-            return
+            return true
         }
-        request.cancel()
+
+        // 2. Try to cancel sent request
+        if let request = sentRequest {
+            request.cancel()
+            sentRequest = nil
+            return true
+        }
+
+        // 3. Request hasn't started yet
+        return false
+    }
+
+    override func retry() -> Bool {
+        // 1. Request hasn't started yet, because `completion` is nil
+        guard let completion = completion else {
+            return false
+        }
+
+        isCancelled = false
+
+        // 2. Request will be sent, once multipart-form data will be created
+        // No need to start request again
+        guard !isCreatingMultipartFormData else {
+            return true
+        }
+
+        // 3. Request has been already sent
+        response(completion: completion)
+        return true
+    }
+
+    private func failAsCancelled(with completion: Completion) {
+        let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled)
+        completion(DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
     }
 }

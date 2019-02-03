@@ -32,10 +32,13 @@ extension UIAlertController {
 
 extension UIViewController {
 
-    func presentAlertController(for error: Error) {
+    func presentAlertController(withTitle title: String, message: String) {
         let actions = [UIAlertAction(title: "OK", style: .default, handler: nil)]
-        let alertController = UIAlertController(title: "Error", message: error.localizedDescription,
-                                                preferredStyle: .alert, actions: actions)
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert, actions: actions)
         present(alertController, animated: true)
+    }
+
+    func presentAlertController(for error: Error) {
+        presentAlertController(withTitle: "Error", message: error.localizedDescription)
     }
 }
