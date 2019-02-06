@@ -14,7 +14,6 @@ final class SlideshowViewController: UIViewController {
     private lazy var apiService: ApiServiceProtocol = Services.apiService
     private let reachabilityService: ReachabilityServiceProtocol = Services.reachabilityService
 
-    private var request: CancellableRequest?
     private var reachabilitySubscription: ReachabilitySubscription?
 
     private var slideshow: Slideshow?
@@ -48,7 +47,7 @@ final class SlideshowViewController: UIViewController {
 
     private func loadSlideshow() {
         startLoading()
-        request = apiService.fetchSlideshow(success: { [weak self] slideshow in
+        apiService.fetchSlideshow(success: { [weak self] slideshow in
             guard let `self` = self else {
                 return
             }

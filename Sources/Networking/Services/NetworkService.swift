@@ -42,8 +42,8 @@ open class NetworkService {
                                 success: @escaping Success<Result>,
                                 failure: @escaping Failure) -> CancellableRequest {
         requestAdaptingService?.adapt(request)
-        request.response { [weak self, weak request] (response: DataResponse<Result>) in
-            guard let `self` = self, let `request` = request else {
+        request.response { [weak self] (request: RetryableRequest, response: DataResponse<Result>) in
+            guard let `self` = self else {
                 return
             }
             switch response.result {

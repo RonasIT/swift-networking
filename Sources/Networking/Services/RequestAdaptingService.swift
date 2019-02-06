@@ -4,7 +4,6 @@
 //
 
 public protocol RequestAdaptingServiceProtocol {
-
     func adapt(_ request: AdaptiveRequest)
 }
 

@@ -7,7 +7,7 @@ import Alamofire
 
 class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
 
-    typealias Completion = (DataResponse<Result>) -> Void
+    typealias Completion = (RetryableRequest, DataResponse<Result>) -> Void
 
     public final let endpoint: Endpoint
 
@@ -28,14 +28,18 @@ class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
         headers = endpoint.headers
     }
 
-    func response(completion: @escaping (DataResponse<Result>) -> Void) {
+    func response(completion: @escaping Completion) {
         self.completion = completion
-        sentRequest = sessionManager.request(endpoint.url,
-                                             method: endpoint.method,
-                                             parameters: endpoint.parameters,
-                                             encoding: endpoint.parameterEncoding,
-                                             headers: headers.httpHeaders).validate()
-        sentRequest?.response(responseSerializer: responseSerializer, completionHandler: completion)
+        sentRequest = sessionManager.request(
+            endpoint.url,
+            method: endpoint.method,
+            parameters: endpoint.parameters,
+            encoding: endpoint.parameterEncoding,
+            headers: headers.httpHeaders
+        ).validate()
+        sentRequest?.response(responseSerializer: responseSerializer) { response in
+            self.completion?(self, response)
+        }
     }
 
     @discardableResult

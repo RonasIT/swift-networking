@@ -7,6 +7,8 @@ import Alamofire
 
 final class UploadRequest<Result>: Request<Result> {
 
+    private typealias MultipartFormDataEncodingResult = SessionManager.MultipartFormDataEncodingResult
+    
     private let imageBodyParts: [ImageBodyPart]
 
     private var isCreatingMultipartFormData: Bool = false
@@ -19,25 +21,26 @@ final class UploadRequest<Result>: Request<Result> {
          endpoint: UploadEndpoint,
          responseSerializer: DataResponseSerializer<Result>) {
         imageBodyParts = endpoint.imageBodyParts
-        super.init(sessionManager: sessionManager, endpoint: endpoint, responseSerializer: responseSerializer)
+        super.init(
+            sessionManager: sessionManager,
+            endpoint: endpoint,
+            responseSerializer: responseSerializer
+        )
     }
 
-    override func response(completion: @escaping (DataResponse<Result>) -> Void) {
+    override func response(completion: @escaping Completion) {
         self.completion = completion
         sentRequest = nil
         isCancelled = false
         isCreatingMultipartFormData = true
         let multipartFormDataHandler = { (multipartFormData: MultipartFormData) in
-            guard !self.isCancelled else {
-                self.failAsCancelled(with: completion)
-                return
-            }
+            // Warning: this handler uses concurrent background queue
             multipartFormData.appendImageBodyParts(self.imageBodyParts)
             if let parameters = self.endpoint.parameters {
                 multipartFormData.appendParametersBodyParts(parameters)
             }
         }
-        let encodingCompletion = { (encodingResult: SessionManager.MultipartFormDataEncodingResult) in
+        let encodingCompletion = { (encodingResult: MultipartFormDataEncodingResult) in
             self.isCreatingMultipartFormData = false
             guard !self.isCancelled else {
                 self.failAsCancelled(with: completion)
@@ -47,17 +50,27 @@ final class UploadRequest<Result>: Request<Result> {
             case .success(let request, _, _):
                 self.sentRequest = request
                 request.validate()
-                request.response(responseSerializer: self.responseSerializer, completionHandler: completion)
+                request.response(responseSerializer: self.responseSerializer) { response in
+                    if self.isCancelled {
+                        self.failAsCancelled(with: completion)
+                    } else {
+                        completion(self, response)
+                    }
+                }
             case .failure(let error):
-                completion(DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
+                completion(self, DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
             }
         }
-        sessionManager.upload(multipartFormData: multipartFormDataHandler,
-                              usingThreshold: SessionManager.multipartFormDataEncodingMemoryThreshold,
-                              to: endpoint.url,
-                              method: .post,
-                              headers: headers.httpHeaders,
-                              encodingCompletion: encodingCompletion)
+        
+        let threshold = SessionManager.multipartFormDataEncodingMemoryThreshold
+        sessionManager.upload(
+            multipartFormData: multipartFormDataHandler,
+            usingThreshold: threshold,
+            to: endpoint.url,
+            method: .post,
+            headers: headers.httpHeaders,
+            encodingCompletion: encodingCompletion
+        )
     }
 
     @discardableResult
@@ -100,6 +113,6 @@ final class UploadRequest<Result>: Request<Result> {
 
     private func failAsCancelled(with completion: Completion) {
         let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled)
-        completion(DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
+        completion(self, DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
     }
 }

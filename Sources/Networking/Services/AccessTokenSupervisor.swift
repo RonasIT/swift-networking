@@ -6,8 +6,6 @@
 import Foundation
 
 public protocol AccessTokenSupervisor {
-
     var accessToken: String? { get }
-
     func refreshAccessToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void)
 }

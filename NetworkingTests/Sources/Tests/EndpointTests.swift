@@ -10,14 +10,14 @@ import XCTest
 final class EndpointTests: XCTestCase {
 
     func testValidEndpointURL() {
-        let endpoint = MockEndpoint()
+        var endpoint = MockEndpoint()
         endpoint.baseURL = URL(string: "https://apple.com")!
         endpoint.path = "iphone"
         XCTAssertEqual(endpoint.url.absoluteString, "https://apple.com/iphone")
     }
     
     func testDefaultEndpointErrors() {
-        struct TestEndpoint: Networking.Endpoint {
+        struct TestEndpoint: Endpoint {
             var baseURL: URL { return URL(string: "localhost")! }
             var path: String { return "test" }
             var method: HTTPMethod { return .get }

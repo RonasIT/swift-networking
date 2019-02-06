@@ -9,13 +9,9 @@ import XCTest
 
 final class RequestTests: XCTestCase {
 
-    private var request: CancellableRequest?
-
-    override func tearDown() {
-        super.tearDown()
-        request = nil
-    }
-
+    private typealias Request = Networking.Request
+    private typealias UploadRequest = Networking.UploadRequest
+    
     func testRequestWithDataResult() {
         testRequestWithDataResult(isTestingUploadRequest: false)
     }
@@ -73,7 +69,6 @@ final class RequestTests: XCTestCase {
                 XCTFail("Invalid error")
             }
         })
-        self.request = request
 
         XCTAssertTrue(request.cancel(), "Cancellation is allowed")
         XCTAssertFalse(request.cancel(), "Cancellation is not allowed, since request has been already cancelled")
@@ -97,7 +92,6 @@ final class RequestTests: XCTestCase {
                 XCTFail("Invalid error")
             }
         })
-        self.request = request
 
         XCTAssertTrue(request.cancel(), "Cancellation is allowed")
         XCTAssertFalse(request.cancel(), "Cancellation is not allowed, since request has been already cancelled")
@@ -105,56 +99,68 @@ final class RequestTests: XCTestCase {
         wait(for: [responseExpectation], timeout: 10)
     }
 
-    func testRequestMemoryLeak() {
-        let lifecycleExpectation = expectation(description: "Expecting request callbacks are not called")
+    func testRequestLifecycle() {
+        let expectation = self.expectation(description: "Expecting request completion")
+        expectation.assertForOverFulfill = true
 
-        // We have to test implementation of real request
-        let networkService = NetworkService()
-        weak var request = networkService.request(for: HTTPBinEndpoint.status(200), success: {
-            XCTFail("Invalid case")
-        }, failure: { _ in
-            XCTFail("Invalid case")
-        })
+        // We should test real implementation of request instead of mock.
+        let networkingService = NetworkService()
         
-        _ = XCTWaiter.wait(for: [lifecycleExpectation], timeout: 3)
-        XCTAssertNil(request)
-        lifecycleExpectation.fulfill()
+        // To properly test request deallocation inside test method,
+        // we should wrap logic below to autoreleasepool.
+        // Otherwise request will be deallocated only after full execution of test method.
+        weak var weakRequest = autoreleasepool {
+            return networkingService.request(for: HTTPBinEndpoint.status(200), success: {
+                expectation.fulfill()
+            }, failure: { _ in
+                expectation.fulfill()
+            })
+        }
+
+        wait(for: [expectation], timeout: 10)
+        XCTAssertNil(weakRequest)
     }
 
-    func testRequestRetrying() {
-        let responseSerializer = DataRequest.dataResponseSerializer()
-        let request = Networking.Request(sessionManager: .default,
-                                         endpoint: HTTPBinEndpoint.status(200),
-                                         responseSerializer: responseSerializer)
-        XCTAssertFalse(request.retry(), "Retrying is not allowed, since request hasn't started yet")
-        request.response { _ in }
-        XCTAssertTrue(request.retry(), "Retrying is allowed")
+    func testUploadRequestLifecycle() {
+        let expectation = self.expectation(description: "Expecting request completion")
+        expectation.assertForOverFulfill = true
+        
+        // We should test real implementation of request instead of mock.
+        let networkingService = NetworkService()
+        
+        // To properly test request deallocation inside test method,
+        // we should wrap logic below to autoreleasepool.
+        // Otherwise request will be deallocated only after full execution of test method.
+        weak var weakRequest = autoreleasepool {
+            return networkingService.uploadRequest(for: HTTPBinEndpoint.uploadStatus(200), success: {
+                expectation.fulfill()
+            }, failure: { _ in
+                expectation.fulfill()
+            })
+        }
+        
+        wait(for: [expectation], timeout: 10)
+        XCTAssertNil(weakRequest)
     }
 
-    func testUploadRequestRetrying() {
+    func testRequestRetryingResult() {
         let responseSerializer = DataRequest.dataResponseSerializer()
-        let request = Networking.UploadRequest(sessionManager: .default,
-                                               endpoint: HTTPBinEndpoint.uploadStatus(200),
-                                               responseSerializer: responseSerializer)
+        let request = Request(sessionManager: .default,
+                              endpoint: HTTPBinEndpoint.uploadStatus(200),
+                              responseSerializer: responseSerializer)
         XCTAssertFalse(request.retry(), "Retrying is not allowed, since request hasn't started yet")
-        request.response { _ in }
-        XCTAssertTrue(request.retry(), "Retrying is allowed")
+        request.response { _, _ in }
+        XCTAssertTrue(request.retry(), "Retrying is allowed now")
     }
     
-    func testUploadRequestMemoryLeak() {
-        let lifecycleExpectation = expectation(description: "Expecting request callbacks are not called")
-
-        // We have to test implementation of real request
-        let networkService = NetworkService()
-        weak var request = networkService.uploadRequest(for: HTTPBinEndpoint.status(200), success: {
-            XCTFail("Invalid case")
-        }, failure: { _ in
-            XCTFail("Invalid case")
-        })
-        
-        _ = XCTWaiter.wait(for: [lifecycleExpectation], timeout: 3)
-        XCTAssertNil(request)
-        lifecycleExpectation.fulfill()
+    func testUploadRequestRetryingResult() {
+        let responseSerializer = DataRequest.dataResponseSerializer()
+        let request = UploadRequest(sessionManager: .default,
+                                    endpoint: HTTPBinEndpoint.uploadStatus(200),
+                                    responseSerializer: responseSerializer)
+        XCTAssertFalse(request.retry(), "Retrying is not allowed, since request hasn't started yet")
+        request.response { _, _ in }
+        XCTAssertTrue(request.retry(), "Retrying is allowed now")
     }
 
     // MARK: - Private
@@ -170,11 +176,11 @@ final class RequestTests: XCTestCase {
             expectation.fulfill()
         }
         if isTestingUploadRequest {
-            request = service.uploadRequest(for: endpoint, success: { validate($0) }, failure: { _ in
+            service.uploadRequest(for: endpoint, success: { validate($0) }, failure: { _ in
                 XCTFail("Invalid case")
             })
         } else {
-            request = service.request(for: endpoint, success: { validate($0) }, failure: { _ in
+            service.request(for: endpoint, success: { validate($0) }, failure: { _ in
                 XCTFail("Invalid case")
             })
         }
@@ -192,11 +198,11 @@ final class RequestTests: XCTestCase {
             expectation.fulfill()
         }
         if isTestingUploadRequest {
-            request = service.uploadRequest(for: endpoint, success: { validate($0) }, failure: { _ in
+            service.uploadRequest(for: endpoint, success: { validate($0) }, failure: { _ in
                 XCTFail("Invalid case")
             })
         } else {
-            request = service.request(for: endpoint, success: { validate($0) }, failure: { _ in
+            service.request(for: endpoint, success: { validate($0) }, failure: { _ in
                 XCTFail("Invalid case")
             })
         }
@@ -219,11 +225,11 @@ final class RequestTests: XCTestCase {
             expectation.fulfill()
         }
         if isTestingUploadRequest {
-            request = service.uploadRequest(for: endpoint, success: { validate($0) }, failure: { _ in
+            service.uploadRequest(for: endpoint, success: { validate($0) }, failure: { _ in
                 XCTFail("Invalid case")
             })
         } else {
-            request = service.request(for: endpoint, success: { validate($0) }, failure: { _ in
+            service.request(for: endpoint, success: { validate($0) }, failure: { _ in
                 XCTFail("Invalid case")
             })
         }
@@ -248,7 +254,7 @@ final class RequestTests: XCTestCase {
             expectation.fulfill()
         }
         if isTestingUploadRequest {
-            request = networkService.uploadRequest(for: endpoint, success: { (result: [String: Any]) in
+            networkService.uploadRequest(for: endpoint, success: { (result: [String: Any]) in
                 // Cast back to `[String: String]` to validate with expected result
                 guard let result = result as? [String: String] else {
                     XCTFail("Unexpected result")
@@ -259,7 +265,7 @@ final class RequestTests: XCTestCase {
                 XCTFail("Invalid case")
             })
         } else {
-            request = networkService.request(for: endpoint, success: { (result: [String: Any]) in
+            networkService.request(for: endpoint, success: { (result: [String: Any]) in
                 // Cast back to `[String: String]` to validate with expected result
                 guard let result = result as? [String: String] else {
                     XCTFail("Unexpected result")
@@ -280,13 +286,13 @@ final class RequestTests: XCTestCase {
         expectation.assertForOverFulfill = true
 
         if isTestingUploadRequest {
-            request = service.uploadRequest(
+            service.uploadRequest(
                 for: endpoint,
                 success: { expectation.fulfill() },
                 failure: { _ in XCTFail("Invalid case")}
             )
         } else {
-            request = service.request(
+            service.request(
                 for: endpoint,
                 success: { expectation.fulfill() },
                 failure: { _ in XCTFail("Invalid case")}

@@ -42,17 +42,25 @@ final class TokenRefreshingTests: XCTestCase {
         let successResponseExpectation = expectation(description: "Expecting success in response")
         successResponseExpectation.assertForOverFulfill = true
         successResponseExpectation.expectedFulfillmentCount = 100
-
-        let validToken = MockSessionService.Constants.validAccessToken
+        
+        let maxRequestDelay: TimeInterval = 5
+        let maxTokenRefreshingDelay: TimeInterval = 5
+        
         sessionService.tokenRefreshHandler = { success, _ in
-            tokenRefreshingStartedExpectation.fulfill()
-            success?(validToken)
+            let delay = TimeInterval.random(in: 1...maxTokenRefreshingDelay)
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                tokenRefreshingStartedExpectation.fulfill()
+                success?(MockSessionService.Constants.validAccessToken)
+            }
         }
 
-        let endpoint = MockEndpoint()
+        var endpoint = MockEndpoint()
         endpoint.requiresAuthorization = true
-        endpoint.expectedAccessToken = validToken
-        let requests = (0..<successResponseExpectation.expectedFulfillmentCount).map { _ in
+        endpoint.expectedAccessToken = MockSessionService.Constants.validAccessToken
+
+        let array = [Int](0..<successResponseExpectation.expectedFulfillmentCount)
+        let requests = array.map { _ -> CancellableRequest in
+            endpoint.responseDelay = .random(in: 1...maxRequestDelay)
             return networkService.request(for: endpoint, success: {
                 successResponseExpectation.fulfill()
             }, failure: { error in
@@ -62,7 +70,8 @@ final class TokenRefreshingTests: XCTestCase {
         print("Testing \(requests.count) requests...")
 
         let expectations = [tokenRefreshingStartedExpectation, successResponseExpectation]
-        wait(for: expectations, timeout: 30, enforceOrder: true)
+        let timeout = maxTokenRefreshingDelay + maxRequestDelay * 2
+        wait(for: expectations, timeout: timeout + 1, enforceOrder: true)
     }
 
     func testTokenRefreshingWithFailure() {
@@ -73,16 +82,24 @@ final class TokenRefreshingTests: XCTestCase {
         failureResponseExpectation.assertForOverFulfill = true
         failureResponseExpectation.expectedFulfillmentCount = 10
 
+        let maxRequestDelay: TimeInterval = 5
+        let maxTokenRefreshingDelay: TimeInterval = 5
+        
         let tokenRefreshError = MockError()
         sessionService.tokenRefreshHandler = { _, failure in
-            tokenRefreshingStartedExpectation.fulfill()
-            failure?(tokenRefreshError)
+            let delay = TimeInterval.random(in: 1...maxTokenRefreshingDelay)
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                tokenRefreshingStartedExpectation.fulfill()
+                failure?(tokenRefreshError)
+            }
         }
 
-        let endpoint = MockEndpoint()
+        var endpoint = MockEndpoint()
         endpoint.requiresAuthorization = true
         endpoint.expectedAccessToken = MockSessionService.Constants.validAccessToken
-        let requests = (0..<failureResponseExpectation.expectedFulfillmentCount).map { _ in
+        let array = [Int](0..<failureResponseExpectation.expectedFulfillmentCount)
+        let requests = array.map { _ -> CancellableRequest in
+            endpoint.responseDelay = .random(in: 1...maxRequestDelay)
             return networkService.request(for: endpoint, success: {
                 XCTFail("Invalid case")
             }, failure: { error in
@@ -95,7 +112,8 @@ final class TokenRefreshingTests: XCTestCase {
         print("Testing \(requests.count) requests...")
 
         let expectations = [tokenRefreshingStartedExpectation, failureResponseExpectation]
-        wait(for: expectations, timeout: 30, enforceOrder: true)
+        let timeout = maxTokenRefreshingDelay + maxRequestDelay
+        wait(for: expectations, timeout: timeout, enforceOrder: true)
     }
 
     func testUnauthorizedErrorHandlerWithUnsupportedError() {

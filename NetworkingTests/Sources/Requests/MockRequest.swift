@@ -23,12 +23,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
         self.completion = completion
 
         let requestStartTime = CFAbsoluteTimeGetCurrent()
-        let delay = Double.random(in: 3...5)
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-            guard let `self` = self else {
-                return
-            }
-
+        DispatchQueue.main.asyncAfter(deadline: .now() + mockEndpoint.responseDelay) {
             let requestEndTime = CFAbsoluteTimeGetCurrent()
             guard self.hasValidAuth() else {
                 let response = self.makeResponse(
@@ -36,7 +31,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
                     requestCompletedTime: requestEndTime,
                     error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401))
                 )
-                completion(response)
+                completion(self, response)
                 return
             }
 
@@ -46,7 +41,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
                     requestCompletedTime: requestEndTime,
                     error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
                 )
-                completion(response)
+                completion(self, response)
                 return
             }
 
@@ -54,7 +49,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
                 requestStartTime: requestStartTime,
                 requestCompletedTime: requestEndTime
             )
-            completion(response)
+            completion(self, response)
         }
     }
 
