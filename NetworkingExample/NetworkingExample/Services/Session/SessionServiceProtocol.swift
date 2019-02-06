@@ -10,4 +10,4 @@ protocol HasSessionService {
     var sessionService: SessionServiceProtocol { get }
 }
 
-protocol SessionServiceProtocol: Networking.SessionServiceProtocol {}
+protocol SessionServiceProtocol: AccessTokenSupervisor {}

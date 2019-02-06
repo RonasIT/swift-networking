@@ -7,13 +7,13 @@ import Alamofire
 
 public final class UnauthorizedErrorHandler: ErrorHandler {
 
-    private let sessionService: SessionServiceProtocol
+    private let sessionService: AccessTokenSupervisor
     private var isRefreshingToken: Bool = false
     private var items: [AuthorizationErrorHandlerItem] = []
 
     private var lastTokenRefreshFailureDate: Date?
 
-    public init(sessionService: SessionServiceProtocol) {
+    public init(sessionService: AccessTokenSupervisor) {
         self.sessionService = sessionService
     }
 
@@ -41,7 +41,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         // Same we need to do when token refreshing failed, but with date of token refreshing failure
         // For more check `TokenRefreshingTests.swift`
 
-        if let authToken = sessionService.authToken, authToken.expirationDate > requestFailureDate {
+        if let accessToken = sessionService.accessToken, accessToken.expirationDate > requestFailureDate {
             // Token has been refreshed recently
             completion(.retryNeeded)
             return
@@ -64,7 +64,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         }
 
         isRefreshingToken = true
-        sessionService.refreshAuthToken(success: { [weak self] in
+        sessionService.refreshAccessToken(success: { [weak self] in
             self?.finish(isErrorResolved: true)
         }, failure: { [weak self] _ in
             self?.finish(isErrorResolved: false)

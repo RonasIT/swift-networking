@@ -5,7 +5,7 @@
 
 import Foundation
 
-public final class AuthToken {
+public final class AccessToken {
 
     let token: String
 
@@ -20,9 +20,9 @@ public final class AuthToken {
     }
 }
 
-public protocol SessionServiceProtocol {
+public protocol AccessTokenSupervisor {
 
-    var authToken: AuthToken? { get }
+    var accessToken: AccessToken? { get }
 
-    func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void)
+    func refreshAccessToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void)
 }

@@ -43,7 +43,7 @@ final class TokenRefreshingTests: XCTestCase {
         successResponseExpectation.assertForOverFulfill = true
         successResponseExpectation.expectedFulfillmentCount = 10
 
-        let validToken = MockSessionService.Constants.validAuthToken
+        let validToken = MockSessionService.Constants.validAccessToken
         sessionService.tokenRefreshHandler = { success, _ in
             tokenRefreshingStartedExpectation.fulfill()
             success?(validToken)
@@ -51,7 +51,7 @@ final class TokenRefreshingTests: XCTestCase {
 
         let endpoint = MockEndpoint()
         endpoint.requiresAuthorization = true
-        endpoint.expectedAuthToken = validToken
+        endpoint.expectedAccessToken = validToken
         let requests = (0..<successResponseExpectation.expectedFulfillmentCount).map { _ in
             return networkService.request(for: endpoint, success: {
                 successResponseExpectation.fulfill()
@@ -81,7 +81,7 @@ final class TokenRefreshingTests: XCTestCase {
 
         let endpoint = MockEndpoint()
         endpoint.requiresAuthorization = true
-        endpoint.expectedAuthToken = MockSessionService.Constants.validAuthToken
+        endpoint.expectedAccessToken = MockSessionService.Constants.validAccessToken
         let requests = (0..<failureResponseExpectation.expectedFulfillmentCount).map { _ in
             return networkService.request(for: endpoint, success: {
                 XCTFail("Invalid case")

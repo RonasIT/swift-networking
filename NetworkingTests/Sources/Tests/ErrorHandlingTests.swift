@@ -238,7 +238,7 @@ final class ErrorHandlingTests: XCTestCase {
         case .mappedUsingResponseCode(mappedError: let mappedError):
             let error = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
             endpoint = MockEndpoint(result: error)
-            endpoint.errorForResposneCode = mappedError
+            endpoint.errorForResponseCode = mappedError
             expectedError = mappedError
         case .mappingUsingURLErrorCode(mappedError: let mappedError):
             let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled)

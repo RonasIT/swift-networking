@@ -60,7 +60,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
 
     private func hasValidAuth() -> Bool {
         let endpoint = mockEndpoint
-        if let token = endpoint.expectedAuthToken?.token {
+        if let token = endpoint.expectedAccessToken?.token {
             return headers.contains { $0.key == "Authorization" && $0.value == "Bearer \(token)" }
         } else {
             return true
