@@ -28,7 +28,7 @@ final class MockEndpoint: UploadEndpoint {
     var errorForURLErrorCode: Error?
 
     var expectedHeaders: [RequestHeader] = []
-    var expectedAccessToken: AccessToken?
+    var expectedAccessToken: String?
 
     init(result: String, encoding: String.Encoding = .utf8) {
         self.result = .success(with: result.data(using: encoding)!)

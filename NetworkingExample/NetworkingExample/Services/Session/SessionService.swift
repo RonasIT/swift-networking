@@ -8,17 +8,15 @@ import Networking
 
 final class SessionService: SessionServiceProtocol {
 
-    private var token: AccessToken?
+    private var token: String?
 
-    var accessToken: AccessToken? {
+    var accessToken: String? {
         return token
     }
 
     func refreshAccessToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            // token will be valid next 24 hours
-            let expirationDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
-            self?.token = AccessToken(token: "token", expirationDate: expirationDate)
+            self?.token = "token"
         }
     }
 }

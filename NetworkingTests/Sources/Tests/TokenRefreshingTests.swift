@@ -15,7 +15,7 @@ final class TokenRefreshingTests: XCTestCase {
 
     private lazy var errorHandlingService: ErrorHandlingServiceProtocol = {
         return ErrorHandlingService(errorHandlers: [
-            UnauthorizedErrorHandler(sessionService: sessionService)
+            UnauthorizedErrorHandler(accessTokenSupervisor: sessionService)
         ])
     }()
 
@@ -41,7 +41,7 @@ final class TokenRefreshingTests: XCTestCase {
 
         let successResponseExpectation = expectation(description: "Expecting success in response")
         successResponseExpectation.assertForOverFulfill = true
-        successResponseExpectation.expectedFulfillmentCount = 10
+        successResponseExpectation.expectedFulfillmentCount = 100
 
         let validToken = MockSessionService.Constants.validAccessToken
         sessionService.tokenRefreshHandler = { success, _ in
@@ -62,7 +62,7 @@ final class TokenRefreshingTests: XCTestCase {
         print("Testing \(requests.count) requests...")
 
         let expectations = [tokenRefreshingStartedExpectation, successResponseExpectation]
-        wait(for: expectations, timeout: 10, enforceOrder: true)
+        wait(for: expectations, timeout: 30, enforceOrder: true)
     }
 
     func testTokenRefreshingWithFailure() {
@@ -95,11 +95,11 @@ final class TokenRefreshingTests: XCTestCase {
         print("Testing \(requests.count) requests...")
 
         let expectations = [tokenRefreshingStartedExpectation, failureResponseExpectation]
-        wait(for: expectations, timeout: 10, enforceOrder: true)
+        wait(for: expectations, timeout: 30, enforceOrder: true)
     }
 
     func testUnauthorizedErrorHandlerWithUnsupportedError() {
-        let errorHandler = UnauthorizedErrorHandler(sessionService: sessionService)
+        let errorHandler = UnauthorizedErrorHandler(accessTokenSupervisor: sessionService)
         let unsupportedError = MockError()
         let response: DataResponse<Any> = .init(request: nil, response: nil, data: nil, result: .failure(unsupportedError))
         let endpoint = MockEndpoint(result: unsupportedError)

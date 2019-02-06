@@ -8,18 +8,17 @@ import Networking
 final class MockSessionService: AccessTokenSupervisor {
 
     enum Constants {
-        // Token expires in 24 hours
-        static let validAccessToken = AccessToken(token: "token", expirationDate: Date(timeIntervalSinceNow: 24 * 60 * 60))
+        static let validAccessToken = "token"
     }
 
-    typealias TokenRefreshCompletion = (AccessToken) -> Void
+    typealias TokenRefreshCompletion = (String) -> Void
     typealias TokenRefreshFailure = (Error) -> Void
     
-    private var token: AccessToken?
+    private var token: String?
 
     var tokenRefreshHandler: ((TokenRefreshCompletion?, TokenRefreshFailure?) -> Void)?
 
-    var accessToken: AccessToken? {
+    var accessToken: String? {
         return token
     }
 
