@@ -4,7 +4,9 @@
 //
 
 public protocol ErrorHandlingServiceProtocol {
-    func handleError<T>(_ requestError: RequestError<T>, retrying: @escaping () -> Void, failure: @escaping Failure)
+    func handleError<T>(_ requestError: RequestError<T>,
+                        retrying: @escaping () -> Void,
+                        failure: @escaping Failure)
 }
 
 open class ErrorHandlingService: ErrorHandlingServiceProtocol {

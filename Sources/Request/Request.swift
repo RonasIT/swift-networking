@@ -5,7 +5,7 @@
 
 import Alamofire
 
-class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
+class Request<Result>: BasicRequest, Cancellable, Retryable {
 
     typealias Completion = (RetryableRequest, DataResponse<Result>) -> Void
 
@@ -42,6 +42,8 @@ class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
         }
     }
 
+    // MARK: - Cancellable
+
     @discardableResult
     func cancel() -> Bool {
         guard let request = sentRequest else {
@@ -52,6 +54,8 @@ class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
         return true
     }
 
+    // MARK: - Retryable
+
     @discardableResult
     func retry() -> Bool {
         guard let completion = completion else {
@@ -60,8 +64,13 @@ class Request<Result>: BasicRequest, MutableRequest, Cancellable, Retryable {
         response(completion: completion)
         return true
     }
+}
 
-    final func appendHeader(_ header: RequestHeader) {
+// MARK: - MutableRequest
+
+extension Request: MutableRequest {
+    
+    func appendHeader(_ header: RequestHeader) {
         let indexOrNil = headers.firstIndex { $0.key == header.key }
         if let index = indexOrNil {
             headers.remove(at: index)

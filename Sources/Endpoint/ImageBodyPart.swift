@@ -6,6 +6,7 @@
 import UIKit.UIImage
 
 public struct ImageBodyPart {
+
     var imageData: Data
     var name: String
     var fileName: String

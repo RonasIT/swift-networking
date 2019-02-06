@@ -6,7 +6,6 @@
 import Alamofire
 
 public struct RequestError<T> {
-
     public let endpoint: Endpoint
     public let error: Error
     public let response: DataResponse<T>

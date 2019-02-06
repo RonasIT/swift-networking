@@ -24,7 +24,6 @@ public protocol RequestHeader {
 public enum RequestHeaders: RequestHeader {
 
     case authorization(String)
-
     case contentType(String)
     case userAgent(osVersion: String, appVersion: String)
     case dpi(scale: CGFloat)
