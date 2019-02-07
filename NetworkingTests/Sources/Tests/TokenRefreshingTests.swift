@@ -21,7 +21,7 @@ final class TokenRefreshingTests: XCTestCase {
 
     private lazy var requestAdaptingService: RequestAdaptingServiceProtocol = {
         return RequestAdaptingService(requestAdapters: [
-            TokenRequestAdapter(sessionService: sessionService)
+            TokenRequestAdapter(accessTokenSupervisor: sessionService)
         ])
     }()
 

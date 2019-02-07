@@ -5,14 +5,14 @@
 
 public final class TokenRequestAdapter: RequestAdapter {
 
-    private let sessionService: AccessTokenSupervisor
+    private let accessTokenSupervisor: AccessTokenSupervisor
 
-    public init(sessionService: AccessTokenSupervisor) {
-        self.sessionService = sessionService
+    public init(accessTokenSupervisor: AccessTokenSupervisor) {
+        self.accessTokenSupervisor = accessTokenSupervisor
     }
 
     public func adapt(_ request: AdaptiveRequest) {
-        if request.endpoint.requiresAuthorization, let accessToken = sessionService.accessToken {
+        if request.endpoint.requiresAuthorization, let accessToken = accessTokenSupervisor.accessToken {
             request.appendHeader(RequestHeaders.authorization(accessToken))
         }
     }

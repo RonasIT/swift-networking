@@ -33,7 +33,7 @@ final class MainServices: HasServices {
     private lazy var apiRequestAdaptingService: RequestAdaptingServiceProtocol = {
         let requestAdapters: [RequestAdapter] = [
             AppRequestAdapter(),
-            TokenRequestAdapter(sessionService: sessionService)
+            TokenRequestAdapter(accessTokenSupervisor: sessionService)
         ]
         return RequestAdaptingService(requestAdapters: requestAdapters)
     }()
