@@ -14,6 +14,7 @@ final class SlideshowViewController: UIViewController {
     private lazy var apiService: ApiServiceProtocol = Services.apiService
     private let reachabilityService: ReachabilityServiceProtocol = Services.reachabilityService
 
+    private weak var request: CancellableRequest?
     private var reachabilitySubscription: ReachabilitySubscription?
 
     private var slideshow: Slideshow?
@@ -47,7 +48,7 @@ final class SlideshowViewController: UIViewController {
 
     private func loadSlideshow() {
         startLoading()
-        apiService.fetchSlideshow(success: { [weak self] slideshow in
+        request = apiService.fetchSlideshow(success: { [weak self] slideshow in
             guard let `self` = self else {
                 return
             }
@@ -108,6 +109,4 @@ extension SlideshowViewController: UICollectionViewDelegateFlowLayout {
 
 // MARK: - UICollectionViewDelegate
 
-extension SlideshowViewController: UICollectionViewDelegate {
-
-}
+extension SlideshowViewController: UICollectionViewDelegate {}
