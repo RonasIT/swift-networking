@@ -41,7 +41,7 @@ enum LogType {
         case .info:
             return .info
         case .debug:
-            return .info
+            return .debug
         case .default:
             return .default
         case .error:
@@ -52,7 +52,9 @@ enum LogType {
     }
 }
 
-enum Logging {
+public enum Logging {
+
+    public static var isEnabled: Bool = false
 
     fileprivate enum Constants {
         static let subsystem: String = "com.ronas-it.networking"
@@ -61,7 +63,22 @@ enum Logging {
     private static var logs: [LogCategory: OSLog] = [:]
 
     static func log(type: LogType, category: LogCategory, _ message: String) {
-        os_log("%@", log: osLog(for: category), type: type.osLogType, message)
+        guard isEnabled else {
+            return
+        }
+
+        var format: StaticString
+        switch type {
+        case .info, .default:
+            format = "⚪ %@"
+        case .debug:
+            format = "🔵 %@"
+        case .error:
+            format = "🔴️ %@"
+        case .fault:
+            format = "❌ %@"
+        }
+        os_log(format, log: osLog(for: category), type: type.osLogType, message)
     }
 
     // MARK: - Private
