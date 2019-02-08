@@ -21,7 +21,7 @@ git "https://projects.ronasit.com/ronas-it/ios/networking.git" "1.0.2"
   * `Data`
   * `String`
   * `Decodable`
-  * `[Key: Value]`
+  * `[String: Any]`
 - [x] [Reachability](#reachability)
 - [x] [Request adapting](#request-adapting)
 - [x] [Error handling](#error-handling)
