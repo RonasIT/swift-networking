@@ -23,8 +23,8 @@ final class MockSessionService: AccessTokenSupervisor {
         return token
     }
 
-    func clearToken() {
-        token = nil
+    func updateToken(to newToken: String?) {
+        token = newToken
     }
 
     func refreshAccessToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {

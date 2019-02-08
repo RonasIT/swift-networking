@@ -59,7 +59,7 @@ final class RequestTests: XCTestCase {
         // We have to test implementation of real request
         let errorHandlingService = ErrorHandlingService()
         let networkService = NetworkService(errorHandlingService: errorHandlingService)
-        let request = networkService.request(for: HTTPBinEndpoint.status(200), success: {
+        let request = networkService.request(for: FailureEndpoint.failure, success: {
             XCTFail("Invalid case")
         }, failure: { error in
             switch error {
@@ -82,7 +82,7 @@ final class RequestTests: XCTestCase {
         // We have to test implementation of real request
         let errorHandlingService = ErrorHandlingService()
         let networkService = NetworkService(errorHandlingService: errorHandlingService)
-        let request = networkService.uploadRequest(for: HTTPBinEndpoint.uploadStatus(200), success: {
+        let request = networkService.uploadRequest(for: FailureEndpoint.uploadFailure, success: {
             XCTFail("Invalid case")
         }, failure: { error in
             switch error {
@@ -99,54 +99,10 @@ final class RequestTests: XCTestCase {
         wait(for: [responseExpectation], timeout: 10)
     }
 
-    func testRequestLifecycle() {
-        let expectation = self.expectation(description: "Expecting request completion")
-        expectation.assertForOverFulfill = true
-
-        // We should test real implementation of request instead of mock.
-        let networkingService = NetworkService()
-        
-        // To properly test request deallocation inside test method,
-        // we should wrap logic below to autoreleasepool.
-        // Otherwise request will be deallocated only after full execution of test method.
-        weak var weakRequest = autoreleasepool {
-            return networkingService.request(for: HTTPBinEndpoint.status(200), success: {
-                expectation.fulfill()
-            }, failure: { _ in
-                expectation.fulfill()
-            })
-        }
-
-        wait(for: [expectation], timeout: 10)
-        XCTAssertNil(weakRequest)
-    }
-
-    func testUploadRequestLifecycle() {
-        let expectation = self.expectation(description: "Expecting request completion")
-        expectation.assertForOverFulfill = true
-        
-        // We should test real implementation of request instead of mock.
-        let networkingService = NetworkService()
-        
-        // To properly test request deallocation inside test method,
-        // we should wrap logic below to autoreleasepool.
-        // Otherwise request will be deallocated only after full execution of test method.
-        weak var weakRequest = autoreleasepool {
-            return networkingService.uploadRequest(for: HTTPBinEndpoint.uploadStatus(200), success: {
-                expectation.fulfill()
-            }, failure: { _ in
-                expectation.fulfill()
-            })
-        }
-        
-        wait(for: [expectation], timeout: 10)
-        XCTAssertNil(weakRequest)
-    }
-
     func testRequestRetryingResult() {
         let responseSerializer = DataRequest.dataResponseSerializer()
         let request = Request(sessionManager: .default,
-                              endpoint: HTTPBinEndpoint.uploadStatus(200),
+                              endpoint: FailureEndpoint.failure,
                               responseSerializer: responseSerializer)
         XCTAssertFalse(request.retry(), "Retrying is not allowed, since request hasn't started yet")
         request.response { _, _ in }
@@ -156,7 +112,7 @@ final class RequestTests: XCTestCase {
     func testUploadRequestRetryingResult() {
         let responseSerializer = DataRequest.dataResponseSerializer()
         let request = UploadRequest(sessionManager: .default,
-                                    endpoint: HTTPBinEndpoint.uploadStatus(200),
+                                    endpoint: FailureEndpoint.uploadFailure,
                                     responseSerializer: responseSerializer)
         XCTAssertFalse(request.retry(), "Retrying is not allowed, since request hasn't started yet")
         request.response { _, _ in }

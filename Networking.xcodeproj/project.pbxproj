@@ -38,7 +38,7 @@
 		1B5CDC41BF1CBC73B0071FCC /* TokenRefreshingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDF5DEAA1BFEF68F42A20 /* TokenRefreshingTests.swift */; };
 		1B5CDC6DE59AF796911362D3 /* RequestAdaptingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDB809267B9448F810185 /* RequestAdaptingTests.swift */; };
 		1B5CDCD41466AEC70F9EDC01 /* MultipartFormData+Append.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD10DE6CCB3CFAF7A254A /* MultipartFormData+Append.swift */; };
-		1B5CDCD6DFD96754D9779A25 /* HTTPBinEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD288D364A46ECC4C4622 /* HTTPBinEndpoint.swift */; };
+		1B5CDCD6DFD96754D9779A25 /* FailureEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD288D364A46ECC4C4622 /* FailureEndpoint.swift */; };
 		1B5CDD213EFD232F97A35573 /* TokenRequestAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD302B4B2134D348B8391 /* TokenRequestAdapter.swift */; };
 		1B5CDD7083796EDD08BA52A4 /* GeneralErrorHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD154A7B32432C9801ECE /* GeneralErrorHandlerTests.swift */; };
 		1B5CDDB6A164621AE415F570 /* UnauthorizedErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD0A8B67662380E486B35 /* UnauthorizedErrorHandler.swift */; };
@@ -80,7 +80,7 @@
 		1B5CD154A7B32432C9801ECE /* GeneralErrorHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneralErrorHandlerTests.swift; sourceTree = "<group>"; };
 		1B5CD171E766DC86A37B3DA5 /* ReachabilitySubscription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilitySubscription.swift; sourceTree = "<group>"; };
 		1B5CD1D81B729A944CEE14A2 /* JSONDecoderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONDecoderTests.swift; sourceTree = "<group>"; };
-		1B5CD288D364A46ECC4C4622 /* HTTPBinEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPBinEndpoint.swift; sourceTree = "<group>"; };
+		1B5CD288D364A46ECC4C4622 /* FailureEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FailureEndpoint.swift; sourceTree = "<group>"; };
 		1B5CD302B4B2134D348B8391 /* TokenRequestAdapter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenRequestAdapter.swift; sourceTree = "<group>"; };
 		1B5CD350038866B6F7EE5D4E /* UploadRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadRequest.swift; sourceTree = "<group>"; };
 		1B5CD376D29AEDC697C62099 /* MockNetworkListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockNetworkListener.swift; sourceTree = "<group>"; };
@@ -233,7 +233,7 @@
 			isa = PBXGroup;
 			children = (
 				1B5CDFC8DCB798D977077B49 /* MockEndpoint.swift */,
-				1B5CD288D364A46ECC4C4622 /* HTTPBinEndpoint.swift */,
+				1B5CD288D364A46ECC4C4622 /* FailureEndpoint.swift */,
 			);
 			path = Endpoint;
 			sourceTree = "<group>";
@@ -601,7 +601,7 @@
 				1B5CDFC9BB48EC0AB93530F3 /* MockErrorHandler.swift in Sources */,
 				1B5CD933A4A540AD51AA4A29 /* MockNetworkService.swift in Sources */,
 				1B5CDA757256C8D993C935C4 /* MockRequest.swift in Sources */,
-				1B5CDCD6DFD96754D9779A25 /* HTTPBinEndpoint.swift in Sources */,
+				1B5CDCD6DFD96754D9779A25 /* FailureEndpoint.swift in Sources */,
 				938796F921FCCA26007D655F /* MultipartFormDataTests.swift in Sources */,
 				1B5CDC6DE59AF796911362D3 /* RequestAdaptingTests.swift in Sources */,
 				1B5CDB9BB965680EF8022BB7 /* RequestTests.swift in Sources */,

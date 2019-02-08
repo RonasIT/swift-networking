@@ -9,6 +9,8 @@ import Alamofire
 
 final class TokenRefreshingTests: XCTestCase {
 
+    private typealias Request = Networking.Request
+
     private lazy var sessionService: MockSessionService = {
         return MockSessionService()
     }()
@@ -32,7 +34,7 @@ final class TokenRefreshingTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        sessionService.clearToken()
+        sessionService.updateToken(to: nil)
     }
 
     func testTokenRefreshingWithSuccess() {
@@ -135,5 +137,42 @@ final class TokenRefreshingTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 3)
+    }
+
+    func testTokenRequestAdapter() {
+        func makeRequest(for endpoint: Endpoint) -> Request<Data> {
+            let serializer = DataRequest.dataResponseSerializer()
+            return Request(sessionManager: .default, endpoint: endpoint, responseSerializer: serializer)
+        }
+
+        func authorizationHeaderNotExists(in request: AdaptiveRequest) -> Bool {
+            let key = RequestHeaders.authorization("").key
+            return !request.headers.contains { $0.key == key }
+        }
+
+        func authorizationTokenExists(in request: AdaptiveRequest, token: String) -> Bool {
+            let expectedHeader = RequestHeaders.authorization(token)
+            return request.headers.contains { header in
+                return header.key == expectedHeader.key && header.value == expectedHeader.value
+            }
+        }
+        
+        let sessionService = MockSessionService()
+        let tokenRequestAdapter = TokenRequestAdapter(accessTokenSupervisor: sessionService)
+        let requestAdaptingService = RequestAdaptingService(requestAdapters: [tokenRequestAdapter])
+
+        sessionService.updateToken(to: nil)
+        var endpoint = MockEndpoint()
+        endpoint.requiresAuthorization = false
+        let unauthorizedRequest = makeRequest(for: endpoint)
+        requestAdaptingService.adapt(unauthorizedRequest)
+        XCTAssertTrue(authorizationHeaderNotExists(in: unauthorizedRequest))
+
+        let token = "accessToken"
+        sessionService.updateToken(to: token)
+        endpoint.requiresAuthorization = true
+        let authorizedRequest = makeRequest(for: endpoint)
+        requestAdaptingService.adapt(authorizedRequest)
+        XCTAssertTrue(authorizationTokenExists(in: authorizedRequest, token: token))
     }
 }
