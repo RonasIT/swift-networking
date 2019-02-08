@@ -41,7 +41,7 @@ final class TokenRefreshingTests: XCTestCase {
 
         let successResponseExpectation = expectation(description: "Expecting success in response")
         successResponseExpectation.assertForOverFulfill = true
-        successResponseExpectation.expectedFulfillmentCount = 100
+        successResponseExpectation.expectedFulfillmentCount = 10
         
         let maxRequestDelay: TimeInterval = 5
         let maxTokenRefreshingDelay: TimeInterval = 5

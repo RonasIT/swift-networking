@@ -8,13 +8,14 @@ import Networking
 final class MockSessionService: AccessTokenSupervisor {
 
     enum Constants {
+        static let invalidAccessToken = "invalidToken"
         static let validAccessToken = "token"
     }
 
     typealias TokenRefreshCompletion = (String) -> Void
     typealias TokenRefreshFailure = (Error) -> Void
     
-    private var token: String?
+    private var token: String? = Constants.invalidAccessToken
 
     var tokenRefreshHandler: ((TokenRefreshCompletion?, TokenRefreshFailure?) -> Void)?
 

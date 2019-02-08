@@ -8,7 +8,7 @@ import Networking
 
 final class SessionService: SessionServiceProtocol {
 
-    private var token: String?
+    private var token: String? = "invalidToken"
 
     var accessToken: String? {
         return token

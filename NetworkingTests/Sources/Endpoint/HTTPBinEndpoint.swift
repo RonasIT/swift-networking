@@ -18,9 +18,9 @@ enum HTTPBinEndpoint: UploadEndpoint {
     var path: String {
         switch self {
         case .status(let status):
-            return "/status/\(status)"
+            return "status/\(status)"
         case .uploadStatus(let status):
-            return "/status/\(status)"
+            return "status/\(status)"
         }
     }
 
