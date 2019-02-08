@@ -86,6 +86,8 @@ extension Request: MutableRequest {
     }
 }
 
+// MARK: - CustomStringConvertible
+
 extension Request: CustomStringConvertible {
 
     public var description: String {
