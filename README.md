@@ -4,8 +4,8 @@ Networking is a network abstraction layer built on top of [Alamofire](https://gi
 
 ## Table of contents 📦
 
-- [Installation](#installation)
-- [Features](#features)
+- [Installation](#installation-)
+- [Features](#features-)
 
 ## Installation 🎬
 
