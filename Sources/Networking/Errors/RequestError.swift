@@ -11,7 +11,7 @@ public final class RequestError<T> {
     public let error: Error
     public let response: DataResponse<T>
 
-    public init(endpoint: Endpoint, error: Error, response: DataResponse<T>) {
+    init(endpoint: Endpoint, error: Error, response: DataResponse<T>) {
         self.endpoint = endpoint
         self.error = error
         self.response = response
@@ -25,7 +25,7 @@ extension RequestError: CustomStringConvertible {
         let pointerString = "\(Unmanaged.passUnretained(self).toOpaque())"
         return """
                <RequestError:\(pointerString)> \
-               from `/\(endpoint.method)` [\(endpoint.method.rawValue.uppercased())]
+               from `/\(endpoint.path)` [\(endpoint.method.rawValue.uppercased())]
                """
     }
 }
