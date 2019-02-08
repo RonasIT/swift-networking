@@ -6,6 +6,7 @@ Networking is a network abstraction layer built on top of [Alamofire](https://gi
 
 - [Installation](#installation-)
 - [Features](#features-)
+- [Usage](#usage-)
 
 ## Installation 🎬
 
