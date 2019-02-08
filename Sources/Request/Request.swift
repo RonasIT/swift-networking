@@ -37,7 +37,9 @@ class Request<Result>: BasicRequest, Cancellable, Retryable {
             encoding: endpoint.parameterEncoding,
             headers: headers.httpHeaders
         ).validate()
+        Logging.log(type: .debug, category: .request, "\(self) - Sending")
         sentRequest?.response(responseSerializer: responseSerializer) { response in
+            Logging.log(type: .debug, category: .request, "\(self) - Finished")
             self.completion?(self, response)
         }
     }
@@ -47,9 +49,11 @@ class Request<Result>: BasicRequest, Cancellable, Retryable {
     @discardableResult
     func cancel() -> Bool {
         guard let request = sentRequest else {
+            Logging.log(type: .fault, category: .request, "\(self) - Couldn't cancel request: request hasn't started yet")
             return false
         }
         request.cancel()
+        Logging.log(type: .debug, category: .request, "\(self) - Cancelling")
         sentRequest = nil
         return true
     }
@@ -59,8 +63,10 @@ class Request<Result>: BasicRequest, Cancellable, Retryable {
     @discardableResult
     func retry() -> Bool {
         guard let completion = completion else {
+            Logging.log(type: .fault, category: .request, "\(self) - Couldn't retry request: request hasn't started yet")
             return false
         }
+        Logging.log(type: .debug, category: .request, "\(self) - Retrying")
         response(completion: completion)
         return true
     }
@@ -69,12 +75,25 @@ class Request<Result>: BasicRequest, Cancellable, Retryable {
 // MARK: - MutableRequest
 
 extension Request: MutableRequest {
-    
+
     func appendHeader(_ header: RequestHeader) {
         let indexOrNil = headers.firstIndex { $0.key == header.key }
         if let index = indexOrNil {
+            Logging.log(type: .debug, category: .request, "\(self) - Overriding header `\(header.key)`")
             headers.remove(at: index)
         }
         headers.append(header)
+    }
+}
+
+extension Request: CustomStringConvertible {
+
+    public var description: String {
+        let pointerString = "\(Unmanaged.passUnretained(self).toOpaque())"
+        return """
+               <\(type(of: self)):\(pointerString)> to \
+               `/\(endpoint.path)` \
+               [\(endpoint.method.rawValue.uppercased())]
+               """
     }
 }

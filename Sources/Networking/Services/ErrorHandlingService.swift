@@ -25,6 +25,12 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
             return
         }
 
+        Logging.log(
+            type: .debug,
+            category: .errorHandling,
+            "\(requestError) - Starting error handling chain, found \(errorHandlers.count) error handlers"
+        )
+
         handleErrorRecursive(
             requestError,
             errorHandler: errorHandler,
@@ -47,10 +53,22 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
             }
         }
 
+        Logging.log(
+            type: .debug,
+            category: .errorHandling,
+            "\(requestError) - Starting error handling in \(errorHandler)"
+        )
+
         errorHandler.handleError(requestError) { [weak self] result in
             guard let `self` = self else {
                 return
             }
+
+            Logging.log(
+                type: .debug,
+                category: .errorHandling,
+                "\(requestError) - Finished error handling in \(errorHandler) with result: \(result)"
+            )
 
             switch result {
             case .retryNeeded:
@@ -59,6 +77,11 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
                 failure(error)
             case .continueErrorHandling(with: let error):
                 guard let nextErrorHandler = nextErrorHandler else {
+                    Logging.log(
+                        type: .debug,
+                        category: .errorHandling,
+                        "\(requestError) - Finished error handling"
+                    )
                     failure(error)
                     return
                 }

@@ -39,8 +39,30 @@ final class UploadRequest<Result>: Request<Result> {
             if let parameters = self.endpoint.parameters {
                 multipartFormData.appendParametersBodyParts(parameters)
             }
+
+            Logging.log(
+                type: .debug,
+                category: .request,
+                "\(self) - Created multipart-form data with \(multipartFormData.contentLength) bytes"
+            )
         }
+
         let encodingCompletion = { (encodingResult: MultipartFormDataEncodingResult) in
+            switch encodingResult {
+            case .failure(let error):
+                Logging.log(
+                    type: .fault,
+                    category: .request,
+                    "\(self) - Failed multipart-form data encoding with error: \(error)"
+                )
+            case .success:
+                Logging.log(
+                    type: .debug,
+                    category: .request,
+                    "\(self) - Completed multipart-form data encoding"
+                )
+            }
+
             self.isCreatingMultipartFormData = false
             guard !self.isCancelled else {
                 self.failAsCancelled(with: completion)
@@ -50,6 +72,7 @@ final class UploadRequest<Result>: Request<Result> {
             case .success(let request, _, _):
                 self.sentRequest = request
                 request.validate()
+                Logging.log(type: .debug, category: .request, "\(self) - Sending")
                 request.response(responseSerializer: self.responseSerializer) { response in
                     if self.isCancelled {
                         self.failAsCancelled(with: completion)
@@ -77,24 +100,28 @@ final class UploadRequest<Result>: Request<Result> {
     override func cancel() -> Bool {
         // 1. Request is not sent, but we are waiting multipart-form data
         if isCreatingMultipartFormData, !isCancelled {
+            Logging.log(type: .debug, category: .request, "\(self) - Will be cancelled after multipart-form data creation")
             isCancelled = true
             return true
         }
 
         // 2. Try to cancel sent request
         if let request = sentRequest {
+            Logging.log(type: .debug, category: .request, "\(self) - Cancelling")
             request.cancel()
             sentRequest = nil
             return true
         }
 
         // 3. Request hasn't started yet
+        Logging.log(type: .fault, category: .request, "\(self) - Couldn't cancel request: request hasn't started yet")
         return false
     }
 
     override func retry() -> Bool {
         // 1. Request hasn't started yet, because `completion` is nil
         guard let completion = completion else {
+            Logging.log(type: .fault, category: .request, "\(self) - Couldn't retry request: request hasn't started yet")
             return false
         }
 
@@ -103,10 +130,12 @@ final class UploadRequest<Result>: Request<Result> {
         // 2. Request will be sent, once multipart-form data will be created
         // No need to start request again
         guard !isCreatingMultipartFormData else {
+            Logging.log(type: .debug, category: .request, "\(self) - Will be retried after multipart-form data creation")
             return true
         }
 
         // 3. Request has been already sent
+        Logging.log(type: .debug, category: .request, "\(self) - Retrying")
         response(completion: completion)
         return true
     }

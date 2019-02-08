@@ -12,8 +12,19 @@ public final class TokenRequestAdapter: RequestAdapter {
     }
 
     public func adapt(_ request: AdaptiveRequest) {
-        if request.endpoint.requiresAuthorization, let accessToken = accessTokenSupervisor.accessToken {
+        guard request.endpoint.requiresAuthorization else {
+            return
+        }
+
+        if let accessToken = accessTokenSupervisor.accessToken {
+            Logging.log(type: .debug, category: .requestAdapting, "\(request) - Attaching access token: `\(accessToken)`")
             request.appendHeader(RequestHeaders.authorization(accessToken))
+        } else {
+            Logging.log(
+                type: .fault,
+                category: .requestAdapting,
+                "\(request) - Attempt to attach access token, but access token is not exists"
+            )
         }
     }
 }
