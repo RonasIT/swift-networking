@@ -14,8 +14,6 @@ private struct CustomHeader: RequestHeader {
 
 final class RequestAdaptingTests: XCTestCase {
 
-    private var request: CancellableRequest?
-
     private lazy var requestAdapter: MockRequestAdapter = .init()
     private lazy var errorHandler: MockErrorHandler = .init()
     private lazy var networkService: NetworkService = {
@@ -28,7 +26,6 @@ final class RequestAdaptingTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        request = nil
         requestAdapter.adapting = nil
         errorHandler.errorHandling = nil
     }
@@ -45,9 +42,9 @@ final class RequestAdaptingTests: XCTestCase {
         let successExpectation = expectation(description: "Custom header received back")
         successExpectation.assertForOverFulfill = true
 
-        let endpoint = MockEndpoint()
+        var endpoint = MockEndpoint()
         endpoint.expectedHeaders = [customHeader]
-        request = networkService.request(for: endpoint, success: {
+        networkService.request(for: endpoint, success: {
             successExpectation.fulfill()
         }, failure: { _ in
             XCTFail("Invalid case")
@@ -68,7 +65,7 @@ final class RequestAdaptingTests: XCTestCase {
         }
 
         let endpoint = MockEndpoint(result: GeneralRequestError.noAuth)
-        request = networkService.request(for: endpoint, success: {
+        networkService.request(for: endpoint, success: {
             print("test")
         }, failure: { _ in
             print("test")

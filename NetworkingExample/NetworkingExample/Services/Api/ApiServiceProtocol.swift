@@ -6,7 +6,6 @@
 import Networking
 
 protocol HasApiService {
-
     var apiService: ApiServiceProtocol { get }
 }
 

@@ -6,8 +6,6 @@
 import Alamofire
 
 public protocol ErrorHandler: AnyObject {
-
     typealias Completion = (ErrorHandlingResult) -> Void
-
     func handleError<T>(_ requestError: RequestError<T>, completion: @escaping Completion)
 }

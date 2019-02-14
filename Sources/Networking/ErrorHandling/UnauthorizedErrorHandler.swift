@@ -7,14 +7,27 @@ import Alamofire
 
 public final class UnauthorizedErrorHandler: ErrorHandler {
 
-    private let sessionService: SessionServiceProtocol
-    private var isRefreshingToken: Bool = false
+    private enum State {
+        case none
+        case resolvingError
+        case errorResolved(at: Date, withSuccess: Bool)
+    }
+
+    private let accessTokenSupervisor: AccessTokenSupervisor
+    private var state: State = .none
     private var items: [AuthorizationErrorHandlerItem] = []
 
-    private var lastTokenRefreshFailureDate: Date?
+    private var isResolvingError: Bool {
+        switch state {
+        case .resolvingError:
+            return true
+        default:
+            return false
+        }
+    }
 
-    public init(sessionService: SessionServiceProtocol) {
-        self.sessionService = sessionService
+    public init(accessTokenSupervisor: AccessTokenSupervisor) {
+        self.accessTokenSupervisor = accessTokenSupervisor
     }
 
     public func handleError<T>(_ requestError: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
@@ -24,64 +37,101 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
             return
         }
 
-        // `requestCompletedTime` is time interval since reference date
-        let requestCompletedTime = requestError.response.timeline.requestCompletedTime
-        let requestFailureDate = Date(timeIntervalSinceReferenceDate: requestCompletedTime)
-
-        // Since multiple requests can be failed in short time (for example during 10 seconds),
-        // we have to avoid race conditions.
-
-        // 1. We sent two requests - REQUEST_A and REQUEST_B
-        // 2. We received error for REQUEST_A, but REQUEST_B still not received response
-        // 3. Error of REQUEST_A triggered token refreshing, while REQUEST_B still not received response
-        // 4. Token refreshing completed, but we still waiting response of REQUEST_B
-        // 5. REQUEST_B failed with unauthorized error
-        // 6. What to do next? Token is valid, so we have to retry REQUEST_B instead of triggering token refreshing
-        // To achieve logic in point 6, we should check token before token refreshing.
-        // Same we need to do when token refreshing failed, but with date of token refreshing failure
-        // For more check `TokenRefreshingTests.swift`
-
-        if let authToken = sessionService.authToken, authToken.expirationDate > requestFailureDate {
-            // Token has been refreshed recently
-            completion(.retryNeeded)
-            return
-        } else if let tokenRefreshFailureDate = lastTokenRefreshFailureDate,
-                  tokenRefreshFailureDate <= requestFailureDate {
-            // Token refreshing has been failed recently
-            completion(.continueErrorHandling(with: requestError.error))
-            return
+        func enqueueFailure() {
+            Logging.log(
+                type: .debug,
+                category: .accessTokenRefreshing,
+                "\(requestError) - Enqueued for future retry"
+            )
+            items.append(AuthorizationErrorHandlerItem(error: requestError.error, completion: completion))
+            resolveError()
         }
 
-        items.append(AuthorizationErrorHandlerItem(error: requestError.error, completion: completion))
-        startTokenRefreshingIfNeeded()
+        // We have to be sure, that token won't be refreshed multiple times
+        // since we can receive errors of multiple requests in different time
+        // For example, we sent 5 requests, and received only 3 errors.
+        // We refreshed token and handled this 3 errors.
+        // A bit later we received 2 remaining errors of long requests.
+        // Since token was already refreshed, we won't refresh it again for remaining errors.
+        switch state {
+        case .errorResolved(at: let tokenRefreshingCompletionDate, withSuccess: let isTokenRefreshed):
+            // Time from `Timeline` is timeIntervalSinceReferenceDate
+            let timeline = requestError.response.timeline
+            let requestStartDate = Date(timeIntervalSinceReferenceDate: timeline.requestStartTime)
+
+            // Request started before token refreshing (used expired token),
+            // but error received after token refreshing
+            if requestStartDate < tokenRefreshingCompletionDate {
+                if isTokenRefreshed {
+                    Logging.log(
+                        type: .debug,
+                        category: .accessTokenRefreshing,
+                        "\(requestError) - Received after recent successful access token refreshing, retrying request"
+                    )
+                    completion(.retryNeeded)
+                } else {
+                    Logging.log(
+                        type: .debug,
+                        category: .accessTokenRefreshing,
+                        "\(requestError) - Received after recent failed access token refreshing, failing request"
+                    )
+                    completion(.continueFailure(with: requestError.error))
+                }
+            } else {
+                Logging.log(
+                    type: .fault,
+                    category: .accessTokenRefreshing,
+                    """
+                    "\(requestError) - Unexpected failure, because access token was recently refreshed. \
+                    Trying to refresh access token again."
+                    """
+                )
+                enqueueFailure()
+            }
+        default:
+            enqueueFailure()
+        }
     }
 
     // MARK: - Private
 
-    private func startTokenRefreshingIfNeeded() {
-        guard !isRefreshingToken else {
+    private func resolveError() {
+        guard !isResolvingError else {
             return
         }
 
-        isRefreshingToken = true
-        sessionService.refreshAuthToken(success: { [weak self] in
-            self?.finish(isErrorResolved: true)
-        }, failure: { [weak self] _ in
+        state = .resolvingError
+        accessTokenSupervisor.refreshAccessToken(success: { [weak self] in
+            guard let self = self else {
+                return
+            }
+            let accessToken = self.accessTokenSupervisor.accessToken ?? "nil"
+            Logging.log(
+                type: .debug,
+                category: .accessTokenRefreshing,
+                "Authorization token successfully refreshed, new token: `\(accessToken)`"
+            )
+            self.finish(isErrorResolved: true)
+        }, failure: { [weak self] error in
+            Logging.log(
+                type: .fault,
+                category: .accessTokenRefreshing,
+                "Authorization token refreshing failed with error: \(error)"
+            )
             self?.finish(isErrorResolved: false)
         })
     }
 
     private func finish(isErrorResolved: Bool) {
-        lastTokenRefreshFailureDate = isErrorResolved ? nil : Date()
-        items.removeAll { item in
+        state = .errorResolved(at: Date(), withSuccess: isErrorResolved)
+        items.forEach { item in
             if isErrorResolved {
                 item.completion(.retryNeeded)
             } else {
                 item.completion(.continueErrorHandling(with: item.error))
             }
-            return true
         }
-        isRefreshingToken = false
+        items.removeAll()
     }
 }
 

@@ -14,7 +14,7 @@ final class SlideshowViewController: UIViewController {
     private lazy var apiService: ApiServiceProtocol = Services.apiService
     private let reachabilityService: ReachabilityServiceProtocol = Services.reachabilityService
 
-    private var request: CancellableRequest?
+    private weak var request: CancellableRequest?
     private var reachabilitySubscription: ReachabilitySubscription?
 
     private var slideshow: Slideshow?
@@ -109,6 +109,4 @@ extension SlideshowViewController: UICollectionViewDelegateFlowLayout {
 
 // MARK: - UICollectionViewDelegate
 
-extension SlideshowViewController: UICollectionViewDelegate {
-
-}
+extension SlideshowViewController: UICollectionViewDelegate {}

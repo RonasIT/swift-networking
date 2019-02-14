@@ -2,6 +2,19 @@
 
 Networking is a network abstraction layer built on top of [Alamofire](https://github.com/Alamofire/Alamofire).
 
+## Table of contents 📦
+
+- [Installation](#installation-)
+- [Features](#features-)
+- [Usage](#usage-)
+
+## Installation 🎬
+
+To integrate Networking into your Xcode project, specify it in your Cartfile:
+```
+git "https://projects.ronasit.com/ronas-it/ios/networking.git" "1.0.2"
+```
+
 ## Features ✔️
 
 - [x] [`Endpoint` support](#endpoint)
@@ -9,11 +22,12 @@ Networking is a network abstraction layer built on top of [Alamofire](https://gi
   * `Data`
   * `String`
   * `Decodable`
-  * `[Key: Value]`
+  * `[String: Any]`
 - [x] [Reachability](#reachability)
 - [x] [Request adapting](#request-adapting)
 - [x] [Error handling](#error-handling)
-- [x] [Automatic token refreshing and request retrying](#automatic-token-refreshing-and-request-retrying) 
+- [x] [Automatic token refreshing and request retrying](#automatic-token-refreshing-and-request-retrying)
+- [x] [Logging](#logging) 
 
 ## Usage 🔨
 
@@ -97,11 +111,6 @@ request(for: endpoint, success: {
     
 })
 ```
-
-⚠️ Request lifecycle ⚠️
-
-`Networking` expects you will keep strong references to sent requests.  
-Otherwise request object will not exist at response handling time and success/failure handler will be not called. 
 
 ### Cancelling request
 
@@ -334,15 +343,15 @@ You don't need to check error code or response status code manually. `GeneralErr
 There is a list of supported errors:
 ```swift
 public enum GeneralRequestError: Error {
-    // For `URLError.notConnectedToInternet`
+    // For `URLError.Code.notConnectedToInternet`
     case noInternetConnection
-    // For `URLError.timedOut`
+    // For `URLError.Code.timedOut`
     case timedOut
     // For `AFError` (Alamofire error) with 401 response status code
     case noAuth
     // For `AFError` with 404 response status code
     case notFound
-    // For `URLError.cancelled`
+    // For `URLError.Code.cancelled`
     case cancelled
 }
 ```
@@ -367,10 +376,10 @@ enum ProfileEndpoint: Endpoint {
         return nil
     }
     
-    func error(for urlError: URLError) -> Error? {
+    func error(for urlErrorCode: URLError.Code) -> Error? {
         if case let ProfileEndpoint.uploadImage = self {
-            switch urlError {
-            case URLError.timedOut:
+            switch urlErrorCode {
+            case .timedOut:
                 return ProfileError.imageTooLarge
             default:
                 return nil
@@ -390,37 +399,37 @@ enum ProfileEndpoint: Endpoint {
 
 There are three components of this feature:
 1. `UnauthorizedErrorHandler` provides error handling logic for "unauthorized" errors with 401 status code
-2. `TokenRequestAdapter` provides auth token attaching on request sending/retrying
-3. Your service, which implements `SessionServiceProtocol` provides auth token and auth token refreshing logic
+2. `TokenRequestAdapter` provides access token attaching on request sending/retrying
+3. Your service, which implements `AccessTokenSupervisor` protocol and provides access token and access token refreshing logic
 
 #### Usage
 
-1. Create your service and implement `SessionServiceProtocol`:
+1. Create your service and implement `AccessTokenSupervisor` protocol:
 
 ```swift
 import Networking
 
-protocol SessionServiceProtocol: Networking.SessionServiceProtocol {}
+protocol SessionServiceProtocol: AccessTokenSupervisor {}
 
 final class SessionService: SessionServiceProtocol, NetworkService {
     
-    private var token: AuthToken?
-    private var refreshAuthToken: String?
-    private var tokenRefreshingRequest: CancellableRequest?
+    private var token: String?
+    private var refreshToken: String?
     
-    var authToken: AuthToken? {
+    var accessToken: AccessToken? {
         return token
     }
     
-    func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
-        guard let refreshAuthToken = refreshAuthToken else {
+    func refreshAccessToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
+        guard let refreshAccessToken = refreshAccessToken else {
             failure()
             return
         }
         
-        let endpoint = AuthorizationEndpoint.refreshToken(with: refreshAuthToken)
-        tokenRefreshingRequest = request(for: endpoint, success: { [weak self] (response: RefreshTokenResponse) in
-            self?.token = AuthToken(token: response.token, expiryDate: response.expiryDate)
+        let endpoint = AuthorizationEndpoint.refreshAccessToken(with: refreshToken)
+        request(for: endpoint, success: { [weak self] (response: RefreshTokenResponse) in
+            self?.token = response.accessToken
+            self?.refreshToken = response.refreshToken
             success()
         }, failure: { [weak self] error in
             self?.token = nil
@@ -438,7 +447,7 @@ lazy var sessionService: SessionServiceProtocol = {
 }()
 
 lazy var requestAdaptingService: RequestAdaptingServiceProtocol = {
-    let tokenRequestAdapter = TokenRequestAdapter(sessionService: sessionService)  
+    let tokenRequestAdapter = TokenRequestAdapter(accessTokenSupervisor: sessionService)  
     return RequestAdaptingService(requestAdapters: [tokenRequestAdapter])
 }()
 ```
@@ -446,7 +455,7 @@ lazy var requestAdaptingService: RequestAdaptingServiceProtocol = {
 3. Create `ErrorHandlingService` with `UnauthorizedErrorHandler`:
 ```swift
 lazy var errorHandlingService: ErrorHandlingServiceProtocol = {
-    let unauthorizedErrorHandler = UnauthorizedErrorHandler(sessionService: sessionService)  
+    let unauthorizedErrorHandler = UnauthorizedErrorHandler(accessTokenSupervisor: sessionService)  
     return ErrorHandlingService(errorHandlers: [unauthorizedErrorHandler])
 }()
 ```
@@ -454,10 +463,22 @@ lazy var errorHandlingService: ErrorHandlingServiceProtocol = {
 4. Create `NetworkService` with your error handling and request adapting services:
 ```swift
 lazy var profileService: ProfileServiceProtocol = {
-    return ProfileService(requestAdaptingService: requestAdaptingService, errorHandlingService: errorHandlingService)
+    return ProfileService(requestAdaptingService: requestAdaptingService, 
+                          errorHandlingService: errorHandlingService)
 }()
 ```
 
-If all is correct, you can forgot about problem with expired tokens in your app.
+If all is correct, you can forget about expired access tokens in your app.
+
+## Logging
+
+For debugging purposes you can enable logging in Networking, just specify:
+```swift
+import Networking
+
+Logging.isEnabled = true
+```
+Once logging is enabled, you able to view logs in XCode console or from Console of macOS.
+
 
 To learn more, please check example project.

@@ -24,13 +24,10 @@ final class ErrorHandlingTests: XCTestCase {
         let errorHandlingService = ErrorHandlingService(errorHandlers: [errorHandler])
         return MockNetworkService(errorHandlingService: errorHandlingService)
     }()
-
-    private var request: CancellableRequest?
     
     override func tearDown() {
         super.tearDown()
         errorHandler.errorHandling = nil
-        request = nil
     }
 
     func testEmptyErrorHandlingChain() {
@@ -40,7 +37,7 @@ final class ErrorHandlingTests: XCTestCase {
         let errorHandlingService = ErrorHandlingService(errorHandlers: [])
         let networkService = MockNetworkService(errorHandlingService: errorHandlingService)
         let endpoint = MockEndpoint(result: GeneralRequestError.notFound)
-        request = networkService.request(for: endpoint, success: {
+        networkService.request(for: endpoint, success: {
             XCTFail("Invalid case")
         }, failure: { error in
             switch error {
@@ -91,7 +88,7 @@ final class ErrorHandlingTests: XCTestCase {
         let errorHandlingService = ErrorHandlingService(errorHandlers: errorHandlers)
         let networkService = MockNetworkService(errorHandlingService: errorHandlingService)
         let endpoint = MockEndpoint(result: expectedErrors.first!)
-        request = networkService.request(for: endpoint, success: {
+        networkService.request(for: endpoint, success: {
             XCTFail("Invalid case")
         }, failure: { error in
             switch error {
@@ -121,7 +118,7 @@ final class ErrorHandlingTests: XCTestCase {
         failureExpectation.assertForOverFulfill = true
 
         let endpoint = MockEndpoint(result: GeneralRequestError.notFound)
-        request = networkService.request(for: endpoint, success: {
+        networkService.request(for: endpoint, success: {
             XCTFail("Invalid case")
         }, failure: { _ in
             failureExpectation.fulfill()
@@ -154,7 +151,7 @@ final class ErrorHandlingTests: XCTestCase {
         weak var weakNetworkService = networkService
 
         let endpoint = MockEndpoint(result: GeneralRequestError.notFound)
-        request = networkService?.request(for: endpoint, success: {
+        networkService?.request(for: endpoint, success: {
             XCTFail("Memory leak happened")
         }, failure: { _ in
             XCTFail("Memory leak happened")
@@ -217,7 +214,7 @@ final class ErrorHandlingTests: XCTestCase {
         let networkService = MockNetworkService(errorHandlingService: errorHandlingService)
 
         let endpoint = MockEndpoint(result: firstError)
-        request = networkService.request(for: endpoint, success: {
+        networkService.request(for: endpoint, success: {
             XCTFail("Invalid case")
         }, failure: { error in
             guard let error = error as? MockError, error === secondError else {
@@ -238,7 +235,7 @@ final class ErrorHandlingTests: XCTestCase {
         case .mappedUsingResponseCode(mappedError: let mappedError):
             let error = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
             endpoint = MockEndpoint(result: error)
-            endpoint.errorForResposneCode = mappedError
+            endpoint.errorForResponseCode = mappedError
             expectedError = mappedError
         case .mappingUsingURLErrorCode(mappedError: let mappedError):
             let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled)
@@ -253,7 +250,7 @@ final class ErrorHandlingTests: XCTestCase {
         let failureExpectation = expectation(description: "Expecting failure response")
         failureExpectation.assertForOverFulfill = true
 
-        request = networkService.request(for: endpoint, success: {
+        networkService.request(for: endpoint, success: {
             XCTFail("Invalid case")
         }, failure: { error in
             guard let error = error as? MockError, error === expectedError  else {

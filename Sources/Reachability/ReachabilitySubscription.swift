@@ -6,7 +6,6 @@
 import Foundation
 
 public protocol ReachabilitySubscription: AnyObject {
-
     func unsubscribe()
 }
 

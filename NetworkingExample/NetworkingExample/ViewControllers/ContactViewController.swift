@@ -14,7 +14,7 @@ final class ContactViewController: UIViewController {
     private let apiService: ApiServiceProtocol = Services.apiService
     private let reachabilityService: ReachabilityServiceProtocol = Services.reachabilityService
 
-    private var request: CancellableRequest?
+    private weak var request: CancellableRequest?
     private var reachabilitySubscription: ReachabilitySubscription?
 
     private var contact: Contact?

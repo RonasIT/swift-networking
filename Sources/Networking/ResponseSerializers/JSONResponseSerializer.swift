@@ -23,14 +23,17 @@ final class JSONResponseSerializer: ResponseSerializer {
             return .failure(error)
         }
 
+        var result: Alamofire.Result<[String: Any]>
         do {
             let object = try JSONSerialization.jsonObject(with: data ?? Data(), options: readingOptions)
             guard let json = object as? [String: Any] else {
                 return .failure(CocoaError.error(.keyValueValidation))
             }
-            return .success(json)
+            result = .success(json)
         } catch {
-            return .failure(error)
+            result = .failure(error)
         }
+        
+        return result
     }
 }

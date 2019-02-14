@@ -5,29 +5,29 @@
 
 import Networking
 
-final class MockSessionService: SessionServiceProtocol {
+final class MockSessionService: AccessTokenSupervisor {
 
     enum Constants {
-        // Token expires in 24 hours
-        static let validAuthToken = AuthToken(token: "token", expirationDate: Date(timeIntervalSinceNow: 24 * 60 * 60))
+        static let invalidAccessToken = "invalidToken"
+        static let validAccessToken = "token"
     }
 
-    typealias TokenRefreshCompletion = (AuthToken) -> Void
+    typealias TokenRefreshCompletion = (String) -> Void
     typealias TokenRefreshFailure = (Error) -> Void
     
-    private var token: AuthToken?
+    private var token: String? = Constants.invalidAccessToken
 
     var tokenRefreshHandler: ((TokenRefreshCompletion?, TokenRefreshFailure?) -> Void)?
 
-    var authToken: AuthToken? {
+    var accessToken: String? {
         return token
     }
 
-    func clearToken() {
-        token = nil
+    func updateToken(to newToken: String?) {
+        token = newToken
     }
 
-    func refreshAuthToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
+    func refreshAccessToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
         tokenRefreshHandler?({ [weak self] token in
             guard let `self` = self else {
                 return
@@ -40,4 +40,3 @@ final class MockSessionService: SessionServiceProtocol {
         })
     }
 }
-

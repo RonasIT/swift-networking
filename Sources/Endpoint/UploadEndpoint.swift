@@ -6,6 +6,5 @@
 import Alamofire
 
 public protocol UploadEndpoint: Endpoint {
-
     var imageBodyParts: [ImageBodyPart] { get }
 }

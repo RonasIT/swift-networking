@@ -22,24 +22,34 @@ final class MockRequest<Result>: Networking.Request<Result> {
     override func response(completion: @escaping Completion) {
         self.completion = completion
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            guard let `self` = self else {
-                return
-            }
-
+        let requestStartTime = CFAbsoluteTimeGetCurrent()
+        DispatchQueue.main.asyncAfter(deadline: .now() + mockEndpoint.responseDelay) {
+            let requestEndTime = CFAbsoluteTimeGetCurrent()
             guard self.hasValidAuth() else {
-                let error = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401))
-                completion(self.makeResponse(with: error))
+                let response = self.makeResponse(
+                    requestStartTime: requestStartTime,
+                    requestCompletedTime: requestEndTime,
+                    error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401))
+                )
+                completion(self, response)
                 return
             }
 
             guard self.hasValidHeaders() else {
-                let error = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
-                completion(self.makeResponse(with: error))
+                let response = self.makeResponse(
+                    requestStartTime: requestStartTime,
+                    requestCompletedTime: requestEndTime,
+                    error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
+                )
+                completion(self, response)
                 return
             }
 
-            completion(self.makeResponse())
+            let response = self.makeResponse(
+                requestStartTime: requestStartTime,
+                requestCompletedTime: requestEndTime
+            )
+            completion(self, response)
         }
     }
 
@@ -60,7 +70,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
 
     private func hasValidAuth() -> Bool {
         let endpoint = mockEndpoint
-        if let token = endpoint.expectedAuthToken?.token {
+        if let token = endpoint.expectedAccessToken {
             return headers.contains { $0.key == "Authorization" && $0.value == "Bearer \(token)" }
         } else {
             return true
@@ -78,7 +88,9 @@ final class MockRequest<Result>: Networking.Request<Result> {
         }
     }
 
-    private func makeResponse(with error: Error? = nil) -> DataResponse<Result> {
+    private func makeResponse(requestStartTime: CFAbsoluteTime,
+                              requestCompletedTime: CFAbsoluteTime,
+                              error: Error? = nil) -> DataResponse<Result> {
         var result: Alamofire.Result<Result>
         if let error = error {
             result = .failure(error)
@@ -91,7 +103,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
             }
         }
 
-        let timeline = Timeline(requestCompletedTime: CFAbsoluteTimeGetCurrent())
+        let timeline = Timeline(requestStartTime: requestStartTime, requestCompletedTime: requestCompletedTime)
         return DataResponse(request: nil, response: nil, data: nil, result: result, timeline: timeline)
     }
 }

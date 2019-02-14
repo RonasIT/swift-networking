@@ -4,7 +4,6 @@
 //
 
 public protocol HasReachabilityService {
-
     var reachabilityService: ReachabilityServiceProtocol { get }
 }
 

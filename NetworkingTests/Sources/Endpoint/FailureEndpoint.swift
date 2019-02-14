@@ -6,29 +6,24 @@
 import Networking
 import Alamofire
 
-enum HTTPBinEndpoint: UploadEndpoint {
+enum FailureEndpoint: UploadEndpoint {
 
-    case status(Int)
-    case uploadStatus(Int)
+    case failure
+    case uploadFailure
 
     var baseURL: URL {
-        return URL(string: "https://httpbin.org/")!
+        return URL(string: "https://localhost")!
     }
 
     var path: String {
-        switch self {
-        case .status(let status):
-            return "/status/\(status)"
-        case .uploadStatus(let status):
-            return "/status/\(status)"
-        }
+        return "failure"
     }
 
     var method: HTTPMethod {
         switch self {
-        case .status:
+        case .failure:
             return .get
-        case .uploadStatus:
+        case .uploadFailure:
             return .post
         }
     }
@@ -39,7 +34,7 @@ enum HTTPBinEndpoint: UploadEndpoint {
 
     var parameters: Parameters? {
         switch self {
-        case .uploadStatus:
+        case .uploadFailure:
             return [:]
         default:
             return nil
@@ -56,7 +51,7 @@ enum HTTPBinEndpoint: UploadEndpoint {
 
     var imageBodyParts: [ImageBodyPart] {
         switch self {
-        case .uploadStatus:
+        case .uploadFailure:
             let base64Encoded = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
             guard let imageData = Data(base64Encoded: base64Encoded) else {
                 return []

@@ -16,7 +16,6 @@ protocol ResponseSerializer {
 }
 
 extension ResponseSerializer {
-
     func asDataResponseSerializer() -> DataResponseSerializer<Result> {
         return DataResponseSerializer { request, response, data, error in
             self.serializeResponse(with: data, request: request, response: response, error: error)

@@ -21,10 +21,13 @@ final class DecodableResponseSerializer<Result: Decodable>: ResponseSerializer {
             return .failure(error)
         }
 
+        var result: Alamofire.Result<Result>
         do {
-            return .success(try decoder.decode(from: data ?? Data()))
+            result = .success(try decoder.decode(from: data ?? Data()))
         } catch {
-            return .failure(error)
+            result = .failure(error)
         }
+        
+        return result
     }
 }

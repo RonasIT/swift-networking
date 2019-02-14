@@ -6,7 +6,7 @@
 import Alamofire
 import Networking
 
-final class MockEndpoint: UploadEndpoint {
+struct MockEndpoint: UploadEndpoint {
 
     enum Result {
         case failure(with: Error)
@@ -24,11 +24,13 @@ final class MockEndpoint: UploadEndpoint {
     var requiresAuthorization: Bool = false
     var imageBodyParts: [ImageBodyPart] = []
 
-    var errorForResposneCode: Error?
+    var errorForResponseCode: Error?
     var errorForURLErrorCode: Error?
 
     var expectedHeaders: [RequestHeader] = []
-    var expectedAuthToken: AuthToken?
+    var expectedAccessToken: String?
+
+    var responseDelay: Double = .random(in: 0.5...1)
 
     init(result: String, encoding: String.Encoding = .utf8) {
         self.result = .success(with: result.data(using: encoding)!)
@@ -55,6 +57,6 @@ final class MockEndpoint: UploadEndpoint {
     }
 
     func error(forResponseCode responseCode: Int) -> Error? {
-        return errorForResposneCode
+        return errorForResponseCode
     }
 }
