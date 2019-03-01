@@ -12,7 +12,7 @@ Networking is a network abstraction layer built on top of [Alamofire](https://gi
 
 To integrate Networking into your Xcode project, specify it in your Cartfile:
 ```
-git "https://projects.ronasit.com/ronas-it/ios/networking.git" "1.0.2"
+git "https://projects.ronasit.com/ronas-it/ios/networking.git" "1.1.0"
 ```
 
 ## Features ✔️
