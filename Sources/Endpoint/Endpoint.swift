@@ -25,6 +25,7 @@ public enum RequestHeaders: RequestHeader {
 
     case authorization(String)
     case contentType(String)
+    case accept(String)
     case userAgent(osVersion: String, appVersion: String)
     case dpi(scale: CGFloat)
 
@@ -34,6 +35,8 @@ public enum RequestHeaders: RequestHeader {
             return "Authorization"
         case .contentType:
             return "Content-Type"
+        case .accept:
+            return "Accept"
         case .userAgent:
             return "User-Agent"
         case .dpi:
@@ -47,6 +50,8 @@ public enum RequestHeaders: RequestHeader {
             return "Bearer \(token)"
         case let .contentType(type):
             return type
+        case let .accept(value):
+            return value
         case let .userAgent(osVersion, appVersion):
             return "iOS \(osVersion) version \(appVersion)"
         case let .dpi(scale):
