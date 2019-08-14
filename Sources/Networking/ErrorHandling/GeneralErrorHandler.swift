@@ -9,7 +9,7 @@ open class GeneralErrorHandler: ErrorHandler {
 
     public init() {}
 
-    public func handleError<T>(_ error: RequestError<T>, completion: @escaping Completion) {
+    open func handleError<T>(_ error: RequestError<T>, completion: @escaping Completion) {
         let endpoint = error.endpoint
         switch error.error {
         case let error as AFError:
