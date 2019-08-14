@@ -347,9 +347,11 @@ public enum GeneralRequestError: Error {
     case noInternetConnection
     // For `URLError.Code.timedOut`
     case timedOut
-    // For `AFError` (Alamofire error) with 401 response status code
+    // `AFError` with 401 response status code
     case noAuth
-    // For `AFError` with 404 response status code
+    // `AFError` with 403 response status code
+    case forbidden
+    // `AFError` with 404 response status code
     case notFound
     // For `URLError.Code.cancelled`
     case cancelled

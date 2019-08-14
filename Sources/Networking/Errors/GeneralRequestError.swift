@@ -7,6 +7,7 @@ public enum GeneralRequestError: Error, Equatable {
     case noInternetConnection
     case timedOut
     case noAuth
+    case forbidden
     case notFound
     case cancelled
 }

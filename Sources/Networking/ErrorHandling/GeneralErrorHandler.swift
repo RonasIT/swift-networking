@@ -39,6 +39,8 @@ open class GeneralErrorHandler: ErrorHandler {
         switch responseCode {
         case 401:
             mappedError = GeneralRequestError.noAuth
+        case 403:
+            mappedError = GeneralRequestError.forbidden
         case 404:
             mappedError = GeneralRequestError.notFound
         default:
