@@ -58,6 +58,7 @@
 		6D9F10E3216BBBF200CDB8EE /* ReachabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10CC216BBBF200CDB8EE /* ReachabilityService.swift */; };
 		6D9F10E4216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */; };
 		934CEE2821F206EF009C024A /* Networking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D3EF77D21675CFA00251869 /* Networking.framework */; };
+		936EF63823048B50001C32F0 /* RequestHeaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936EF63723048B50001C32F0 /* RequestHeaders.swift */; };
 		938796F921FCCA26007D655F /* MultipartFormDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD9AEFCBD2CA6811FD701 /* MultipartFormDataTests.swift */; };
 		93B57A6621F22CB200CCA72F /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D9F10AB216BB35700CDB8EE /* Alamofire.framework */; };
 		93ECDAC621F7A8ED0041FA13 /* MockEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDFC8DCB798D977077B49 /* MockEndpoint.swift */; };
@@ -130,6 +131,7 @@
 		6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityServiceProtocol.swift; sourceTree = "<group>"; };
 		934CEE2321F206EF009C024A /* NetworkingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		934CEE2721F206EF009C024A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
+		936EF63723048B50001C32F0 /* RequestHeaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHeaders.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -338,6 +340,7 @@
 				6D9F10B1216BBBF200CDB8EE /* UploadEndpoint.swift */,
 				6D9F10B2216BBBF200CDB8EE /* ImageBodyPart.swift */,
 				6D9F10B3216BBBF200CDB8EE /* Endpoint.swift */,
+				936EF63723048B50001C32F0 /* RequestHeaders.swift */,
 			);
 			path = Endpoint;
 			sourceTree = "<group>";
@@ -584,6 +587,7 @@
 				1B5CDB94DA7123C57DB1571E /* Request.swift in Sources */,
 				1B5CD4272D027B675FA672A2 /* RequestProtocols.swift in Sources */,
 				1B5CD14F41A31E691E42B339 /* ResponseSerializer.swift in Sources */,
+				936EF63823048B50001C32F0 /* RequestHeaders.swift in Sources */,
 				1B5CD1D665F6679DFD2022FA /* JSONResponseSerializer.swift in Sources */,
 				1B5CD3589F7E2DA902F83F49 /* DecodableResponseSerializer.swift in Sources */,
 				1B5CD39FDE7325901FC6FF64 /* NetworkListener.swift in Sources */,
