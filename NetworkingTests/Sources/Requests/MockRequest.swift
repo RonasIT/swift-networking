@@ -29,6 +29,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
                 let response = self.makeResponse(
                     requestStartTime: requestStartTime,
                     requestCompletedTime: requestEndTime,
+                    statusCode: 401,
                     error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401))
                 )
                 completion(self, response)
@@ -39,6 +40,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
                 let response = self.makeResponse(
                     requestStartTime: requestStartTime,
                     requestCompletedTime: requestEndTime,
+                    statusCode: 400,
                     error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
                 )
                 completion(self, response)
@@ -90,6 +92,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
 
     private func makeResponse(requestStartTime: CFAbsoluteTime,
                               requestCompletedTime: CFAbsoluteTime,
+                              statusCode: Int? = nil,
                               error: Error? = nil) -> DataResponse<Result> {
         var result: Alamofire.Result<Result>
         if let error = error {
@@ -103,7 +106,26 @@ final class MockRequest<Result>: Networking.Request<Result> {
             }
         }
 
-        let timeline = Timeline(requestStartTime: requestStartTime, requestCompletedTime: requestCompletedTime)
-        return DataResponse(request: nil, response: nil, data: nil, result: result, timeline: timeline)
+        var response: HTTPURLResponse?
+        if let statusCode = statusCode {
+            response = HTTPURLResponse(
+                url: endpoint.url,
+                statusCode: statusCode,
+                httpVersion: nil,
+                headerFields: nil
+            )
+        }
+
+        let timeline = Timeline(
+            requestStartTime: requestStartTime,
+            requestCompletedTime: requestCompletedTime
+        )
+        return DataResponse(
+            request: nil,
+            response: response,
+            data: nil,
+            result: result,
+            timeline: timeline
+        )
     }
 }

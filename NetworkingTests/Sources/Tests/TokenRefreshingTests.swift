@@ -69,6 +69,7 @@ final class TokenRefreshingTests: XCTestCase {
                 XCTFail("Invalid case")
             })
         }
+
         print("Testing \(requests.count) requests...")
 
         let expectations = [tokenRefreshingStartedExpectation, successResponseExpectation]
@@ -122,7 +123,8 @@ final class TokenRefreshingTests: XCTestCase {
         let errorHandler = UnauthorizedErrorHandler(accessTokenSupervisor: sessionService)
         let unsupportedError = MockError()
         let response: DataResponse<Any> = .init(request: nil, response: nil, data: nil, result: .failure(unsupportedError))
-        let endpoint = MockEndpoint(result: unsupportedError)
+        var endpoint = MockEndpoint(result: unsupportedError)
+        endpoint.requiresAuthorization = true
         let requestError = RequestError(endpoint: endpoint, error: unsupportedError, response: response)
 
         let expectation = self.expectation(description: "Expecting continue error handling result")
@@ -137,6 +139,44 @@ final class TokenRefreshingTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 3)
+    }
+
+    func testUnauthorizedErrorHandlerWithNotAuthorizedEndpoint() {
+        let expectation = self.expectation(description: "Expecting continue error handling result")
+        expectation.assertForOverFulfill = true
+
+        let urlResponse = HTTPURLResponse(
+            url: URL(string: "https://apple.com")!,
+            statusCode: 401,
+            httpVersion: nil,
+            headerFields: nil
+        )
+        let error = MockError()
+        let response: DataResponse<Any> = .init(
+            request: nil,
+            response: urlResponse,
+            data: nil,
+            result: .failure(error)
+        )
+
+        var endpoint = MockEndpoint(result: error)
+        endpoint.requiresAuthorization = false
+
+        let requestError = RequestError(endpoint: endpoint, error: error, response: response)
+        let errorHandler = UnauthorizedErrorHandler(accessTokenSupervisor: sessionService)
+        sessionService.tokenRefreshHandler = { _, _ in
+            XCTFail("Token refreshing shouldn't be triggered")
+        }
+        errorHandler.handleError(requestError) { result in
+            switch result {
+            case .continueErrorHandling(with: let error as MockError) where error === error:
+                expectation.fulfill()
+            default:
+                XCTFail("Unexpected result")
+            }
+        }
+
+        wait(for: [expectation], timeout: 5)
     }
 
     func testTokenRequestAdapter() {
