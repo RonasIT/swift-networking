@@ -493,7 +493,7 @@ lazy var profileService: ProfileServiceProtocol = {
 
 If all is correct, you can forget about expired access tokens in your app.
 
-**Note**
+**Note**  
 Unauthorized error handler doesn't handle errors for endpoints, which don't require authorizerion. For this endpoints you still will receive unauthorized errors.
 
 ## Logging
