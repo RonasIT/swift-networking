@@ -133,15 +133,39 @@ Each request uses specific endpoint. Endpoint contains information, where and ho
 import Networking
 import Alamofire
 
+// Customize default values for all endpoints using extension
+
+extension Endpoint {
+
+    var baseURL: URL {
+        return AppConfiguration.apiURL
+    }
+
+    var headers: [RequestHeader] {
+        return [
+            RequestHeaders.accept("application/json"),
+            RequestHeaders.contentType("application/json")
+        ]
+    }
+
+    var parameterEncoding: ParameterEncoding {
+        return JSONEncoding.default
+    }
+
+    var parameters: Parameters? {
+        return nil
+    }
+}
+
+...
+
+// Add endpoint
+
 enum ProfileEndpoint: UploadEndpoint {
     
     case profile(profileId: String)
     case updateAddress(Address)
     case uploadImage(imageData: Data)
-
-    var baseURL: URL {
-        return URL(string: "https://api-url.com")!
-    }
 
     var path: String {
         switch self {
@@ -163,10 +187,6 @@ enum ProfileEndpoint: UploadEndpoint {
         case uploadImage:
             return .post
         }
-    }
-
-    var headers: [RequestHeader] {
-        return []
     }
 
     var parameters: Parameters? {
@@ -258,7 +278,8 @@ import UIKit.UIDevice
 final class GeneralRequestAdapter: RequestAdapter {
 
     func adapt(_ request: AdaptiveRequest) {
-        // Let's append some information about the app
+        // You can use some general headers from `RequestHeaders` enum
+        // Let's append some information about the app 
         request.appendHeader(RequestHeaders.dpi(scale: UIScreen.main.scale))
         if let appInfo = Bundle.main.infoDictionary,
            let appVersion = appInfo["CFBundleShortVersionString"] as? String {
@@ -471,6 +492,9 @@ lazy var profileService: ProfileServiceProtocol = {
 ```
 
 If all is correct, you can forget about expired access tokens in your app.
+
+**Note**
+Unauthorized error handler doesn't handle errors for endpoints, which don't require authorizerion. For this endpoints you still will receive unauthorized errors.
 
 ## Logging
 
