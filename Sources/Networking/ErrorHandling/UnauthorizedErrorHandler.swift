@@ -10,12 +10,23 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
     private enum State {
         case none
         case resolvingError
-        case errorResolved(at: Date, withSuccess: Bool)
+        case errorResolved(at: Date, isTokenRefreshed: Bool)
+    }
+
+    private final class Failure {
+
+        let error: Error
+        let completion: (ErrorHandlingResult) -> Void
+
+        init(error: Error, completion: @escaping (ErrorHandlingResult) -> Void) {
+            self.error = error
+            self.completion = completion
+        }
     }
 
     private let accessTokenSupervisor: AccessTokenSupervisor
     private var state: State = .none
-    private var items: [AuthorizationErrorHandlerItem] = []
+    private var failures: [Failure] = []
 
     private var isResolvingError: Bool {
         switch state {
@@ -30,21 +41,11 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         self.accessTokenSupervisor = accessTokenSupervisor
     }
 
-    public func handleError<T>(_ requestError: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
-        guard let error = requestError.error as? AFError,
-              error.responseCode == 401 else {
+    public func handleError<T>(_ requestError: RequestError<T>,
+                               completion: @escaping (ErrorHandlingResult) -> Void) {
+        guard shouldHandleRequestError(requestError) else {
             completion(.continueErrorHandling(with: requestError.error))
             return
-        }
-
-        func enqueueFailure() {
-            Logging.log(
-                type: .debug,
-                category: .accessTokenRefreshing,
-                "\(requestError) - Enqueued for future retry"
-            )
-            items.append(AuthorizationErrorHandlerItem(error: requestError.error, completion: completion))
-            resolveError()
         }
 
         // We have to be sure, that token won't be refreshed multiple times
@@ -54,7 +55,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         // A bit later we received 2 remaining errors of long requests.
         // Since token was already refreshed, we won't refresh it again for remaining errors.
         switch state {
-        case .errorResolved(at: let tokenRefreshingCompletionDate, withSuccess: let isTokenRefreshed):
+        case let .errorResolved(tokenRefreshingCompletionDate, isTokenRefreshed):
             // Time from `Timeline` is timeIntervalSinceReferenceDate
             let timeline = requestError.response.timeline
             let requestStartDate = Date(timeIntervalSinceReferenceDate: timeline.requestStartTime)
@@ -86,14 +87,31 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
                     Trying to refresh access token again."
                     """
                 )
-                enqueueFailure()
+                let failure = Failure(error: requestError.error, completion: completion)
+                enqueueFailure(failure)
             }
         default:
-            enqueueFailure()
+            let failure = Failure(error: requestError.error, completion: completion)
+            enqueueFailure(failure)
         }
     }
 
     // MARK: - Private
+
+    private func shouldHandleRequestError<T>(_ requestError: RequestError<T>) -> Bool {
+        // Don't handle errors for endpoint without authorization,
+        // because we can trigger token refreshing in wrong time
+        // For example, on login request (auth is not required) server can respond
+        // with 401 status code, when sent password is not valid.
+        // We shouldn't trigger token refreshing for this case.
+        return requestError.endpoint.requiresAuthorization &&
+               requestError.response.response?.statusCode == 401
+    }
+
+    private func enqueueFailure(_ failure: Failure) {
+        failures.append(failure)
+        resolveError()
+    }
 
     private func resolveError() {
         guard !isResolvingError else {
@@ -111,37 +129,26 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
                 category: .accessTokenRefreshing,
                 "Authorization token successfully refreshed, new token: `\(accessToken)`"
             )
-            self.finish(isErrorResolved: true)
+            self.handleTokenRefreshCompletion(isTokenRefreshed: true)
         }, failure: { [weak self] error in
             Logging.log(
                 type: .fault,
                 category: .accessTokenRefreshing,
                 "Authorization token refreshing failed with error: \(error)"
             )
-            self?.finish(isErrorResolved: false)
+            self?.handleTokenRefreshCompletion(isTokenRefreshed: false)
         })
     }
 
-    private func finish(isErrorResolved: Bool) {
-        state = .errorResolved(at: Date(), withSuccess: isErrorResolved)
-        items.forEach { item in
-            if isErrorResolved {
-                item.completion(.retryNeeded)
+    private func handleTokenRefreshCompletion(isTokenRefreshed: Bool) {
+        state = .errorResolved(at: Date(), isTokenRefreshed: isTokenRefreshed)
+        failures.forEach { failure in
+            if isTokenRefreshed {
+                failure.completion(.retryNeeded)
             } else {
-                item.completion(.continueErrorHandling(with: item.error))
+                failure.completion(.continueErrorHandling(with: failure.error))
             }
         }
-        items.removeAll()
-    }
-}
-
-private final class AuthorizationErrorHandlerItem {
-
-    let error: Error
-    let completion: (ErrorHandlingResult) -> Void
-
-    init(error: Error, completion: @escaping (ErrorHandlingResult) -> Void) {
-        self.error = error
-        self.completion = completion
+        failures.removeAll()
     }
 }
