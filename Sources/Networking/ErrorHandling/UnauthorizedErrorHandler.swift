@@ -10,7 +10,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
     private enum State {
         case none
         case resolvingError
-        case errorResolved(at: Date, withSuccess: Bool)
+        case errorResolved(atDate: Date, successful: Bool)
     }
 
     private let accessTokenSupervisor: AccessTokenSupervisor
@@ -54,7 +54,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         // A bit later we received 2 remaining errors of long requests.
         // Since token was already refreshed, we won't refresh it again for remaining errors.
         switch state {
-        case .errorResolved(at: let tokenRefreshingCompletionDate, withSuccess: let isTokenRefreshed):
+        case let .errorResolved(tokenRefreshingCompletionDate, isTokenRefreshed):
             // Time from `Timeline` is timeIntervalSinceReferenceDate
             let timeline = requestError.response.timeline
             let requestStartDate = Date(timeIntervalSinceReferenceDate: timeline.requestStartTime)
@@ -123,7 +123,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
     }
 
     private func finish(isErrorResolved: Bool) {
-        state = .errorResolved(at: Date(), withSuccess: isErrorResolved)
+        state = .errorResolved(atDate: Date(), successful: isErrorResolved)
         items.forEach { item in
             if isErrorResolved {
                 item.completion(.retryNeeded)
