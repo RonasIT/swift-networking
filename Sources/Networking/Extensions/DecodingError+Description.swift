@@ -32,6 +32,8 @@ extension DecodingError: CustomStringConvertible {
             if let codingKey = context.codingPath.last {
                 description += "Value for field " + "\(codingKey.stringValue.uppercased())" + " is nil."
             }
+        @unknown default:
+            break
         }
         return description
     }

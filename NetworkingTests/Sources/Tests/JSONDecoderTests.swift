@@ -18,7 +18,7 @@ final class JSONDecoderTests: XCTestCase {
 
         let validFixture = "{ \"firstName\": \"John\", \"lastName\": \"Doe\" }".data(using: .utf8)!
         let invalidFixtures = [
-            Data(bytes: [1]),
+            Data([UInt8(1)]),
             Data(),
             "{ \"firstName\": \"John\" }".data(using: .utf8)!,
             "{ \"firstName\": \"John\" }".data(using: .ascii)!
