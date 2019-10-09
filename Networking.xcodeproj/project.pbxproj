@@ -58,6 +58,7 @@
 		6D9F10E3216BBBF200CDB8EE /* ReachabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10CC216BBBF200CDB8EE /* ReachabilityService.swift */; };
 		6D9F10E4216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */; };
 		934CEE2821F206EF009C024A /* Networking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D3EF77D21675CFA00251869 /* Networking.framework */; };
+		9360C25B234DF18B00DDEB26 /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = 9360C25A234DF18B00DDEB26 /* Cartfile */; };
 		936EF63823048B50001C32F0 /* RequestHeaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936EF63723048B50001C32F0 /* RequestHeaders.swift */; };
 		938796F921FCCA26007D655F /* MultipartFormDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD9AEFCBD2CA6811FD701 /* MultipartFormDataTests.swift */; };
 		93B57A6621F22CB200CCA72F /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D9F10AB216BB35700CDB8EE /* Alamofire.framework */; };
@@ -131,6 +132,7 @@
 		6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityServiceProtocol.swift; sourceTree = "<group>"; };
 		934CEE2321F206EF009C024A /* NetworkingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		934CEE2721F206EF009C024A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
+		9360C25A234DF18B00DDEB26 /* Cartfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
 		936EF63723048B50001C32F0 /* RequestHeaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHeaders.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -320,6 +322,7 @@
 		6D3EF7B8216770FF00251869 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				9360C25A234DF18B00DDEB26 /* Cartfile */,
 				6D3EF7B9216770FF00251869 /* Networking.h */,
 				6D3EF7BA216770FF00251869 /* Info.plist */,
 			);
@@ -504,6 +507,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9360C25B234DF18B00DDEB26 /* Cartfile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
