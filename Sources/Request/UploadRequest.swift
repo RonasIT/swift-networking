@@ -46,7 +46,19 @@ final class UploadRequest<Result>: Request<Result> {
                 "\(self) - Created multipart-form data with \(multipartFormData.contentLength) bytes"
             )
         }
+        
+        let threshold = SessionManager.multipartFormDataEncodingMemoryThreshold
+        sessionManager.upload(
+            multipartFormData: multipartFormDataHandler,
+            usingThreshold: threshold,
+            to: endpoint.url,
+            method: .post,
+            headers: headers.httpHeaders,
+            encodingCompletion: encodingCompletion(withRequestCompletion: completion)
+        )
+    }
 
+    private func encodingCompletion(withRequestCompletion requestCompletion: @escaping Completion) -> (MultipartFormDataEncodingResult) -> Void {
         let encodingCompletion = { (encodingResult: MultipartFormDataEncodingResult) in
             switch encodingResult {
             case .failure(let error):
@@ -65,7 +77,7 @@ final class UploadRequest<Result>: Request<Result> {
 
             self.isCreatingMultipartFormData = false
             guard !self.isCancelled else {
-                self.failAsCancelled(with: completion)
+                self.failAsCancelled(with: requestCompletion)
                 return
             }
             switch encodingResult {
@@ -75,25 +87,16 @@ final class UploadRequest<Result>: Request<Result> {
                 Logging.log(type: .debug, category: .request, "\(self) - Sending")
                 request.response(responseSerializer: self.responseSerializer) { response in
                     if self.isCancelled {
-                        self.failAsCancelled(with: completion)
+                        self.failAsCancelled(with: requestCompletion)
                     } else {
-                        completion(self, response)
+                        requestCompletion(self, response)
                     }
                 }
             case .failure(let error):
-                completion(self, DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
+                requestCompletion(self, DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
             }
         }
-        
-        let threshold = SessionManager.multipartFormDataEncodingMemoryThreshold
-        sessionManager.upload(
-            multipartFormData: multipartFormDataHandler,
-            usingThreshold: threshold,
-            to: endpoint.url,
-            method: .post,
-            headers: headers.httpHeaders,
-            encodingCompletion: encodingCompletion
-        )
+        return encodingCompletion
     }
 
     @discardableResult
