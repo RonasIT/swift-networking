@@ -44,10 +44,10 @@ final class TokenRefreshingTests: XCTestCase {
         let successResponseExpectation = expectation(description: "Expecting success in response")
         successResponseExpectation.assertForOverFulfill = true
         successResponseExpectation.expectedFulfillmentCount = 10
-        
+
         let maxRequestDelay: TimeInterval = 5
         let maxTokenRefreshingDelay: TimeInterval = 5
-        
+
         sessionService.tokenRefreshHandler = { success, _ in
             let delay = TimeInterval.random(in: 1...maxTokenRefreshingDelay)
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
@@ -65,7 +65,7 @@ final class TokenRefreshingTests: XCTestCase {
             endpoint.responseDelay = .random(in: 1...maxRequestDelay)
             return networkService.request(for: endpoint, success: {
                 successResponseExpectation.fulfill()
-            }, failure: { error in
+            }, failure: { _ in
                 XCTFail("Invalid case")
             })
         }
@@ -80,14 +80,14 @@ final class TokenRefreshingTests: XCTestCase {
     func testTokenRefreshingWithFailure() {
         let tokenRefreshingStartedExpectation = expectation(description: "Expecting token refresh")
         tokenRefreshingStartedExpectation.assertForOverFulfill = true
-        
+
         let failureResponseExpectation = expectation(description: "Expecting failure in response")
         failureResponseExpectation.assertForOverFulfill = true
         failureResponseExpectation.expectedFulfillmentCount = 10
 
         let maxRequestDelay: TimeInterval = 5
         let maxTokenRefreshingDelay: TimeInterval = 5
-        
+
         let tokenRefreshError = MockError()
         sessionService.tokenRefreshHandler = { _, failure in
             let delay = TimeInterval.random(in: 1...maxTokenRefreshingDelay)
@@ -196,7 +196,7 @@ final class TokenRefreshingTests: XCTestCase {
                 return header.key == expectedHeader.key && header.value == expectedHeader.value
             }
         }
-        
+
         let sessionService = MockSessionService()
         let tokenRequestAdapter = TokenRequestAdapter(accessTokenSupervisor: sessionService)
         let requestAdaptingService = RequestAdaptingService(requestAdapters: [tokenRequestAdapter])

@@ -9,6 +9,8 @@ import Alamofire
 
 final class MockNetworkService: NetworkService {
 
+    // swiftlint:disable fatal_error_message
+
     override func request<Result>(for endpoint: Endpoint,
                                   responseSerializer: DataResponseSerializer<Result>,
                                   success: @escaping Success<Result>,
@@ -34,4 +36,6 @@ final class MockNetworkService: NetworkService {
         let request = MockRequest(endpoint: endpoint, responseSerializer: responseSerializer)
         return response(for: request, success: success, failure: failure)
     }
+
+    // swiftlint:enable fatal_error_message
 }

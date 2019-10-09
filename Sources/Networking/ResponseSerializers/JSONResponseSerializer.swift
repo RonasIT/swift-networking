@@ -33,7 +33,7 @@ final class JSONResponseSerializer: ResponseSerializer {
         } catch {
             result = .failure(error)
         }
-        
+
         return result
     }
 }

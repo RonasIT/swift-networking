@@ -27,7 +27,7 @@ final class ReachabilityTests: XCTestCase {
         expectedId = subscription.id
         subscription.notificationHandler(true)
         subscription.unsubscribe()
-        
+
         wait(for: [notificationExpectation, unsubscriptionExpectation], timeout: 3, enforceOrder: true)
     }
 

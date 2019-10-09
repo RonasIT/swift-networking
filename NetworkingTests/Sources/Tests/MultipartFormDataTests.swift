@@ -7,6 +7,8 @@
 import Alamofire
 import XCTest
 
+// swiftlint:disable force_try
+
 final class MultipartFormDataTests: XCTestCase {
 
     func testImageBodyPartAppending() {
@@ -33,3 +35,5 @@ final class MultipartFormDataTests: XCTestCase {
         try! fileManager.removeItem(at: tempFileURL)
     }
 }
+
+// swiftlint:enable force_try

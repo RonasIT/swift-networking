@@ -14,7 +14,7 @@ final class MockSessionService: AccessTokenSupervisor {
 
     typealias TokenRefreshCompletion = (String) -> Void
     typealias TokenRefreshFailure = (Error) -> Void
-    
+
     private var token: String? = Constants.invalidAccessToken
 
     var tokenRefreshHandler: ((TokenRefreshCompletion?, TokenRefreshFailure?) -> Void)?
@@ -29,7 +29,7 @@ final class MockSessionService: AccessTokenSupervisor {
 
     func refreshAccessToken(success: @escaping () -> Void, failure: @escaping (Error) -> Void) {
         tokenRefreshHandler?({ [weak self] token in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
             self.token = token

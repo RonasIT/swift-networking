@@ -6,6 +6,8 @@
 import Alamofire
 import Networking
 
+// swiftlint:disable force_try
+
 struct MockEndpoint: UploadEndpoint {
 
     enum Result {
@@ -19,7 +21,7 @@ struct MockEndpoint: UploadEndpoint {
     var path: String = "mock"
     var method: HTTPMethod = .get
     var headers: [RequestHeader] = []
-    var parameters: Parameters? = nil
+    var parameters: Parameters?
     var parameterEncoding: ParameterEncoding = URLEncoding.default
     var requiresAuthorization: Bool = false
     var imageBodyParts: [ImageBodyPart] = []
@@ -60,3 +62,5 @@ struct MockEndpoint: UploadEndpoint {
         return errorForResponseCode
     }
 }
+
+// swiftlint:enable force_try

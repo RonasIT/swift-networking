@@ -10,7 +10,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
     private enum State {
         case none
         case resolvingError
-        case errorResolved(at: Date, isTokenRefreshed: Bool)
+        case errorResolved(resolveDate: Date, isTokenRefreshed: Bool)
     }
 
     private final class Failure {
@@ -141,7 +141,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
     }
 
     private func handleTokenRefreshCompletion(isTokenRefreshed: Bool) {
-        state = .errorResolved(at: Date(), isTokenRefreshed: isTokenRefreshed)
+        state = .errorResolved(resolveDate: Date(), isTokenRefreshed: isTokenRefreshed)
         failures.forEach { failure in
             if isTokenRefreshed {
                 failure.completion(.retryNeeded)

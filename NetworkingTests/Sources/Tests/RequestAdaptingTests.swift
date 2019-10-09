@@ -29,7 +29,7 @@ final class RequestAdaptingTests: XCTestCase {
         requestAdapter.adapting = nil
         errorHandler.errorHandling = nil
     }
-    
+
     func testCustomHeaderAppending() {
         let customHeader = CustomHeader(key: "Header", value: "Value")
         requestAdapter.adapting = { request in

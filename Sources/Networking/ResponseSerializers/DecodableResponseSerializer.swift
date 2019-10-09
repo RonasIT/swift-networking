@@ -27,7 +27,7 @@ final class DecodableResponseSerializer<Result: Decodable>: ResponseSerializer {
         } catch {
             result = .failure(error)
         }
-        
+
         return result
     }
 }
