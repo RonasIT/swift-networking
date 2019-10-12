@@ -17,4 +17,3 @@ final class Slide: Codable {
     let type: String
     let items: [String]?
 }
-

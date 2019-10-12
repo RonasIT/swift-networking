@@ -6,11 +6,13 @@
 import Alamofire
 import Networking
 
+// swiftlint:disable force_try
+
 struct MockEndpoint: UploadEndpoint {
 
     enum Result {
-        case failure(with: Error)
-        case success(with: Data)
+        case failure(Error)
+        case success(Data)
     }
 
     let result: Result
@@ -19,7 +21,7 @@ struct MockEndpoint: UploadEndpoint {
     var path: String = "mock"
     var method: HTTPMethod = .get
     var headers: [RequestHeader] = []
-    var parameters: Parameters? = nil
+    var parameters: Parameters?
     var parameterEncoding: ParameterEncoding = URLEncoding.default
     var requiresAuthorization: Bool = false
     var imageBodyParts: [ImageBodyPart] = []
@@ -33,23 +35,23 @@ struct MockEndpoint: UploadEndpoint {
     var responseDelay: Double = .random(in: 0.5...1)
 
     init(result: String, encoding: String.Encoding = .utf8) {
-        self.result = .success(with: result.data(using: encoding)!)
+        self.result = .success(result.data(using: encoding)!)
     }
 
     init(result: Data = Data()) {
-        self.result = .success(with: result)
+        self.result = .success(result)
     }
 
     init(result: [String: Any], options: JSONSerialization.WritingOptions = .prettyPrinted) {
-        self.result = .success(with: try! JSONSerialization.data(withJSONObject: result, options: options))
+        self.result = .success(try! JSONSerialization.data(withJSONObject: result, options: options))
     }
 
     init<T>(result: T, encoder: JSONEncoder = JSONEncoder()) where T: Codable {
-        self.result = .success(with: try! encoder.encode(result))
+        self.result = .success(try! encoder.encode(result))
     }
 
     init(result: Error) {
-        self.result = .failure(with: result)
+        self.result = .failure(result)
     }
 
     func error(for urlErrorCode: URLError.Code) -> Error? {
@@ -60,3 +62,5 @@ struct MockEndpoint: UploadEndpoint {
         return errorForResponseCode
     }
 }
+
+// swiftlint:enable force_try

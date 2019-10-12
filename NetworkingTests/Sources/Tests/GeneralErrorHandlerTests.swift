@@ -15,7 +15,7 @@ final class GeneralErrorHandlerTests: XCTestCase {
             NSError(domain: NSURLErrorDomain, code: NSURLErrorNotConnectedToInternet),
             NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled),
             AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 404)),
-            AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401)),
+            AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401))
         ]
         let expectedErrors: [GeneralRequestError] = [
             .timedOut,
@@ -29,10 +29,10 @@ final class GeneralErrorHandlerTests: XCTestCase {
             expectation.assertForOverFulfill = true
             return expectation
         }
-        for i in 0..<expectations.count {
-            let error = errors[i]
-            let expectedError = expectedErrors[i]
-            let expectation = expectations[i]
+        for index in 0..<expectations.count {
+            let error = errors[index]
+            let expectedError = expectedErrors[index]
+            let expectation = expectations[index]
             executeErrorHandling(with: error) { result in
                 switch result {
                 case .continueErrorHandling(with: let error as GeneralRequestError) where error == expectedError:

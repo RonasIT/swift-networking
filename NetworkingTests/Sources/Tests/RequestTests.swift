@@ -11,7 +11,7 @@ final class RequestTests: XCTestCase {
 
     private typealias Request = Networking.Request
     private typealias UploadRequest = Networking.UploadRequest
-    
+
     func testRequestWithDataResult() {
         testRequestWithDataResult(isTestingUploadRequest: false)
     }
@@ -74,7 +74,7 @@ final class RequestTests: XCTestCase {
         XCTAssertFalse(request.cancel(), "Cancellation is not allowed, since request has been already cancelled")
         wait(for: [responseExpectation], timeout: 10)
     }
-    
+
     func testUploadCancellation() {
         let responseExpectation = expectation(description: "Expecting cancellation error in response")
         responseExpectation.assertForOverFulfill = true
@@ -108,7 +108,7 @@ final class RequestTests: XCTestCase {
         request.response { _, _ in }
         XCTAssertTrue(request.retry(), "Retrying is allowed now")
     }
-    
+
     func testUploadRequestRetryingResult() {
         let responseSerializer = DataRequest.dataResponseSerializer()
         let request = UploadRequest(sessionManager: .default,
@@ -165,6 +165,8 @@ final class RequestTests: XCTestCase {
         wait(for: [expectation], timeout: 5)
     }
 
+    // swiftlint:disable nesting
+
     private func testRequestWithDecodableResult(isTestingUploadRequest: Bool) {
         struct User: Equatable, Codable {
             let firstName: String
@@ -192,6 +194,8 @@ final class RequestTests: XCTestCase {
         wait(for: [expectation], timeout: 5)
     }
 
+    // swiftlint:enable nesting
+
     private func testRequestWithJSONResult(isTestingUploadRequest: Bool) {
         let networkService = MockNetworkService()
         let expectedResult: [String: String] = [
@@ -217,7 +221,7 @@ final class RequestTests: XCTestCase {
                     return
                 }
                 validate(result)
-            }, failure: { error in
+            }, failure: { _ in
                 XCTFail("Invalid case")
             })
         } else {
@@ -228,7 +232,7 @@ final class RequestTests: XCTestCase {
                     return
                 }
                 validate(result)
-            }, failure: { error in
+            }, failure: { _ in
                 XCTFail("Invalid case")
             })
         }
@@ -245,13 +249,13 @@ final class RequestTests: XCTestCase {
             service.uploadRequest(
                 for: endpoint,
                 success: { expectation.fulfill() },
-                failure: { _ in XCTFail("Invalid case")}
+                failure: { _ in XCTFail("Invalid case") }
             )
         } else {
             service.request(
                 for: endpoint,
                 success: { expectation.fulfill() },
-                failure: { _ in XCTFail("Invalid case")}
+                failure: { _ in XCTFail("Invalid case") }
             )
         }
         wait(for: [expectation], timeout: 5)

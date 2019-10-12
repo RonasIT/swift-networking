@@ -8,6 +8,8 @@ import XCTest
 
 final class JSONDecoderTests: XCTestCase {
 
+    // swiftlint:disable nesting
+
     func testDecodingWithCustomError() {
         final class User: Decodable {
             let firstName: String
@@ -16,7 +18,7 @@ final class JSONDecoderTests: XCTestCase {
 
         let validFixture = "{ \"firstName\": \"John\", \"lastName\": \"Doe\" }".data(using: .utf8)!
         let invalidFixtures = [
-            Data(bytes: [1]),
+            Data([UInt8(1)]),
             Data(),
             "{ \"firstName\": \"John\" }".data(using: .utf8)!,
             "{ \"firstName\": \"John\" }".data(using: .ascii)!
@@ -32,4 +34,6 @@ final class JSONDecoderTests: XCTestCase {
             XCTAssertThrowsError(try decodeUser(from: fixture))
         }
     }
+
+    // swiftlint:enable nesting
 }

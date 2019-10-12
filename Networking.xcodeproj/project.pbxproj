@@ -58,6 +58,9 @@
 		6D9F10E3216BBBF200CDB8EE /* ReachabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10CC216BBBF200CDB8EE /* ReachabilityService.swift */; };
 		6D9F10E4216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */; };
 		934CEE2821F206EF009C024A /* Networking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D3EF77D21675CFA00251869 /* Networking.framework */; };
+		9360C25B234DF18B00DDEB26 /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = 9360C25A234DF18B00DDEB26 /* Cartfile */; };
+		9360C25D234DF24800DDEB26 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 9360C25C234DF24800DDEB26 /* .swiftlint.yml */; };
+		936EF63823048B50001C32F0 /* RequestHeaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936EF63723048B50001C32F0 /* RequestHeaders.swift */; };
 		938796F921FCCA26007D655F /* MultipartFormDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD9AEFCBD2CA6811FD701 /* MultipartFormDataTests.swift */; };
 		93B57A6621F22CB200CCA72F /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D9F10AB216BB35700CDB8EE /* Alamofire.framework */; };
 		93ECDAC621F7A8ED0041FA13 /* MockEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDFC8DCB798D977077B49 /* MockEndpoint.swift */; };
@@ -130,6 +133,9 @@
 		6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityServiceProtocol.swift; sourceTree = "<group>"; };
 		934CEE2321F206EF009C024A /* NetworkingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		934CEE2721F206EF009C024A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
+		9360C25A234DF18B00DDEB26 /* Cartfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
+		9360C25C234DF24800DDEB26 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
+		936EF63723048B50001C32F0 /* RequestHeaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHeaders.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -318,6 +324,8 @@
 		6D3EF7B8216770FF00251869 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				9360C25C234DF24800DDEB26 /* .swiftlint.yml */,
+				9360C25A234DF18B00DDEB26 /* Cartfile */,
 				6D3EF7B9216770FF00251869 /* Networking.h */,
 				6D3EF7BA216770FF00251869 /* Info.plist */,
 			);
@@ -338,6 +346,7 @@
 				6D9F10B1216BBBF200CDB8EE /* UploadEndpoint.swift */,
 				6D9F10B2216BBBF200CDB8EE /* ImageBodyPart.swift */,
 				6D9F10B3216BBBF200CDB8EE /* Endpoint.swift */,
+				936EF63723048B50001C32F0 /* RequestHeaders.swift */,
 			);
 			path = Endpoint;
 			sourceTree = "<group>";
@@ -430,6 +439,7 @@
 				6D3EF77A21675CFA00251869 /* Frameworks */,
 				6D3EF77B21675CFA00251869 /* Resources */,
 				NLK4BGB9MNM3Y8LY3EE36OSD /* Carthage */,
+				9325442B234DF2CE0020A14E /* Swiftlint */,
 			);
 			buildRules = (
 			);
@@ -484,6 +494,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 6D3EF77321675CFA00251869;
 			productRefGroup = 6D3EF77E21675CFA00251869 /* Products */;
@@ -501,6 +512,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9360C25D234DF24800DDEB26 /* .swiftlint.yml in Resources */,
+				9360C25B234DF18B00DDEB26 /* Cartfile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -514,6 +527,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		9325442B234DF2CE0020A14E /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
 		93B57A6521F223B400CCA72F /* Carthage */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -584,6 +615,7 @@
 				1B5CDB94DA7123C57DB1571E /* Request.swift in Sources */,
 				1B5CD4272D027B675FA672A2 /* RequestProtocols.swift in Sources */,
 				1B5CD14F41A31E691E42B339 /* ResponseSerializer.swift in Sources */,
+				936EF63823048B50001C32F0 /* RequestHeaders.swift in Sources */,
 				1B5CD1D665F6679DFD2022FA /* JSONResponseSerializer.swift in Sources */,
 				1B5CD3589F7E2DA902F83F49 /* DecodableResponseSerializer.swift in Sources */,
 				1B5CD39FDE7325901FC6FF64 /* NetworkListener.swift in Sources */,
@@ -687,6 +719,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -744,6 +777,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -776,7 +810,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -806,7 +840,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ronas-it.networking";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -830,7 +864,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ronas-it.networking.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -854,7 +888,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ronas-it.networking.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

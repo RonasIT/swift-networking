@@ -7,6 +7,8 @@
 import Alamofire
 import XCTest
 
+// swiftlint:disable nesting
+
 final class EndpointTests: XCTestCase {
 
     func testValidEndpointURL() {
@@ -15,7 +17,7 @@ final class EndpointTests: XCTestCase {
         endpoint.path = "iphone"
         XCTAssertEqual(endpoint.url.absoluteString, "https://apple.com/iphone")
     }
-    
+
     func testDefaultEndpointErrors() {
         struct TestEndpoint: Endpoint {
             var baseURL: URL { return URL(string: "localhost")! }
@@ -26,14 +28,14 @@ final class EndpointTests: XCTestCase {
             var parameterEncoding: ParameterEncoding { return URLEncoding.default }
             var requiresAuthorization: Bool { return false }
         }
-        
+
         let endpoint = TestEndpoint()
         XCTAssertNil(endpoint.error(for: .cancelled))
         XCTAssertNil(endpoint.error(forResponseCode: 400))
     }
 
     // MARK: - Headers
-    
+
     func testHTTPHeadersConversion() {
         struct Header: RequestHeader, Equatable {
             let key: String
@@ -52,7 +54,7 @@ final class EndpointTests: XCTestCase {
             Header(key: "key2", value: "value2"),
             // Values of duplicated keys will be overridden
             Header(key: "key0", value: "overriddenValue0"),
-            Header(key: "key1", value: "overriddenValue1"),
+            Header(key: "key1", value: "overriddenValue1")
         ]
 
         XCTAssertEqual(headers.httpHeaders, expectedHTTPHeaders)
@@ -71,9 +73,10 @@ final class EndpointTests: XCTestCase {
         XCTAssertEqual(header.key, "dpi")
         XCTAssertEqual(header.value, "@2x")
 
-
         header = RequestHeaders.userAgent(osVersion: "12.0", appVersion: "1.0.0")
         XCTAssertEqual(header.key, "User-Agent")
         XCTAssertEqual(header.value, "iOS 12.0 version 1.0.0")
     }
 }
+
+// swiftlint:enable nesting

@@ -37,7 +37,7 @@ final class SlideshowViewController: UIViewController {
         }
 
         reachabilitySubscription = reachabilityService.subscribe { [weak self] isReachable in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
             if isReachable, self.slideshow == nil {
@@ -49,7 +49,7 @@ final class SlideshowViewController: UIViewController {
     private func loadSlideshow() {
         startLoading()
         request = apiService.fetchSlideshow(success: { [weak self] slideshow in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
             self.stopLoading()
@@ -57,7 +57,7 @@ final class SlideshowViewController: UIViewController {
             self.title = slideshow.author
             self.collectionView.reloadData()
         }, failure: { [weak self] error in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
             self.stopLoading()
@@ -88,6 +88,8 @@ extension SlideshowViewController: UICollectionViewDataSource {
         return slideshow?.slides.count ?? 0
     }
 
+    // swiftlint:disable force_cast
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let id = String(describing: SlideCollectionViewCell.self)
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath) as! SlideCollectionViewCell
@@ -96,13 +98,17 @@ extension SlideshowViewController: UICollectionViewDataSource {
         }
         return cell
     }
+
+    // swiftlint:enable force_cast
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
 
 extension SlideshowViewController: UICollectionViewDelegateFlowLayout {
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.bounds.width, height: collectionView.bounds.width)
     }
 }

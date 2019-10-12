@@ -24,7 +24,7 @@ final class ErrorHandlingTests: XCTestCase {
         let errorHandlingService = ErrorHandlingService(errorHandlers: [errorHandler])
         return MockNetworkService(errorHandlingService: errorHandlingService)
     }()
-    
+
     override func tearDown() {
         super.tearDown()
         errorHandler.errorHandling = nil
@@ -47,7 +47,7 @@ final class ErrorHandlingTests: XCTestCase {
                 XCTFail("Received unexpected error")
             }
         })
-        
+
         wait(for: [expectation], timeout: 5)
     }
 
@@ -66,9 +66,9 @@ final class ErrorHandlingTests: XCTestCase {
         }
 
         var errorHandlers = [ErrorHandler]()
-        for i in 0..<expectedErrors.count {
-            let expectedError = expectedErrors[i]
-            let nextError = expectedError === expectedErrors.last ? nil : expectedErrors[i + 1]
+        for index in 0..<expectedErrors.count {
+            let expectedError = expectedErrors[index]
+            let nextError = expectedError === expectedErrors.last ? nil : expectedErrors[index + 1]
             let errorHandler = MockErrorHandler { error, completion in
                 switch error {
                 case let error as MockError where error === expectedError:
@@ -106,7 +106,7 @@ final class ErrorHandlingTests: XCTestCase {
     func testPartialErrorHandlingChainWithFailure() {
         testPartialErrorHandlingChain(testKind: .testWithFailure)
     }
-    
+
     func testPartialErrorHandlingChainWithRetry() {
         testPartialErrorHandlingChain(testKind: .testWithRetry)
     }
@@ -253,7 +253,7 @@ final class ErrorHandlingTests: XCTestCase {
         networkService.request(for: endpoint, success: {
             XCTFail("Invalid case")
         }, failure: { error in
-            guard let error = error as? MockError, error === expectedError  else {
+            guard let error = error as? MockError, error === expectedError else {
                 XCTFail("Unexpected error")
                 return
             }

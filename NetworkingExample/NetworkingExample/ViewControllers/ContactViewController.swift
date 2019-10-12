@@ -36,7 +36,7 @@ final class ContactViewController: UIViewController {
         }
 
         reachabilitySubscription = reachabilityService.subscribe { [weak self] isReachable in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
             if isReachable, self.contact == nil {
@@ -63,14 +63,14 @@ final class ContactViewController: UIViewController {
 
         startLoading()
         request = apiService.postContact(contact, success: { [weak self] contact in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
             self.stopLoading()
             self.contact = contact
             self.tableView.reloadData()
         }, failure: { [weak self] error in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
             self.stopLoading()
@@ -92,7 +92,9 @@ final class ContactViewController: UIViewController {
 extension ContactViewController: UITableViewDataSource {
 
     enum Index: Int {
-        case id, name, url
+        case id
+        case name
+        case url
     }
 
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {

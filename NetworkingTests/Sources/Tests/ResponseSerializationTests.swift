@@ -23,6 +23,8 @@ final class ResponseSerializationTests: XCTestCase {
         XCTAssertTrue(serializer.serializeResponse(with: validJSONData, request: nil, response: nil, error: nil).isSuccess)
     }
 
+    // swiftlint:disable nesting
+
     func testDecodableResponseSerialization() {
         final class User: Decodable {
             let name: String
@@ -39,4 +41,6 @@ final class ResponseSerializationTests: XCTestCase {
         XCTAssertTrue(serializer.serializeResponse(with: invalidJSONData, request: nil, response: nil, error: nil).isFailure)
         XCTAssertTrue(serializer.serializeResponse(with: validJSONData, request: nil, response: nil, error: nil).isSuccess)
     }
+
+    // swiftlint:enable nesting
 }

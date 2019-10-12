@@ -8,7 +8,7 @@ import Alamofire
 final class UploadRequest<Result>: Request<Result> {
 
     private typealias MultipartFormDataEncodingResult = SessionManager.MultipartFormDataEncodingResult
-    
+
     private let imageBodyParts: [ImageBodyPart]
 
     private var isCreatingMultipartFormData: Bool = false
@@ -46,7 +46,7 @@ final class UploadRequest<Result>: Request<Result> {
                 "\(self) - Created multipart-form data with \(multipartFormData.contentLength) bytes"
             )
         }
-        
+
         let threshold = SessionManager.multipartFormDataEncodingMemoryThreshold
         sessionManager.upload(
             multipartFormData: multipartFormDataHandler,

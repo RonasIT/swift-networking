@@ -20,4 +20,12 @@ final class CommonTests: XCTestCase {
             XCTFail("Unexpected error")
         }
     }
+
+    func testCustomRequestHeader() {
+        let key = "key"
+        let value = "value"
+        let header = RequestHeaders.custom(key: key, value: value)
+        XCTAssertEqual(header.key, key, "Custom header key is not valid")
+        XCTAssertEqual(header.value, value, "Custom header value is not valid")
+    }
 }

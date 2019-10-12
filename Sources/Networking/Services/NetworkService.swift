@@ -43,7 +43,7 @@ open class NetworkService {
                                 failure: @escaping Failure) -> CancellableRequest {
         requestAdaptingService?.adapt(request)
         request.response { [weak self] (request: RetryableRequest, response: DataResponse<Result>) in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
             switch response.result {
@@ -167,7 +167,7 @@ open class NetworkService {
 
         let requestError = RequestError(endpoint: request.endpoint, error: error, response: response)
         errorHandlingService.handleError(requestError, retrying: { [weak self] in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
             self.requestAdaptingService?.adapt(request)

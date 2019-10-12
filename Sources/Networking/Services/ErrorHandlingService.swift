@@ -60,7 +60,7 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
         )
 
         errorHandler.handleError(requestError) { [weak self] result in
-            guard let `self` = self else {
+            guard let self = self else {
                 return
             }
 
