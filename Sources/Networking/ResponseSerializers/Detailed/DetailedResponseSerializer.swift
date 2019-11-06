@@ -7,7 +7,7 @@ import Alamofire
 
 final class DetailedResponseSerializer<Serializer: ResponseSerializer>: ResponseSerializer {
 
-    typealias Result = Response<Serializer.Result>
+    typealias Result = DetailedResponse<Serializer.Result>
 
     private let serializer: Serializer
 
@@ -35,7 +35,7 @@ final class DetailedResponseSerializer<Serializer: ResponseSerializer>: Response
         case .failure(let error):
             return .failure(error)
         case .success(let result):
-            let response = Response(
+            let response = DetailedResponse(
                 statusCode: response.statusCode,
                 headers: response.allHeaderFields,
                 result: result
