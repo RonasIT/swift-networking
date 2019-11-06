@@ -22,3 +22,13 @@ extension ResponseSerializer {
         }
     }
 }
+
+extension DataResponseSerializer: ResponseSerializer {
+
+    func serializeResponse(with data: Data?,
+                           request: URLRequest?,
+                           response: HTTPURLResponse?,
+                           error: Error?) -> Alamofire.Result<Value> {
+        return serializeResponse(request, response, data, error)
+    }
+}
