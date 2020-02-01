@@ -1,0 +1,10 @@
+excluded:
+  - Carthage/
+
+whitelist_rules:
+  - closure_end_indentation
+  - statement_position
+  - trailing_whitespace
+  - trailing_newline
+  - opening_brace
+  - colon
