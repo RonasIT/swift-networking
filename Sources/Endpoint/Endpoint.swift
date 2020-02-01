@@ -26,13 +26,8 @@ public extension Endpoint {
         return baseURL + path
     }
 
-    @available(*, deprecated, renamed: "error(forStatusCode:)")
-    func error(forResponseCode responseCode: Int) -> Error? {
-        return nil
-    }
-
     func error(forStatusCode statusCode: Int) -> Error? {
-        return error(forResponseCode: statusCode)
+        return nil
     }
 
     func error(for urlErrorCode: URLError.Code) -> Error? {
