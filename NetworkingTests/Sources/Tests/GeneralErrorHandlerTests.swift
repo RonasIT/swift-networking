@@ -39,7 +39,7 @@ final class GeneralErrorHandlerTests: XCTestCase {
         testErrorHandling(withExpectedErrors: expectedErrors, requestFailureResults: failureResults)
     }
 
-    func testMappingSkippingForUnsupportedErrors() {
+    func testMappingSkippingForUnsupportedURLErrorAndStatusCode() {
         let firstFailureError = URLError(.badURL)
         let firstFailureResult = RequestFailureResult.errorWithoutResponse(error: firstFailureError)
 
