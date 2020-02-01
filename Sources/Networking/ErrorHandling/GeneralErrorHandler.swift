@@ -32,7 +32,7 @@ open class GeneralErrorHandler: ErrorHandler {
     }
 
     private func map(_ error: Error, statusCode: Int, endpoint: Endpoint) -> Error {
-        if let error = endpoint.error(forResponseCode: statusCode) {
+        if let error = endpoint.error(forStatusCode: statusCode) {
             return error
         }
 
