@@ -11,6 +11,10 @@ public final class RequestError<T> {
     public let error: Error
     public let response: DataResponse<T>
 
+    var statusCode: Int? {
+        return response.response?.statusCode
+    }
+
     init(endpoint: Endpoint, error: Error, response: DataResponse<T>) {
         self.endpoint = endpoint
         self.error = error
