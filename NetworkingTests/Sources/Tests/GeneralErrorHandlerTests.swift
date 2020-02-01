@@ -9,119 +9,174 @@ import XCTest
 
 final class GeneralErrorHandlerTests: XCTestCase {
 
-    func testErrorMapping() {
-        let errors: [Error] = [
-            NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut),
-            NSError(domain: NSURLErrorDomain, code: NSURLErrorNotConnectedToInternet),
-            NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled),
-            AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 404)),
-            AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401))
-        ]
+    private lazy var errorHandler: GeneralErrorHandler = .init()
+
+    func testErrorMappingForSupportedStatusCodes() {
         let expectedErrors: [GeneralRequestError] = [
-            .timedOut,
-            .noInternetConnection,
-            .cancelled,
-            .notFound,
-            .noAuth
+            .noAuth,
+            .forbidden,
+            .notFound
         ]
-        let expectations: [XCTestExpectation] = expectedErrors.map { error in
-            let expectation = XCTestExpectation(description: "Expecting receive \(error)")
-            expectation.assertForOverFulfill = true
-            return expectation
+        let failureResults: [RequestFailureResult] = [
+            .responseWithStatusCode(401, error: MockError()),
+            .responseWithStatusCode(403, error: MockError()),
+            .responseWithStatusCode(404, error: MockError())
+        ]
+        testErrorHandling(withExpectedErrors: expectedErrors, requestFailureResults: failureResults)
+    }
+
+    func testErrorMappingForSupportedURLErrorCodes() {
+        let expectedErrors: [GeneralRequestError] = [
+            .noInternetConnection,
+            .timedOut,
+            .cancelled
+        ]
+        let failureResults: [RequestFailureResult] = [
+            .errorWithoutResponse(error: URLError(.notConnectedToInternet)),
+            .errorWithoutResponse(error: URLError(.timedOut)),
+            .errorWithoutResponse(error: URLError(.cancelled))
+        ]
+        testErrorHandling(withExpectedErrors: expectedErrors, requestFailureResults: failureResults)
+    }
+
+    func testMappingSkippingForUnsupportedErrors() {
+        let firstFailureError = URLError(.badURL)
+        let firstFailureResult = RequestFailureResult.errorWithoutResponse(error: firstFailureError)
+
+        let secondFailureStatusCode = 429
+        let secondFailureError = AFError.responseValidationFailed(
+            reason: .unacceptableStatusCode(code: secondFailureStatusCode)
+        )
+        let secondFailureResult = RequestFailureResult.responseWithStatusCode(
+            secondFailureStatusCode,
+            error: secondFailureError
+        )
+
+        let expectation = self.expectation(description: "Expects correct error handling results")
+        expectation.expectedFulfillmentCount = 2
+        expectation.assertForOverFulfill = true
+
+        testErrorHandling(failureResult: firstFailureResult) { result in
+            switch result {
+            case .continueErrorHandling(let error as URLError) where error.code == .badURL:
+                expectation.fulfill()
+            default:
+                break
+            }
         }
-        for index in 0..<expectations.count {
-            let error = errors[index]
-            let expectedError = expectedErrors[index]
-            let expectation = expectations[index]
-            executeErrorHandling(with: error) { result in
-                switch result {
-                case .continueErrorHandling(with: let error as GeneralRequestError) where error == expectedError:
+        testErrorHandling(failureResult: secondFailureResult) { result in
+            switch result {
+            case .continueErrorHandling(let error as AFError):
+                switch error {
+                case .responseValidationFailed(reason: .unacceptableStatusCode(code: secondFailureStatusCode)):
                     expectation.fulfill()
                 default:
-                    XCTFail("Unexpected result")
+                    break
                 }
+            default:
+                break
             }
         }
 
-        wait(for: expectations, timeout: 5)
+        wait(for: [expectation], timeout: 5)
     }
 
-    func testErrorHandlingWithUnsupportedAFErrorWithStatusCode() {
-        let expectation = self.expectation(description: "Expecting same error from error handler")
+    func testEndpointErrorMapping() {
+        let errorMappedByStatusCode = MockError()
+        let errorMappedByURLErrorCode = MockError()
+
+        var endpoint = MockEndpoint()
+        endpoint.errorForStatusCode = errorMappedByStatusCode
+        endpoint.errorForURLErrorCode = errorMappedByURLErrorCode
+
+        let expectation = self.expectation(description: "Expects correct error handling results")
+        expectation.expectedFulfillmentCount = 2
         expectation.assertForOverFulfill = true
 
-        let expectedError = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: Int.max))
-        executeErrorHandling(with: expectedError) { result in
+        let failureResultWithStatusCode = RequestFailureResult.responseWithStatusCode(401, error: MockError())
+        testErrorHandling(with: endpoint, failureResult: failureResultWithStatusCode) { result in
             switch result {
-            case .continueErrorHandling(with: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: Int.max))):
+            case .continueErrorHandling(let error as MockError) where error === errorMappedByStatusCode:
                 expectation.fulfill()
             default:
-                XCTFail("Unexpected result")
+                break
             }
         }
 
-        wait(for: [expectation], timeout: 3)
-    }
-
-    func testErrorHandlingWithUnsupportedAFErrorWithoutStatusCode() {
-        let expectation = self.expectation(description: "Expecting same error from error handler")
-        expectation.assertForOverFulfill = true
-
-        let expectedError = AFError.parameterEncodingFailed(reason: .missingURL)
-        executeErrorHandling(with: expectedError) { result in
+        let failureResultWithURLError = RequestFailureResult.errorWithoutResponse(error: URLError(.notConnectedToInternet))
+        testErrorHandling(with: endpoint, failureResult: failureResultWithURLError) { result in
             switch result {
-            case .continueErrorHandling(with: AFError.parameterEncodingFailed(reason: .missingURL)):
+            case .continueErrorHandling(let error as MockError) where error === errorMappedByURLErrorCode:
                 expectation.fulfill()
             default:
-                XCTFail("Unexpected result")
+                break
             }
         }
 
-        wait(for: [expectation], timeout: 3)
+        wait(for: [expectation], timeout: 5)
     }
 
     func testErrorHandlingWithUnsupportedError() {
-        let expectation = self.expectation(description: "Expecting same error from error handler")
-        expectation.assertForOverFulfill = true
-
         let expectedError = MockError()
-        executeErrorHandling(with: expectedError) { result in
+        let expectation = self.expectation(description: "Expects correct error handling result")
+
+        testErrorHandling(failureResult: .errorWithoutResponse(error: expectedError)) { result in
             switch result {
-            case .continueErrorHandling(with: let error as MockError) where error === expectedError:
+            case .continueErrorHandling(let error as MockError) where error === expectedError:
                 expectation.fulfill()
             default:
-                XCTFail("Invalid result")
+                break
             }
         }
 
-        wait(for: [expectation], timeout: 3)
-    }
-
-    func testErrorHandlingWithUnsupportedURLError() {
-        let expectation = self.expectation(description: "Expecting continue error handling result")
-        expectation.assertForOverFulfill = true
-
-        let expectedError = NSError(domain: NSURLErrorDomain, code: NSURLErrorBadURL)
-        executeErrorHandling(with: expectedError) { result in
-            switch result {
-            case .continueErrorHandling(with: let error as NSError)
-                 where error.domain == expectedError.domain && error.code == expectedError.code:
-                expectation.fulfill()
-            default:
-                XCTFail("Invalid result")
-            }
-        }
-
-        wait(for: [expectation], timeout: 3)
+        wait(for: [expectation], timeout: 5)
     }
 
     // MARK: - Private
 
-    private func executeErrorHandling(with error: Error, completion: @escaping (ErrorHandlingResult) -> Void) {
+    private func testErrorHandling(with endpoint: Endpoint = MockEndpoint(),
+                                   failureResult: RequestFailureResult,
+                                   completion: @escaping (ErrorHandlingResult) -> Void) {
         let errorHandler = GeneralErrorHandler()
-        let response: DataResponse<Any> = .init(request: nil, response: nil, data: nil, result: .failure(error))
-        let endpoint = MockEndpoint(result: error)
-        let requestError = RequestError(endpoint: endpoint, error: error, response: response)
+        let response = failureResult.dataResponse
+        let requestError = RequestError(endpoint: endpoint, error: response.error!, response: response)
         errorHandler.handleError(requestError, completion: completion)
+    }
+
+    private func testErrorHandling(withExpectedErrors expectedErrors: [GeneralRequestError],
+                                   requestFailureResults: [RequestFailureResult]) {
+
+        let expectation = self.expectation(description: "Expects correct error handling results")
+        expectation.expectedFulfillmentCount = expectedErrors.count
+        expectation.assertForOverFulfill = true
+
+        zip(expectedErrors, requestFailureResults).forEach { expectedError, requestFailureResult in
+            testErrorHandling(failureResult: requestFailureResult) { result in
+                switch result {
+                case .continueErrorHandling(let error as GeneralRequestError) where error == expectedError:
+                    expectation.fulfill()
+                default:
+                    break
+                }
+            }
+        }
+
+        wait(for: [expectation], timeout: 5)
+    }
+}
+
+private enum RequestFailureResult {
+    case responseWithStatusCode(Int, error: Error)
+    case errorWithoutResponse(error: Error)
+
+    var dataResponse: DataResponse<Any> {
+        switch self {
+        case .responseWithStatusCode(let statusCode, let error):
+            let url = URL(string: "https://apple.com")!
+            let response = HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)
+            return DataResponse(request: nil, response: response, data: nil, result: .failure(error))
+        case .errorWithoutResponse(let error):
+            return DataResponse(request: nil, response: nil, data: nil, result: .failure(error))
+        }
     }
 }

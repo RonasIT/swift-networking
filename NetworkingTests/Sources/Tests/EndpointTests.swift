@@ -31,7 +31,7 @@ final class EndpointTests: XCTestCase {
 
         let endpoint = TestEndpoint()
         XCTAssertNil(endpoint.error(for: .cancelled))
-        XCTAssertNil(endpoint.error(forResponseCode: 400))
+        XCTAssertNil(endpoint.error(forStatusCode: 400))
     }
 
     // MARK: - Headers
