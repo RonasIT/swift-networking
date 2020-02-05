@@ -127,16 +127,6 @@ final class ErrorHandlingTests: XCTestCase {
         wait(for: [failureExpectation], timeout: 10)
     }
 
-    func testErrorHandlingWithMappedEndpointErrorByResponseCode() {
-        let mappedError = MockError()
-        testErrorHandlingWithMappedEndpointError(testKind: .mappedUsingResponseCode(mappedError: mappedError))
-    }
-
-    func testErrorHandlingWithMappedEndpointErrorByURLErrorCode() {
-        let mappedError = MockError()
-        testErrorHandlingWithMappedEndpointError(testKind: .mappingUsingURLErrorCode(mappedError: mappedError))
-    }
-
     func testErrorHandlingMemoryLeaks() {
         let lifecycleExpectation = expectation(description: "Expecting nil in weak network service")
 
@@ -226,40 +216,5 @@ final class ErrorHandlingTests: XCTestCase {
         })
 
         wait(for: [errorHandlingTriggeredExpectation, completionExpectation], timeout: 10, enforceOrder: true)
-    }
-
-    private func testErrorHandlingWithMappedEndpointError(testKind: EndpointErrorMappingTestKind) {
-        var endpoint: MockEndpoint
-        var expectedError: MockError
-        switch testKind {
-        case .mappedUsingResponseCode(mappedError: let mappedError):
-            let error = AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
-            endpoint = MockEndpoint(result: error)
-            endpoint.errorForResponseCode = mappedError
-            expectedError = mappedError
-        case .mappingUsingURLErrorCode(mappedError: let mappedError):
-            let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled)
-            endpoint = MockEndpoint(result: error)
-            endpoint.errorForURLErrorCode = mappedError
-            expectedError = mappedError
-        }
-
-        let errorHandlingService = ErrorHandlingService(errorHandlers: [GeneralErrorHandler()])
-        let networkService = MockNetworkService(errorHandlingService: errorHandlingService)
-
-        let failureExpectation = expectation(description: "Expecting failure response")
-        failureExpectation.assertForOverFulfill = true
-
-        networkService.request(for: endpoint, success: {
-            XCTFail("Invalid case")
-        }, failure: { error in
-            guard let error = error as? MockError, error === expectedError else {
-                XCTFail("Unexpected error")
-                return
-            }
-            failureExpectation.fulfill()
-        })
-
-        wait(for: [failureExpectation], timeout: 10)
     }
 }
