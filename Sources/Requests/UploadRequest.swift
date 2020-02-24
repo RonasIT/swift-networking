@@ -5,7 +5,7 @@
 
 import Alamofire
 
-final class UploadRequest<Result>: Request<Result> {
+final class UploadRequest: Request {
 
     private typealias MultipartFormDataEncodingResult = SessionManager.MultipartFormDataEncodingResult
 
@@ -17,15 +17,9 @@ final class UploadRequest<Result>: Request<Result> {
     private var completion: Completion?
     private var sentRequest: DataRequest?
 
-    init(sessionManager: SessionManager,
-         endpoint: UploadEndpoint,
-         responseSerializer: DataResponseSerializer<Result>) {
+    init(sessionManager: SessionManager, endpoint: UploadEndpoint) {
         imageBodyParts = endpoint.imageBodyParts
-        super.init(
-            sessionManager: sessionManager,
-            endpoint: endpoint,
-            responseSerializer: responseSerializer
-        )
+        super.init(sessionManager: sessionManager, endpoint: endpoint)
     }
 
     override func response(completion: @escaping Completion) {
@@ -85,7 +79,7 @@ final class UploadRequest<Result>: Request<Result> {
                 self.sentRequest = request
                 request.validate()
                 Logging.log(type: .debug, category: .request, "\(self) - Sending")
-                request.response(responseSerializer: self.responseSerializer) { response in
+                request.responseData { response in
                     if self.isCancelled {
                         self.failAsCancelled(with: requestCompletion)
                     } else {
@@ -93,7 +87,7 @@ final class UploadRequest<Result>: Request<Result> {
                     }
                 }
             case .failure(let error):
-                requestCompletion(self, DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
+                requestCompletion(self, Alamofire.DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
             }
         }
         return encodingCompletion
@@ -145,6 +139,6 @@ final class UploadRequest<Result>: Request<Result> {
 
     private func failAsCancelled(with completion: Completion) {
         let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled)
-        completion(self, DataResponse(request: nil, response: nil, data: nil, result: .failure(error)))
+        completion(self, Response(request: nil, response: nil, data: nil, result: .failure(error)))
     }
 }

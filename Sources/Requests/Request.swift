@@ -5,26 +5,23 @@
 
 import Alamofire
 
-class Request<Result>: BasicRequest, Cancellable, Retryable {
+class Request: BasicRequest, Cancellable, Retryable {
 
-    typealias Completion = (RetryableRequest, DataResponse<Result>) -> Void
+    typealias Response = Alamofire.DataResponse<Data>
+    typealias Completion = (RetryableRequest, Response) -> Void
 
     public final let endpoint: Endpoint
 
     final let sessionManager: SessionManager
-    final let responseSerializer: DataResponseSerializer<Result>
 
     private(set) final var headers: [RequestHeader]
 
     private var sentRequest: DataRequest?
     private var completion: Completion?
 
-    init(sessionManager: SessionManager,
-         endpoint: Endpoint,
-         responseSerializer: DataResponseSerializer<Result>) {
+    init(sessionManager: SessionManager, endpoint: Endpoint) {
         self.endpoint = endpoint
         self.sessionManager = sessionManager
-        self.responseSerializer = responseSerializer
         headers = endpoint.headers
     }
 
@@ -38,7 +35,7 @@ class Request<Result>: BasicRequest, Cancellable, Retryable {
             headers: headers.httpHeaders
         ).validate()
         Logging.log(type: .debug, category: .request, "\(self) - Sending")
-        sentRequest?.response(responseSerializer: responseSerializer) { response in
+        sentRequest?.responseData { response in
             Logging.log(type: .debug, category: .request, "\(self) - Finished")
             self.completion?(self, response)
         }
@@ -93,9 +90,9 @@ extension Request: CustomStringConvertible {
     public var description: String {
         let pointerString = "\(Unmanaged.passUnretained(self).toOpaque())"
         return """
-               <\(type(of: self)):\(pointerString)> to \
-               `/\(endpoint.path)` \
-               [\(endpoint.method.rawValue.uppercased())]
-               """
+        <\(type(of: self)):\(pointerString)> to \
+        `/\(endpoint.path)` \
+        [\(endpoint.method.rawValue.uppercased())]
+        """
     }
 }
