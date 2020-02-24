@@ -380,16 +380,16 @@ public enum GeneralRequestError: Error {
 ```
 
 With `GeneralErrorHandler` you can also provide custom errors right from `Endpoint`.  
-Just implement `func error(forResponseCode responseCode: Int) -> Error?` or `func error(for urlError: URLError) -> Error?` like below.  
+Just implement `func error(forStatusCode statusCode: Int) -> Error?` or `func error(for urlError: URLError) -> Error?` like below.  
 If this methods return `nil`, error will be provided by `GeneralErrorHandler`.
 ```swift
 enum ProfileEndpoint: Endpoint {
     case profile(profileId: String)
     case uploadImage(imageData: Data)
     
-    func error(forResponseCode responseCode: Int) -> Error? {
+    func error(forStatusCode statusCode: Int) -> Error? {
         if case let ProfileEndpoint.profile(profileId: let profileId) = self {
-            switch responseCode {
+            switch statusCode {
                 case 404:
                     return ProfileError.notFound(profileId: profileId)
                 default:

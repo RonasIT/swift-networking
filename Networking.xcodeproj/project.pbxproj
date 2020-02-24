@@ -71,6 +71,7 @@
 		93AEDD5423EB4BA9002CC323 /* Response+Empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AEDD5323EB4BA9002CC323 /* Response+Empty.swift */; };
 		93B2AAA523731AD300D57F96 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B2AAA423731AD300D57F96 /* Response.swift */; };
 		93B57A6621F22CB200CCA72F /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D9F10AB216BB35700CDB8EE /* Alamofire.framework */; };
+		93E72FBD2403C5CA0017A9F2 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 93E72FBC2403C5CA0017A9F2 /* README.md */; };
 		93ECDAC621F7A8ED0041FA13 /* MockEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDFC8DCB798D977077B49 /* MockEndpoint.swift */; };
 /* End PBXBuildFile section */
 
@@ -152,6 +153,7 @@
 		93AEDD5123EB4B89002CC323 /* ResponseSerializer+TypeErasing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResponseSerializer+TypeErasing.swift"; sourceTree = "<group>"; };
 		93AEDD5323EB4BA9002CC323 /* Response+Empty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Response+Empty.swift"; sourceTree = "<group>"; };
 		93B2AAA423731AD300D57F96 /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
+		93E72FBC2403C5CA0017A9F2 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -349,6 +351,7 @@
 		6D3EF7B8216770FF00251869 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				93E72FBC2403C5CA0017A9F2 /* README.md */,
 				9360C25C234DF24800DDEB26 /* .swiftlint.yml */,
 				9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */,
 				9360C25A234DF18B00DDEB26 /* Cartfile */,
@@ -546,6 +549,7 @@
 			files = (
 				9330EC6323E5C05C007601FE /* .swiftlint.auto.yml in Resources */,
 				9360C25D234DF24800DDEB26 /* .swiftlint.yml in Resources */,
+				93E72FBD2403C5CA0017A9F2 /* README.md in Resources */,
 				9360C25B234DF18B00DDEB26 /* Cartfile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
