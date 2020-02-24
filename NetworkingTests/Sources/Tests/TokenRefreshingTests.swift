@@ -122,7 +122,7 @@ final class TokenRefreshingTests: XCTestCase {
     func testUnauthorizedErrorHandlerWithUnsupportedError() {
         let errorHandler = UnauthorizedErrorHandler(accessTokenSupervisor: sessionService)
         let unsupportedError = MockError()
-        let response: DataResponse<Any> = .init(request: nil, response: nil, data: nil, result: .failure(unsupportedError))
+        let response: Alamofire.DataResponse<Any> = .init(request: nil, response: nil, data: nil, result: .failure(unsupportedError))
         var endpoint = MockEndpoint(result: unsupportedError)
         endpoint.requiresAuthorization = true
         let requestError = RequestError(endpoint: endpoint, error: unsupportedError, response: response)
@@ -152,7 +152,7 @@ final class TokenRefreshingTests: XCTestCase {
             headerFields: nil
         )
         let error = MockError()
-        let response: DataResponse<Any> = .init(
+        let response: Alamofire.DataResponse<Any> = .init(
             request: nil,
             response: urlResponse,
             data: nil,
@@ -180,9 +180,8 @@ final class TokenRefreshingTests: XCTestCase {
     }
 
     func testTokenRequestAdapter() {
-        func makeRequest(for endpoint: Endpoint) -> Request<Data> {
-            let serializer = DataRequest.dataResponseSerializer()
-            return Request(sessionManager: .default, endpoint: endpoint, responseSerializer: serializer)
+        func makeRequest(for endpoint: Endpoint) -> Request {
+            return Request(sessionManager: .default, endpoint: endpoint)
         }
 
         func authorizationHeaderNotExists(in request: AdaptiveRequest) -> Bool {

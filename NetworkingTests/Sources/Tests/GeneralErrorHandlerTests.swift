@@ -3,8 +3,8 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
-@testable import Networking
 import Alamofire
+@testable import Networking
 import XCTest
 
 final class GeneralErrorHandlerTests: XCTestCase {
@@ -169,7 +169,7 @@ private enum RequestFailureResult {
     case responseWithStatusCode(Int, error: Error)
     case errorWithoutResponse(error: Error)
 
-    var dataResponse: DataResponse<Any> {
+    var dataResponse: Alamofire.DataResponse<Any> {
         switch self {
         case .responseWithStatusCode(let statusCode, let error):
             let url = URL(string: "https://apple.com")!

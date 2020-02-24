@@ -8,15 +8,19 @@ import Foundation
 import XCTest
 @testable import Networking
 
-final class MockRequest<Result>: Networking.Request<Result> {
+final class MockRequest: Networking.Request {
+
+    enum Constants {
+        static let successStatusCode: Int = 200
+    }
 
     private let mockEndpoint: MockEndpoint
 
     private var completion: Completion?
 
-    init(endpoint: MockEndpoint, responseSerializer: DataResponseSerializer<Result>) {
+    init(endpoint: MockEndpoint) {
         self.mockEndpoint = endpoint
-        super.init(sessionManager: .default, endpoint: endpoint, responseSerializer: responseSerializer)
+        super.init(sessionManager: .default, endpoint: endpoint)
     }
 
     override func response(completion: @escaping Completion) {
@@ -49,7 +53,8 @@ final class MockRequest<Result>: Networking.Request<Result> {
 
             let response = self.makeResponse(
                 requestStartTime: requestStartTime,
-                requestCompletedTime: requestEndTime
+                requestCompletedTime: requestEndTime,
+                statusCode: Constants.successStatusCode
             )
             completion(self, response)
         }
@@ -93,16 +98,16 @@ final class MockRequest<Result>: Networking.Request<Result> {
     private func makeResponse(requestStartTime: CFAbsoluteTime,
                               requestCompletedTime: CFAbsoluteTime,
                               statusCode: Int? = nil,
-                              error: Error? = nil) -> DataResponse<Result> {
-        var result: Alamofire.Result<Result>
+                              error: Error? = nil) -> Response {
+        var result: Alamofire.Result<Data>
         if let error = error {
             result = .failure(error)
         } else {
             switch mockEndpoint.result {
-            case .failure(with: let error):
+            case .failure(let error):
                 result = .failure(error)
-            case .success(with: let data):
-                result = responseSerializer.serializeResponse(nil, nil, data, nil)
+            case .success(let data):
+                result = .success(data)
             }
         }
 
@@ -120,7 +125,7 @@ final class MockRequest<Result>: Networking.Request<Result> {
             requestStartTime: requestStartTime,
             requestCompletedTime: requestCompletedTime
         )
-        return DataResponse(
+        return Response(
             request: nil,
             response: response,
             data: nil,
