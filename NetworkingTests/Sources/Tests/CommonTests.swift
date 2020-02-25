@@ -28,4 +28,33 @@ final class CommonTests: XCTestCase {
         XCTAssertEqual(header.key, key, "Custom header key is not valid")
         XCTAssertEqual(header.value, value, "Custom header value is not valid")
     }
+
+    func testURLResponseTextEncoding() {
+        let encodings: [String: String.Encoding] = [
+            "utf8": .utf8,
+            "utf-16le": .utf16LittleEndian,
+            "ascii": .ascii,
+            "iso-8859-1": .isoLatin1
+        ]
+
+        encodings.forEach { encoding in
+            let response = urlResponse(withTextEncodingName: encoding.key)
+            XCTAssertNotNil(response.textEncoding)
+            XCTAssertEqual(encoding.value, response.textEncoding)
+        }
+
+        let responseWithoutEncoding = urlResponse(withTextEncodingName: nil)
+        XCTAssertNil(responseWithoutEncoding.textEncoding)
+    }
+
+    // MARK: - Private
+
+    private func urlResponse(withTextEncodingName textEncodingName: String?) -> URLResponse {
+        return URLResponse(
+            url: URL(string: "https://apple.com")!,
+            mimeType: nil,
+            expectedContentLength: 0,
+            textEncodingName: textEncodingName
+        )
+    }
 }
