@@ -144,10 +144,10 @@ open class NetworkService {
 
     @discardableResult
     public final func request(for endpoint: Endpoint,
-                              encoding: StringResponseSerializer.Encoding = .auto,
+                              encoding: StringResponseSerializer.Encoding = .automatic,
                               success: @escaping Success<StringResponse>,
                               failure: @escaping Failure) -> CancellableRequest {
-        let responseSerializer = StringResponseSerializer(encoding: encoding).eraseToAnyResponseSerializer()
+        let responseSerializer = StringResponseSerializer(encoding: encoding).typeErased()
         return request(
             for: endpoint,
             responseSerializer: responseSerializer,
@@ -158,7 +158,7 @@ open class NetworkService {
 
     @discardableResult
     public final func request(for endpoint: Endpoint,
-                              encoding: StringResponseSerializer.Encoding = .auto,
+                              encoding: StringResponseSerializer.Encoding = .automatic,
                               success: @escaping Success<String>,
                               failure: @escaping Failure) -> CancellableRequest {
         return request(for: endpoint, encoding: encoding, success: { response in
@@ -168,10 +168,10 @@ open class NetworkService {
 
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
-                                    encoding: StringResponseSerializer.Encoding = .auto,
+                                    encoding: StringResponseSerializer.Encoding = .automatic,
                                     success: @escaping Success<StringResponse>,
                                     failure: @escaping Failure) -> CancellableRequest {
-        let responseSerializer = StringResponseSerializer(encoding: encoding).eraseToAnyResponseSerializer()
+        let responseSerializer = StringResponseSerializer(encoding: encoding).typeErased()
         return uploadRequest(
             for: endpoint,
             responseSerializer: responseSerializer,
@@ -182,7 +182,7 @@ open class NetworkService {
 
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
-                                    encoding: StringResponseSerializer.Encoding = .auto,
+                                    encoding: StringResponseSerializer.Encoding = .automatic,
                                     success: @escaping Success<String>,
                                     failure: @escaping Failure) -> CancellableRequest {
         return uploadRequest(for: endpoint, encoding: encoding, success: { response in
@@ -197,7 +197,7 @@ open class NetworkService {
                                       decoder: JSONDecoder = JSONDecoder(),
                                       success: @escaping Success<DecodableResponse<Result>>,
                                       failure: @escaping Failure) -> CancellableRequest {
-        let responseSerializer = DecodableResponseSerializer<Result>(decoder: decoder).eraseToAnyResponseSerializer()
+        let responseSerializer = DecodableResponseSerializer<Result>(decoder: decoder).typeErased()
         return request(
             for: endpoint,
             responseSerializer: responseSerializer,
@@ -221,7 +221,7 @@ open class NetworkService {
                                             decoder: JSONDecoder = JSONDecoder(),
                                             success: @escaping Success<DecodableResponse<Result>>,
                                             failure: @escaping Failure) -> CancellableRequest {
-        let responseSerializer = DecodableResponseSerializer<Result>(decoder: decoder).eraseToAnyResponseSerializer()
+        let responseSerializer = DecodableResponseSerializer<Result>(decoder: decoder).typeErased()
         return uploadRequest(
             for: endpoint,
             responseSerializer: responseSerializer,
@@ -247,7 +247,7 @@ open class NetworkService {
                               readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
                               success: @escaping Success<JSONResponse>,
                               failure: @escaping Failure) -> CancellableRequest {
-        let responseSerializer = JSONResponseSerializer(readingOptions: readingOptions).eraseToAnyResponseSerializer()
+        let responseSerializer = JSONResponseSerializer(readingOptions: readingOptions).typeErased()
         return request(
             for: endpoint,
             responseSerializer: responseSerializer,
@@ -271,7 +271,7 @@ open class NetworkService {
                                     readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
                                     success: @escaping Success<JSONResponse>,
                                     failure: @escaping Failure) -> CancellableRequest {
-        let responseSerializer = JSONResponseSerializer(readingOptions: readingOptions).eraseToAnyResponseSerializer()
+        let responseSerializer = JSONResponseSerializer(readingOptions: readingOptions).typeErased()
         return uploadRequest(
             for: endpoint,
             responseSerializer: responseSerializer,

@@ -10,7 +10,7 @@ public class StringResponseSerializer: ResponseSerializer {
     public typealias Response = StringResponse
 
     public enum Encoding {
-        case auto
+        case automatic
         case custom(String.Encoding)
     }
 
@@ -35,7 +35,7 @@ public class StringResponseSerializer: ResponseSerializer {
         let httpResponse = response.httpResponse
         let encoding: String.Encoding
         switch self.encoding {
-        case .auto:
+        case .automatic:
             encoding = response.httpResponse.textEncoding ?? .isoLatin1
         case .custom(let customEncoding):
             encoding = customEncoding

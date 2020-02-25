@@ -171,7 +171,7 @@ private enum RequestFailureResult {
 
     var dataResponse: Alamofire.DataResponse<Any> {
         switch self {
-        case .responseWithStatusCode(let statusCode, let error):
+        case let .responseWithStatusCode(statusCode, error):
             let url = URL(string: "https://apple.com")!
             let response = HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)
             return DataResponse(request: nil, response: response, data: nil, result: .failure(error))

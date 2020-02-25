@@ -5,7 +5,7 @@
 
 extension ResponseSerializer {
 
-    func eraseToAnyResponseSerializer() -> AnyResponseSerializer<Response> {
+    func typeErased() -> AnyResponseSerializer<Response> {
         return AnyResponseSerializer { try self.serialize($0) }
     }
 }
