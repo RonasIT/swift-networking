@@ -57,6 +57,7 @@
 		6D9F10DC216BBBF200CDB8EE /* DecodingError+Description.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10C2216BBBF200CDB8EE /* DecodingError+Description.swift */; };
 		6D9F10E3216BBBF200CDB8EE /* ReachabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10CC216BBBF200CDB8EE /* ReachabilityService.swift */; };
 		6D9F10E4216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */; };
+		9330EC6323E5C05C007601FE /* .swiftlint.auto.yml in Resources */ = {isa = PBXBuildFile; fileRef = 9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */; };
 		934CEE2821F206EF009C024A /* Networking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D3EF77D21675CFA00251869 /* Networking.framework */; };
 		9360C25B234DF18B00DDEB26 /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = 9360C25A234DF18B00DDEB26 /* Cartfile */; };
 		9360C25D234DF24800DDEB26 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 9360C25C234DF24800DDEB26 /* .swiftlint.yml */; };
@@ -131,6 +132,7 @@
 		6D9F10C2216BBBF200CDB8EE /* DecodingError+Description.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DecodingError+Description.swift"; sourceTree = "<group>"; };
 		6D9F10CC216BBBF200CDB8EE /* ReachabilityService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityService.swift; sourceTree = "<group>"; };
 		6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityServiceProtocol.swift; sourceTree = "<group>"; };
+		9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.auto.yml; sourceTree = SOURCE_ROOT; };
 		934CEE2321F206EF009C024A /* NetworkingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		934CEE2721F206EF009C024A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
 		9360C25A234DF18B00DDEB26 /* Cartfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
@@ -325,6 +327,7 @@
 			isa = PBXGroup;
 			children = (
 				9360C25C234DF24800DDEB26 /* .swiftlint.yml */,
+				9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */,
 				9360C25A234DF18B00DDEB26 /* Cartfile */,
 				6D3EF7B9216770FF00251869 /* Networking.h */,
 				6D3EF7BA216770FF00251869 /* Info.plist */,
@@ -512,6 +515,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9330EC6323E5C05C007601FE /* .swiftlint.auto.yml in Resources */,
 				9360C25D234DF24800DDEB26 /* .swiftlint.yml in Resources */,
 				9360C25B234DF18B00DDEB26 /* Cartfile in Resources */,
 			);
@@ -543,7 +547,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\nswiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "./Scripts/swiftlint_script.sh\n";
 		};
 		93B57A6521F223B400CCA72F /* Carthage */ = {
 			isa = PBXShellScriptBuildPhase;

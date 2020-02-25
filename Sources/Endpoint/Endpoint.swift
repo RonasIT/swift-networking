@@ -26,7 +26,7 @@ public extension Endpoint {
         return baseURL + path
     }
 
-    func error(forResponseCode responseCode: Int) -> Error? {
+    func error(forStatusCode statusCode: Int) -> Error? {
         return nil
     }
 
