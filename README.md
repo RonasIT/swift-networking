@@ -17,17 +17,26 @@ git "https://projects.ronasit.com/ronas-it/ios/networking.git" "1.3.0"
 
 ## Features ✔️
 
-- [x] [`Endpoint` support](#endpoint)
-- [x] [Flexible response](#making-a-request), including:
-  * `Data`
-  * `String`
-  * `Decodable`
-  * `[String: Any]`
-- [x] [Reachability](#reachability)
-- [x] [Request adapting](#request-adapting)
-- [x] [Error handling](#error-handling)
-- [x] [Automatic token refreshing and request retrying](#automatic-token-refreshing-and-request-retrying)
-- [x] [Logging](#logging) 
+- [⚡ Networking](#%e2%9a%a1-networking)
+  - [Table of contents 📦](#table-of-contents-%f0%9f%93%a6)
+  - [Installation 🎬](#installation-%f0%9f%8e%ac)
+  - [Features ✔️](#features-%e2%9c%94%ef%b8%8f)
+  - [Usage 🔨](#usage-%f0%9f%94%a8)
+    - [Making a Request](#making-a-request)
+    - [Supported response types](#supported-response-types)
+    - [Cancelling request](#cancelling-request)
+    - [Endpoint](#endpoint)
+      - [Usage](#usage)
+    - [Reachability](#reachability)
+      - [Usage](#usage-1)
+    - [Request adapting](#request-adapting)
+      - [Usage](#usage-2)
+    - [Error handling](#error-handling)
+      - [Usage](#usage-3)
+      - [`GeneralErrorHandler`](#generalerrorhandler)
+    - [Automatic token refreshing and request retrying](#automatic-token-refreshing-and-request-retrying)
+      - [Usage](#usage-4)
+  - [Logging](#logging)
 
 ## Usage 🔨
 
@@ -37,90 +46,37 @@ To make requests with specific endpoint you need to subclass `NetworkService`:
 ```swift
 import Networking
 
-final class ProfileService: NetworkService, ProfileServiceProtocol {
+private struct SignInResponse: Decodable {
+    let user: User
+}
+
+final class AuthService: NetworkService, AuthServiceProtocol {
 
     @discardableResult
-    func fetchProfile(withId profileId: String, success: @escaping (Profile) -> Void, failure: Failure) -> CancellableRequest {
-        let endpoint = ProfileEndpoint.fetchProfile(withId: profileId)
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return request(for: endpoint, decoder: decoder, success: { (response: ProfileResponse) in
-            success(response.profile)
-        }, failure: { error in
-            failure(error)
-        })
-    }
-    
-    @discardableResult
-    func uploadProfileImage(with imageData: Data, success: @escaping (Profile) -> Void, failure: Failure) -> CancellableRequest {
-        let endpoint = ProfileEndpoint.uploadImage(with: imageData)
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return uploadRequest(for: endpoint, decoder: decoder, success: { (response: UploadProfileImageResponse) in
-            success(response.profile)
+    func signIn(withEmail email: String, 
+                password: String, 
+                success: @escaping (User) -> Void, 
+                failure: @escaping (Error) -> Void) -> CancellableRequest {
+        let endpoint = AuthEndpoint.signIn(email: email, password: password)
+        return request(for: endpoint, success: { (response: SignInResponse) in
+            success(response.user)
         }, failure: { error in
             failure(error)
         })
     }
 }
-
-private final class ProfileResponse: Decodable {
-    let profile: Profile
-}
-    
-private final class UploadProfileImageResponse: Decodable {
-    let imageURL: URL
-}
-
-// In your models
-final class Profile: Codable {
-    let id: UInt64
-    let firstName: String
-    let lastName: String
-    let imageURL: URL
-}
 ```
 
-The example above uses `Decodable` response. But you also able to use other types of response like below:
-```swift
-// `[String: Any]`
-request(for: endpoint, readingOptions: .allowFragments, success: { (response: [String: Any]) in
+### Supported response types
 
-}, failure: { error in
-    
-})
+Networking supports  `Decodable`, `Data`, `String`, `[String: Any]` and empty response type.  
 
-// `String`
-request(for: endpoint, encoding: .utf8, success: { (response: String) in
-
-}, failure: { error in
-    
-})
-
-// `Data`
-request(for: endpoint, success: { (response: Data) in
-
-}, failure: { error in
-    
-})
-
-// Empty
-request(for: endpoint, success: {
-
-}, failure: { error in
-    
-})
-
-// Response, which provides [HTTPURLResponse](https://developer.apple.com/documentation/foundation/httpurlresponse) with status code and headers
-request(for: endpoint, success: { (response: Response<User>) in
-    let httpResponse = response.httpResponse
-    print(httpResponse.statusCode) // 200
-    print(httpResponse.allHeaderFields) // ["Authorization": "Bearer ..."]
-    print(response.result) // User
-}, failure: { error in
-    
-})
-```
+Also, you can use response with [`HTTPURLResponse`](https://developer.apple.com/documentation/foundation/httpurlresponse) to access the status code and headers:  
+* `Response<Decodable>` or `DecodableResponse<Decodable>`
+* `Response<Data>` or `DataResponse`
+* `Response<String>` or `StringResponse`
+* `Response<[String: Any]>` or `JSONResponse`
+* `Response<Void>` or `EmptyResponse`
 
 ### Cancelling request
 
