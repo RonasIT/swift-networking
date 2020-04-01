@@ -46,11 +46,11 @@ To make requests with specific endpoint you need to subclass `NetworkService`:
 ```swift
 import Networking
 
-private struct SignInResponse: Decodable {
-    let user: User
-}
-
 final class AuthService: NetworkService, AuthServiceProtocol {
+
+    private struct SignInResponse: Decodable {
+        let user: User
+    }
 
     @discardableResult
     func signIn(withEmail email: String, 
@@ -63,6 +63,25 @@ final class AuthService: NetworkService, AuthServiceProtocol {
         }, failure: { error in
             failure(error)
         })
+    }
+}
+
+final class MediaService: NetworkService, MediaServiceProtocol {
+
+    struct Media: Decodable {
+        let id: UInt64
+        let url: URL
+    }
+
+    @discardableResult
+    func uploadMedia(with data: Data, 
+                     success: @escaping (Media) -> Void, 
+                     failure: @escaping (Error) -> Void) -> CancellableRequest {
+        uploadRequest(
+            for: MediaEndpoint.upload(data: data), 
+            success: success, 
+            failure: failure
+        )
     }
 }
 ```
