@@ -12,7 +12,7 @@ Networking is a network abstraction layer built on top of [Alamofire](https://gi
 
 To integrate Networking into your Xcode project, specify it in your Cartfile:
 ```
-git "https://projects.ronasit.com/ronas-it/ios/networking.git" "1.2.0"
+git "https://projects.ronasit.com/ronas-it/ios/networking.git" "1.3.0"
 ```
 
 ## Features ✔️
@@ -104,9 +104,19 @@ request(for: endpoint, success: { (response: Data) in
     
 })
 
-// Or empty
+// Empty
 request(for: endpoint, success: {
 
+}, failure: { error in
+    
+})
+
+// Response, which provides [HTTPURLResponse](https://developer.apple.com/documentation/foundation/httpurlresponse) with status code and headers
+request(for: endpoint, success: { (response: Response<User>) in
+    let httpResponse = response.httpResponse
+    print(httpResponse.statusCode) // 200
+    print(httpResponse.allHeaderFields) // ["Authorization": "Bearer ..."]
+    print(response.result) // User
 }, failure: { error in
     
 })
