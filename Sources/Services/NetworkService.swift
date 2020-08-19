@@ -21,14 +21,14 @@ open class NetworkService {
         }
     }
 
-    private let sessionManager: SessionManager
+    private let session: Alamofire.Session
     private let requestAdaptingService: RequestAdaptingServiceProtocol?
     private let errorHandlingService: ErrorHandlingServiceProtocol?
 
-    public init(sessionManager: SessionManager = .default,
+    public init(session: Alamofire.Session = .default,
                 requestAdaptingService: RequestAdaptingServiceProtocol? = nil,
                 errorHandlingService: ErrorHandlingServiceProtocol? = nil) {
-        self.sessionManager = sessionManager
+        self.session = session
         self.requestAdaptingService = requestAdaptingService
         self.errorHandlingService = errorHandlingService
     }
@@ -75,7 +75,7 @@ open class NetworkService {
                                   success: @escaping Success<Response>,
                                   failure: @escaping Failure) -> CancellableRequest {
         return send(
-            Request(sessionManager: sessionManager, endpoint: endpoint),
+            Request(session: session, endpoint: endpoint),
             responseSerializer: responseSerializer,
             success: success,
             failure: failure
@@ -87,7 +87,7 @@ open class NetworkService {
                                         success: @escaping Success<Response>,
                                         failure: @escaping Failure) -> CancellableRequest {
         return send(
-            UploadRequest(sessionManager: sessionManager, endpoint: endpoint),
+            UploadRequest(session: session, endpoint: endpoint),
             responseSerializer: responseSerializer,
             success: success,
             failure: failure
@@ -333,7 +333,7 @@ open class NetworkService {
     // MARK: - Private
 
     private func handleError<Result>(_ error: Swift.Error,
-                                     response: Alamofire.DataResponse<Result>,
+                                     response: AFDataResponse<Result>,
                                      request: RetryableRequest,
                                      failure: @escaping Failure) {
         guard let errorHandlingService = errorHandlingService else {

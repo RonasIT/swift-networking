@@ -6,13 +6,11 @@
 import Alamofire
 
 protocol NetworkListener: AnyObject {
-
     typealias Listener = NetworkReachabilityManager.Listener
 
-    var listener: Listener? { get set }
     var isReachable: Bool { get }
 
     @discardableResult
-    func startListening() -> Bool
+    func startListening(on queue: DispatchQueue, with listener: @escaping Listener) -> Bool
     func stopListening()
 }

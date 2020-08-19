@@ -7,27 +7,27 @@ import Alamofire
 
 class Request: BasicRequest, Cancellable, Retryable {
 
-    typealias Response = Alamofire.DataResponse<Data>
+    typealias Response = AFDataResponse<Data>
     typealias Completion = (RetryableRequest, Response) -> Void
 
     public final let endpoint: Endpoint
 
-    final let sessionManager: SessionManager
+    final let session: Alamofire.Session
 
     private(set) final var headers: [RequestHeader]
 
     private var sentRequest: DataRequest?
     private var completion: Completion?
 
-    init(sessionManager: SessionManager, endpoint: Endpoint) {
+    init(session: Alamofire.Session, endpoint: Endpoint) {
         self.endpoint = endpoint
-        self.sessionManager = sessionManager
+        self.session = session
         headers = endpoint.headers
     }
 
     func response(completion: @escaping Completion) {
         self.completion = completion
-        sentRequest = sessionManager.request(
+        sentRequest = session.request(
             endpoint.url,
             method: endpoint.method,
             parameters: endpoint.parameters,
@@ -35,7 +35,7 @@ class Request: BasicRequest, Cancellable, Retryable {
             headers: headers.httpHeaders
         ).validate()
         Logging.log(type: .debug, category: .request, "\(self) - Sending")
-        sentRequest?.responseData { response in
+        sentRequest?.responseData { (response: AFDataResponse<Data>) in
             Logging.log(type: .debug, category: .request, "\(self) - Finished")
             self.completion?(self, response)
         }

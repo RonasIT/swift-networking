@@ -37,10 +37,9 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
     }
 
     public func startMonitoring() {
-        networkListener.listener = { [weak self] reachabilityStatus in
+        networkListener.startListening(on: .main) { [weak self] reachabilityStatus in
             self?.notifySubscribers(with: reachabilityStatus)
         }
-        networkListener.startListening()
     }
 
     public func stopMonitoring() {
@@ -57,7 +56,13 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
     }
 }
 
-extension NetworkReachabilityManager: NetworkListener {}
+extension NetworkReachabilityManager: NetworkListener {
+
+    func startListening(on queue: DispatchQueue = .main, with listener: @escaping Listener) -> Bool {
+        startListening(onQueue: queue, onUpdatePerforming: listener)
+    }
+}
+
 private extension NetworkReachabilityStatus {
 
     var isReachable: Bool {

@@ -56,13 +56,11 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         // Since token was already refreshed, we won't refresh it again for remaining errors.
         switch state {
         case let .errorResolved(tokenRefreshingCompletionDate, isTokenRefreshed):
-            // Time from `Timeline` is timeIntervalSinceReferenceDate
-            let timeline = requestError.response.timeline
-            let requestStartDate = Date(timeIntervalSinceReferenceDate: timeline.requestStartTime)
+            let requestStartDate = requestError.response.metrics?.taskInterval.start
 
             // Request started before token refreshing (used expired token),
             // but error received after token refreshing
-            if requestStartDate < tokenRefreshingCompletionDate {
+            if let startDate = requestStartDate, startDate < tokenRefreshingCompletionDate {
                 if isTokenRefreshed {
                     Logging.log(
                         type: .debug,

@@ -9,13 +9,13 @@ public final class RequestError<T> {
 
     public let endpoint: Endpoint
     public let error: Error
-    public let response: Alamofire.DataResponse<T>
+    public let response: AFDataResponse<T>
 
     var statusCode: Int? {
         return response.response?.statusCode
     }
 
-    init(endpoint: Endpoint, error: Error, response: Alamofire.DataResponse<T>) {
+    init(endpoint: Endpoint, error: Error, response: AFDataResponse<T>) {
         self.endpoint = endpoint
         self.error = error
         self.response = response
