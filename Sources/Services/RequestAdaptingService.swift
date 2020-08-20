@@ -16,13 +16,7 @@ open class RequestAdaptingService: RequestAdaptingServiceProtocol {
     }
 
     public final func adapt(_ request: AdaptiveRequest) {
-        Logging.log(
-            type: .debug,
-            category: .requestAdapting,
-            "\(request) - Starting request adapting, found \(requestAdapters.count) adapters"
-        )
         requestAdapters.forEach { requestAdapter in
-            Logging.log(type: .debug, category: .requestAdapting, "\(request) - Adapting with \(requestAdapter)")
             requestAdapter.adapt(request)
         }
     }

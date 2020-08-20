@@ -11,6 +11,7 @@ protocol NetworkListener: AnyObject {
     var isReachable: Bool { get }
 
     @discardableResult
-    func startListening(on queue: DispatchQueue, with listener: @escaping Listener) -> Bool
+    func startListening(onQueue queue: DispatchQueue,
+                        onUpdatePerforming listener: @escaping Listener) -> Bool
     func stopListening()
 }

@@ -24,7 +24,7 @@ public extension JSONDecoder {
     }
 }
 
-// MARK: - Error
+// MARK: -  Error
 
 private struct CustomDecodingError: LocalizedError {
     let errorDescription: String

@@ -310,13 +310,13 @@ import Networking
 
 final class LoggingErrorHandler: ErrorHandler {
     
-    func handleError<T>(_ requestError: RequestError<T>, completion: @escaping (ErrorHandlingResult) -> Void) {
+    func handleError<Value, Error: Swift.Error>(_ errorPayload: ErrorPayload<Value, Error>, completion: @escaping (ErrorHandlingResult) -> Void) {
         print("Request failure at: \(requestError.endpoint.path)")
-        print("Error: \(requestError.error)")
-        print("Response: \(requestError.response)")
+        print("Error: \(errorPayload.error)")
+        print("Response: \(errorPayload.response)")
         
-        // Error will be redirected to the next error handler
-        completion(.continueErrorHandling(with: requestError.error))
+        // Error payload will be redirected to the next error handler
+        completion(.continueErrorHandling(with: errorPayload.error))
     }
 }
 ```
@@ -365,20 +365,20 @@ public enum GeneralRequestError: Error {
 ```
 
 With `GeneralErrorHandler` you can also provide custom errors right from `Endpoint`.  
-Just implement `func error(forStatusCode statusCode: Int) -> Error?` or `func error(for urlError: URLError) -> Error?` like below.  
+Just implement `func error(for statusCode: StatusCode) -> Error?` or `func error(for urlError: URLError) -> Error?` like below.  
 If this methods return `nil`, error will be provided by `GeneralErrorHandler`.
 ```swift
 enum ProfileEndpoint: Endpoint {
-    case profile(profileId: String)
+    case profile(profileID: String)
     case uploadImage(imageData: Data)
     
-    func error(forStatusCode statusCode: Int) -> Error? {
+    func error(for statusCode: StatusCode) -> Error? {
         if case let ProfileEndpoint.profile(profileId: let profileId) = self {
             switch statusCode {
-                case 404:
-                    return ProfileError.notFound(profileId: profileId)
-                default:
-                    return nil            
+            case .notFound404:
+                return ProfileError.notFound(profileId: profileId)
+            default:
+                return nil            
             }
         }
         return nil

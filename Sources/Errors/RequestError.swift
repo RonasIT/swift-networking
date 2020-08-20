@@ -5,24 +5,26 @@
 
 import Alamofire
 
-public final class RequestError<T> {
-
+public final class RequestError {
     public let endpoint: Endpoint
     public let error: Error
-    public let response: AFDataResponse<T>
+    public let response: AFDataResponse<Data>
 
-    var statusCode: Int? {
-        return response.response?.statusCode
+    var statusCode: StatusCode? {
+        guard let response = response.response else {
+            return nil
+        }
+        return StatusCode(rawValue: response.statusCode)
     }
 
-    init(endpoint: Endpoint, error: Error, response: AFDataResponse<T>) {
+    init(endpoint: Endpoint, error: Error, response: AFDataResponse<Data>) {
         self.endpoint = endpoint
         self.error = error
         self.response = response
     }
 }
 
-// MARK: - CustomStringConvertible
+// MARK: -  CustomStringConvertible
 
 extension RequestError: CustomStringConvertible {
     public var description: String {

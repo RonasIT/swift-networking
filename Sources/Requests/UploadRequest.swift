@@ -26,12 +26,6 @@ final class UploadRequest: Request {
             if let parameters = self.endpoint.parameters {
                 multipartFormData.appendParametersBodyParts(parameters)
             }
-
-            Logging.log(
-                type: .debug,
-                category: .request,
-                "\(self) - Created multipart-form data with \(multipartFormData.contentLength) bytes"
-            )
         }
 
         let threshold = MultipartFormData.encodingMemoryThreshold
@@ -42,9 +36,8 @@ final class UploadRequest: Request {
             method: .post,
             headers: headers.httpHeaders
         ).validate()
-        Logging.log(type: .debug, category: .request, "\(self) - Sending")
+
         sentRequest?.responseData { (response: AFDataResponse<Data>) in
-            Logging.log(type: .debug, category: .request, "\(self) - Finished")
             self.completion?(self, response)
         }
     }
@@ -52,11 +45,9 @@ final class UploadRequest: Request {
     @discardableResult
     override func cancel() -> Bool {
         guard let request = sentRequest else {
-            Logging.log(type: .fault, category: .request, "\(self) - Couldn't cancel request: request hasn't started yet")
             return false
         }
         request.cancel()
-        Logging.log(type: .debug, category: .request, "\(self) - Cancelling")
         sentRequest = nil
         return true
     }
@@ -64,10 +55,8 @@ final class UploadRequest: Request {
     override func retry() -> Bool {
         // 1. Request hasn't started yet, because `completion` is nil
         guard let completion = completion else {
-            Logging.log(type: .fault, category: .request, "\(self) - Couldn't retry request: request hasn't started yet")
             return false
         }
-        Logging.log(type: .debug, category: .request, "\(self) - Retrying")
         response(completion: completion)
         return true
     }

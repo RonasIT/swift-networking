@@ -68,7 +68,7 @@ open class NetworkService {
         return request
     }
 
-    // MARK: - Requests with custom response serializer
+    // MARK: -  Requests with custom response serializer
 
     public func request<Response>(for endpoint: Endpoint,
                                   responseSerializer: AnyResponseSerializer<Response>,
@@ -94,7 +94,7 @@ open class NetworkService {
         )
     }
 
-    // MARK: - Data
+    // MARK: -  Data
 
     @discardableResult
     public func request(for endpoint: Endpoint,
@@ -140,7 +140,7 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - String
+    // MARK: -  String
 
     @discardableResult
     public final func request(for endpoint: Endpoint,
@@ -190,7 +190,7 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - Decodable
+    // MARK: -  Decodable
 
     @discardableResult
     public final func request<Result>(for endpoint: Endpoint,
@@ -240,7 +240,7 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - JSON
+    // MARK: -  JSON
 
     @discardableResult
     public final func request(for endpoint: Endpoint,
@@ -290,7 +290,7 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - Empty
+    // MARK: -  Empty
 
     @discardableResult
     public final func request(for endpoint: Endpoint,
@@ -330,12 +330,12 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - Private
+    // MARK: -  Private
 
-    private func handleError<Result>(_ error: Swift.Error,
-                                     response: AFDataResponse<Result>,
-                                     request: RetryableRequest,
-                                     failure: @escaping Failure) {
+    private func handleError(_ error: Swift.Error,
+                             response: AFDataResponse<Data>,
+                             request: RetryableRequest,
+                             failure: @escaping Failure) {
         guard let errorHandlingService = errorHandlingService else {
             failure(error)
             return

@@ -4,9 +4,9 @@
 //
 
 public protocol ErrorHandlingServiceProtocol {
-    func handleError<T>(_ requestError: RequestError<T>,
-                        retrying: @escaping () -> Void,
-                        failure: @escaping Failure)
+    func handleError(_ requestError: RequestError,
+                     retrying: @escaping () -> Void,
+                     failure: @escaping Failure)
 }
 
 open class ErrorHandlingService: ErrorHandlingServiceProtocol {
@@ -17,19 +17,13 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
         self.errorHandlers = errorHandlers
     }
 
-    public final func handleError<T>(_ requestError: RequestError<T>,
-                                     retrying: @escaping () -> Void,
-                                     failure: @escaping Failure) {
+    public final func handleError(_ requestError: RequestError,
+                                  retrying: @escaping () -> Void,
+                                  failure: @escaping Failure) {
         guard let errorHandler = errorHandlers.first else {
             failure(requestError.error)
             return
         }
-
-        Logging.log(
-            type: .debug,
-            category: .errorHandling,
-            "\(requestError) - Starting error handling chain, found \(errorHandlers.count) error handlers"
-        )
 
         handleErrorRecursive(
             requestError,
@@ -39,12 +33,12 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
         )
     }
 
-    // MARK: - Private
+    // MARK: -  Private
 
-    private func handleErrorRecursive<T>(_ requestError: RequestError<T>,
-                                         errorHandler: ErrorHandler,
-                                         retrying: @escaping () -> Void,
-                                         failure: @escaping Failure) {
+    private func handleErrorRecursive(_ requestError: RequestError,
+                                      errorHandler: ErrorHandler,
+                                      retrying: @escaping () -> Void,
+                                      failure: @escaping Failure) {
         var nextErrorHandler: ErrorHandler?
         if errorHandler !== errorHandlers.last {
             let errorHandlerIndexOrNil = errorHandlers.firstIndex { $0 === errorHandler }
@@ -53,23 +47,10 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
             }
         }
 
-        Logging.log(
-            type: .debug,
-            category: .errorHandling,
-            "\(requestError) - Starting error handling in \(errorHandler)"
-        )
-
         errorHandler.handleError(requestError) { [weak self] result in
             guard let self = self else {
                 return
             }
-
-            Logging.log(
-                type: .debug,
-                category: .errorHandling,
-                "\(requestError) - Finished error handling in \(errorHandler) with result: \(result)"
-            )
-
             switch result {
             case .retryNeeded:
                 retrying()
@@ -77,11 +58,6 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
                 failure(error)
             case .continueErrorHandling(with: let error):
                 guard let nextErrorHandler = nextErrorHandler else {
-                    Logging.log(
-                        type: .debug,
-                        category: .errorHandling,
-                        "\(requestError) - Finished error handling"
-                    )
                     failure(error)
                     return
                 }

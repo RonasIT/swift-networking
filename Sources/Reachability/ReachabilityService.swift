@@ -37,7 +37,7 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
     }
 
     public func startMonitoring() {
-        networkListener.startListening(on: .main) { [weak self] reachabilityStatus in
+        networkListener.startListening(onQueue: .main) { [weak self] reachabilityStatus in
             self?.notifySubscribers(with: reachabilityStatus)
         }
     }
@@ -46,7 +46,7 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
         networkListener.stopListening()
     }
 
-    // MARK: - Private
+    // MARK: -  Private
 
     private func notifySubscribers(with reachabilityStatus: NetworkReachabilityStatus) {
         let isReachable = reachabilityStatus.isReachable
@@ -56,12 +56,7 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
     }
 }
 
-extension NetworkReachabilityManager: NetworkListener {
-
-    func startListening(on queue: DispatchQueue = .main, with listener: @escaping Listener) -> Bool {
-        startListening(onQueue: queue, onUpdatePerforming: listener)
-    }
-}
+extension NetworkReachabilityManager: NetworkListener {}
 
 private extension NetworkReachabilityStatus {
 

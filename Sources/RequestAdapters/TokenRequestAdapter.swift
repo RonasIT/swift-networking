@@ -17,14 +17,7 @@ public final class TokenRequestAdapter: RequestAdapter {
         }
 
         if let accessToken = accessTokenSupervisor.accessToken {
-            Logging.log(type: .debug, category: .requestAdapting, "\(request) - Attaching access token: `\(accessToken)`")
             request.appendHeader(RequestHeaders.authorization(accessToken))
-        } else {
-            Logging.log(
-                type: .fault,
-                category: .requestAdapting,
-                "\(request) - Attempt to attach access token, but access token is not exists"
-            )
         }
     }
 }

@@ -58,7 +58,7 @@ struct MockEndpoint: UploadEndpoint {
         return errorForURLErrorCode
     }
 
-    func error(forStatusCode statusCode: Int) -> Error? {
+    func error(for statusCode: StatusCode) -> Error? {
         return errorForStatusCode
     }
 }

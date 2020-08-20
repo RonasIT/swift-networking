@@ -5,7 +5,7 @@
 
 import Alamofire
 
-public protocol Endpoint: EndpointError {
+public protocol Endpoint: FailableEndpoint {
     var baseURL: URL { get }
     var path: String { get }
     var method: HTTPMethod { get }
@@ -26,7 +26,7 @@ public extension Endpoint {
         return baseURL + path
     }
 
-    func error(forStatusCode statusCode: Int) -> Error? {
+    func error(for statusCode: StatusCode) -> Error? {
         return nil
     }
 
