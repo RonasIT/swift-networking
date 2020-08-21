@@ -83,7 +83,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         // For example, on login request (auth is not required) server can respond
         // with 401 status code, when sent password is not valid.
         // We shouldn't trigger token refreshing for this case.
-        return payload.endpoint.requiresAuthorization &&
+        return payload.endpoint.authorizationType != .none &&
                payload.statusCode == StatusCode.unauthorised401
     }
 

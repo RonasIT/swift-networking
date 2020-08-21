@@ -4,8 +4,6 @@
 //
 
 protocol ResponseType {
-
     associatedtype Result
-
     var result: Result { get }
 }

@@ -100,14 +100,14 @@ final class RequestTests: XCTestCase {
     }
 
     func testRequestRetryingResult() {
-        let request = Request(sessionManager: .default, endpoint: FailureEndpoint.failure)
+        let request = Request(session: .default, endpoint: FailureEndpoint.failure)
         XCTAssertFalse(request.retry(), "Retrying is not allowed, since request hasn't started yet")
         request.response { _, _ in }
         XCTAssertTrue(request.retry(), "Retrying is allowed now")
     }
 
     func testUploadRequestRetryingResult() {
-        let request = UploadRequest(sessionManager: .default, endpoint: FailureEndpoint.uploadFailure)
+        let request = UploadRequest(session: .default, endpoint: FailureEndpoint.uploadFailure)
         XCTAssertFalse(request.retry(), "Retrying is not allowed, since request hasn't started yet")
         request.response { _, _ in }
         XCTAssertTrue(request.retry(), "Retrying is allowed now")
@@ -242,8 +242,8 @@ final class RequestTests: XCTestCase {
         if isTestingUploadRequest {
             service.uploadRequest(
                 for: endpoint,
-                success: { (response: EmptyResponse) in
-                    XCTAssertEqual(response.httpResponse.statusCode, MockRequest.Constants.successStatusCode)
+                success: { (response: Response<Data>) in
+                    XCTAssertEqual(response.httpResponse.statusCode, MockRequest.Constants.successStatusCode.rawValue)
                     expectation.fulfill()
                 },
                 failure: { _ in XCTFail("Invalid case") }
@@ -251,8 +251,8 @@ final class RequestTests: XCTestCase {
         } else {
             service.request(
                 for: endpoint,
-                success: { (response: EmptyResponse) in
-                    XCTAssertEqual(response.httpResponse.statusCode, MockRequest.Constants.successStatusCode)
+                success: { (response: Response<Data>) in
+                    XCTAssertEqual(response.httpResponse.statusCode, MockRequest.Constants.successStatusCode.rawValue)
                     expectation.fulfill()
                 },
                 failure: { _ in XCTFail("Invalid case") }

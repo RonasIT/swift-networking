@@ -11,7 +11,7 @@ import XCTest
 final class MockRequest: Networking.Request {
 
     enum Constants {
-        static let successStatusCode: Int = 200
+        static let successStatusCode: StatusCode = .ok200
     }
 
     private let mockEndpoint: MockEndpoint
@@ -20,7 +20,7 @@ final class MockRequest: Networking.Request {
 
     init(endpoint: MockEndpoint) {
         self.mockEndpoint = endpoint
-        super.init(sessionManager: .default, endpoint: endpoint)
+        super.init(session: .default, endpoint: endpoint)
     }
 
     override func response(completion: @escaping Completion) {
@@ -29,11 +29,11 @@ final class MockRequest: Networking.Request {
         let requestStartTime = CFAbsoluteTimeGetCurrent()
         DispatchQueue.main.asyncAfter(deadline: .now() + mockEndpoint.responseDelay) {
             let requestEndTime = CFAbsoluteTimeGetCurrent()
-            guard self.hasValidAuth() else {
+            guard self.hasValidAuthorizationHeader() else {
                 let response = self.makeResponse(
                     requestStartTime: requestStartTime,
-                    requestCompletedTime: requestEndTime,
-                    statusCode: 401,
+                    requestEndTime: requestEndTime,
+                    statusCode: .unauthorised401,
                     error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401))
                 )
                 completion(self, response)
@@ -43,8 +43,8 @@ final class MockRequest: Networking.Request {
             guard self.hasValidHeaders() else {
                 let response = self.makeResponse(
                     requestStartTime: requestStartTime,
-                    requestCompletedTime: requestEndTime,
-                    statusCode: 400,
+                    requestEndTime: requestEndTime,
+                    statusCode: .badRequest400,
                     error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
                 )
                 completion(self, response)
@@ -53,7 +53,7 @@ final class MockRequest: Networking.Request {
 
             let response = self.makeResponse(
                 requestStartTime: requestStartTime,
-                requestCompletedTime: requestEndTime,
+                requestEndTime: requestEndTime,
                 statusCode: Constants.successStatusCode
             )
             completion(self, response)
@@ -75,7 +75,7 @@ final class MockRequest: Networking.Request {
 
     // MARK: - Private
 
-    private func hasValidAuth() -> Bool {
+    private func hasValidAuthorizationHeader() -> Bool {
         let endpoint = mockEndpoint
         if let token = endpoint.expectedAccessToken {
             return headers.contains { $0.key == "Authorization" && $0.value == "Bearer \(token)" }
@@ -96,16 +96,16 @@ final class MockRequest: Networking.Request {
     }
 
     private func makeResponse(requestStartTime: CFAbsoluteTime,
-                              requestCompletedTime: CFAbsoluteTime,
-                              statusCode: Int? = nil,
-                              error: Error? = nil) -> Response {
-        var result: Alamofire.Result<Data>
+                              requestEndTime: CFAbsoluteTime,
+                              statusCode: StatusCode? = nil,
+                              error: Error? = nil) -> Alamofire.DataResponse<Data, AnyError> {
+        var result: Result<Data, AnyError>
         if let error = error {
-            result = .failure(error)
+            result = .failure(AnyError(error))
         } else {
             switch mockEndpoint.result {
             case .failure(let error):
-                result = .failure(error)
+                result = .failure(AnyError(error))
             case .success(let data):
                 result = .success(data)
             }
@@ -115,22 +115,17 @@ final class MockRequest: Networking.Request {
         if let statusCode = statusCode {
             response = HTTPURLResponse(
                 url: endpoint.url,
-                statusCode: statusCode,
+                statusCode: statusCode.rawValue,
                 httpVersion: nil,
                 headerFields: nil
             )
         }
 
-        let timeline = Timeline(
-            requestStartTime: requestStartTime,
-            requestCompletedTime: requestCompletedTime
+        let taskInterval = DateInterval(
+            start: Date(timeIntervalSinceReferenceDate: requestStartTime),
+            end: Date(timeIntervalSinceReferenceDate: requestEndTime)
         )
-        return Response(
-            request: nil,
-            response: response,
-            data: nil,
-            result: result,
-            timeline: timeline
-        )
+        let metrics = MockURLSessionTaskMetrics(taskInterval: taskInterval)
+        return DataResponse(request: nil, response: response, data: nil, metrics: metrics, serializationDuration: 0, result: result)
     }
 }

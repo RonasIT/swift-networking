@@ -57,7 +57,7 @@ final class TokenRefreshingTests: XCTestCase {
         }
 
         var endpoint = MockEndpoint()
-        endpoint.requiresAuthorization = true
+        endpoint.authorizationType = .bearer
         endpoint.expectedAccessToken = MockSessionService.Constants.validAccessToken
 
         let array = [Int](0..<successResponseExpectation.expectedFulfillmentCount)
@@ -98,7 +98,7 @@ final class TokenRefreshingTests: XCTestCase {
         }
 
         var endpoint = MockEndpoint()
-        endpoint.requiresAuthorization = true
+        endpoint.authorizationType = .bearer
         endpoint.expectedAccessToken = MockSessionService.Constants.validAccessToken
         let array = [Int](0..<failureResponseExpectation.expectedFulfillmentCount)
         let requests = array.map { _ -> CancellableRequest in
@@ -122,14 +122,21 @@ final class TokenRefreshingTests: XCTestCase {
     func testUnauthorizedErrorHandlerWithUnsupportedError() {
         let errorHandler = UnauthorizedErrorHandler(accessTokenSupervisor: sessionService)
         let unsupportedError = MockError()
-        let response: Alamofire.DataResponse<Any> = .init(request: nil, response: nil, data: nil, result: .failure(unsupportedError))
+        let response: AFDataResponse<Data> = .init(
+            request: nil,
+            response: nil,
+            data: nil,
+            metrics: nil,
+            serializationDuration: 0,
+            result: .failure(unsupportedError as! AFError) // swiftlint:disable:this force_cast
+        )
         var endpoint = MockEndpoint(result: unsupportedError)
-        endpoint.requiresAuthorization = true
-        let requestError = ErrorPayload(endpoint: endpoint, error: unsupportedError, response: response)
+        endpoint.authorizationType = .bearer
+        let errorPayload = ErrorPayload(endpoint: endpoint, error: unsupportedError, response: response)
 
         let expectation = self.expectation(description: "Expecting continue error handling result")
         expectation.assertForOverFulfill = true
-        errorHandler.handleError(requestError) { result in
+        errorHandler.handleError(with: errorPayload) { result in
             switch result {
             case .continueErrorHandling(with: let error as MockError) where error === unsupportedError:
                 expectation.fulfill()
@@ -152,22 +159,24 @@ final class TokenRefreshingTests: XCTestCase {
             headerFields: nil
         )
         let error = MockError()
-        let response: Alamofire.DataResponse<Any> = .init(
+        let response: AFDataResponse<Data> = .init(
             request: nil,
             response: urlResponse,
             data: nil,
-            result: .failure(error)
+            metrics: nil,
+            serializationDuration: 0,
+            result: .failure(error as! AFError) // swiftlint:disable:this force_cast
         )
 
         var endpoint = MockEndpoint(result: error)
-        endpoint.requiresAuthorization = false
+        endpoint.authorizationType = .bearer
 
-        let requestError = ErrorPayload(endpoint: endpoint, error: error, response: response)
+        let errorPayload = ErrorPayload(endpoint: endpoint, error: error, response: response)
         let errorHandler = UnauthorizedErrorHandler(accessTokenSupervisor: sessionService)
         sessionService.tokenRefreshHandler = { _, _ in
             XCTFail("Token refreshing shouldn't be triggered")
         }
-        errorHandler.handleError(requestError) { result in
+        errorHandler.handleError(with: errorPayload) { result in
             switch result {
             case .continueErrorHandling(with: let error as MockError) where error === error:
                 expectation.fulfill()
@@ -181,16 +190,16 @@ final class TokenRefreshingTests: XCTestCase {
 
     func testTokenRequestAdapter() {
         func makeRequest(for endpoint: Endpoint) -> Request {
-            return Request(sessionManager: .default, endpoint: endpoint)
+            return Request(session: .default, endpoint: endpoint)
         }
 
         func authorizationHeaderNotExists(in request: AdaptiveRequest) -> Bool {
-            let key = RequestHeaders.authorization("").key
+            let key = RequestHeaders.authorization(.bearer, "").key
             return !request.headers.contains { $0.key == key }
         }
 
         func authorizationTokenExists(in request: AdaptiveRequest, token: String) -> Bool {
-            let expectedHeader = RequestHeaders.authorization(token)
+            let expectedHeader = RequestHeaders.authorization(.bearer, token)
             return request.headers.contains { header in
                 return header.key == expectedHeader.key && header.value == expectedHeader.value
             }
@@ -202,14 +211,14 @@ final class TokenRefreshingTests: XCTestCase {
 
         sessionService.updateToken(to: nil)
         var endpoint = MockEndpoint()
-        endpoint.requiresAuthorization = false
+        endpoint.authorizationType = .bearer
         let unauthorizedRequest = makeRequest(for: endpoint)
         requestAdaptingService.adapt(unauthorizedRequest)
         XCTAssertTrue(authorizationHeaderNotExists(in: unauthorizedRequest))
 
         let token = "accessToken"
         sessionService.updateToken(to: token)
-        endpoint.requiresAuthorization = true
+        endpoint.authorizationType = .bearer
         let authorizedRequest = makeRequest(for: endpoint)
         requestAdaptingService.adapt(authorizedRequest)
         XCTAssertTrue(authorizationTokenExists(in: authorizedRequest, token: token))

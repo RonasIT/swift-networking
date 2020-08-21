@@ -313,9 +313,9 @@ open class NetworkService {
     }
 
     @discardableResult
-    public final func uploadRequest(for endpoint: UploadEndpoint,
-                                    success: @escaping (EmptyResponse) -> Void,
-                                    failure: @escaping Failure) -> CancellableRequest {
+    public func uploadRequest(for endpoint: UploadEndpoint,
+                              success: @escaping (EmptyResponse) -> Void,
+                              failure: @escaping Failure) -> CancellableRequest {
         return uploadRequest(for: endpoint, success: { (response: DataResponse) in
             success(response.empty)
         }, failure: failure)

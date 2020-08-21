@@ -45,8 +45,8 @@ enum FailureEndpoint: UploadEndpoint {
         return URLEncoding.default
     }
 
-    var requiresAuthorization: Bool {
-        return false
+    var authorizationType: AuthorizationType {
+        return .none
     }
 
     var imageBodyParts: [ImageBodyPart] {

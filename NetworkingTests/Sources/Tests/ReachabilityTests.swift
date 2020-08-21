@@ -59,7 +59,8 @@ final class ReachabilityTests: XCTestCase {
 
     func testReachabilityServiceWithDefaultNetworkListener() {
         let reachabilityManager = NetworkReachabilityManager()!
-        reachabilityManager.startListening()
+        let listener: NetworkReachabilityManager.Listener = { status in }
+        reachabilityManager.startListening(onUpdatePerforming: listener)
 
         // Will be initialized with real network listener
         let reachabilityService = ReachabilityService()

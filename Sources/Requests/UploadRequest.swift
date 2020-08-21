@@ -6,7 +6,6 @@
 import Alamofire
 
 final class UploadRequest: Request {
-
     private let imageBodyParts: [ImageBodyPart]
 
     private var completion: Completion?
@@ -20,7 +19,7 @@ final class UploadRequest: Request {
     override func response(completion: @escaping Completion) {
         self.completion = completion
         sentRequest = nil
-        let multipartFormDataHandler = { (multipartFormData: MultipartFormData) in
+        let multipartFormDataComposer = { (multipartFormData: MultipartFormData) in
             // Warning: this handler uses concurrent background queue
             multipartFormData.appendImageBodyParts(self.imageBodyParts)
             if let parameters = self.endpoint.parameters {
@@ -30,7 +29,7 @@ final class UploadRequest: Request {
 
         let threshold = MultipartFormData.encodingMemoryThreshold
         sentRequest = session.upload(
-            multipartFormData: multipartFormDataHandler,
+            multipartFormData: multipartFormDataComposer,
             to: endpoint.url,
             usingThreshold: threshold,
             method: .post,

@@ -18,7 +18,7 @@ final class MockNetworkListener: NetworkListener {
     }
 
     @discardableResult
-    func startListening() -> Bool {
+    func startListening(onQueue queue: DispatchQueue, onUpdatePerforming listener: @escaping Listener) -> Bool {
         return true
     }
 

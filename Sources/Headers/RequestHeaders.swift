@@ -6,8 +6,7 @@
 import UIKit.UIDevice
 
 public enum RequestHeaders: RequestHeader {
-
-    case authorization(String)
+    case authorization(AuthorizationType, String)
     case contentType(String)
     case accept(String)
     case userAgent(osVersion: String, appVersion: String)
@@ -33,8 +32,8 @@ public enum RequestHeaders: RequestHeader {
 
     public var value: String {
         switch self {
-        case let .authorization(token):
-            return "Bearer \(token)"
+        case let .authorization(type, token):
+            return "\(type.rawValue) \(token)"
         case let .contentType(type):
             return type
         case let .accept(value):

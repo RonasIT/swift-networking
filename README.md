@@ -195,8 +195,8 @@ enum ProfileEndpoint: UploadEndpoint {
         }
     }
 
-    var requiresAuthorization: Bool {
-        return true
+    var authorizationType: Bool {
+        return .bearer
     }
 }
 ```
@@ -204,7 +204,7 @@ enum ProfileEndpoint: UploadEndpoint {
 Notes:
 - By default you should use `Endpoint` protocol. But if you need to use upload requests like in example above, use `UploadEndpoint`, 
 which has additional `imageBodyParts` property.  
-- Each endpoint provides `requiresAuthorization` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
+- Each endpoint provides `authorizationType` property. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
 access token will be attached only for requests with authorized endpoints.  
 - You can also provide custom errors for endpoints using `GeneralErrorHandler`, see [error handling](#error-handling) for more.
 
@@ -366,7 +366,7 @@ Just implement `func error(for statusCode: StatusCode) -> Error?` or `func error
 If these methods return `nil`, error will be provided by `GeneralErrorHandler`.
 ```swift
 enum ProfileEndpoint: Endpoint {
-    case profile(profileID: String)
+    case fetchProfile(Profile.ID)
     case uploadImage(imageData: Data)
     
     func error(for statusCode: StatusCode) -> Error? {
@@ -397,8 +397,6 @@ enum ProfileEndpoint: Endpoint {
 
 
 ### Automatic token refreshing and request retrying
-
-⚠️ Supports only OAuth 2.0 Bearer Token ⚠️
 
 `Networking` can automatically refresh access tokens and retry failed requests.
 

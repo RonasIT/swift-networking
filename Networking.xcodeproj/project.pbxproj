@@ -45,6 +45,10 @@
 		1B5CDFC9BB48EC0AB93530F3 /* MockErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD9495D92F0A0147E99F2 /* MockErrorHandler.swift */; };
 		1B5CDFF31A0B8E498FAABB23 /* ResponseSerializationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD3AE31475F6BBDB0EDE1 /* ResponseSerializationTests.swift */; };
 		6D3EF7BD2167710E00251869 /* Networking.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D3EF7B9216770FF00251869 /* Networking.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6D9BB59124EFDED90099C8B7 /* AuthorizationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59024EFDED90099C8B7 /* AuthorizationType.swift */; };
+		6D9BB59324F009020099C8B7 /* HTTPHeaders+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59224F009020099C8B7 /* HTTPHeaders+Equatable.swift */; };
+		6D9BB59624F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59524F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift */; };
+		6D9BB59924F016C60099C8B7 /* AnyError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59724F016990099C8B7 /* AnyError.swift */; };
 		6D9F10AC216BB35700CDB8EE /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D9F10AB216BB35700CDB8EE /* Alamofire.framework */; };
 		6D9F10CE216BBBF200CDB8EE /* UploadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10B1216BBBF200CDB8EE /* UploadEndpoint.swift */; };
 		6D9F10CF216BBBF200CDB8EE /* ImageBodyPart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10B2216BBBF200CDB8EE /* ImageBodyPart.swift */; };
@@ -128,6 +132,10 @@
 		6D3EF77D21675CFA00251869 /* Networking.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Networking.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D3EF7B9216770FF00251869 /* Networking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Networking.h; sourceTree = "<group>"; };
 		6D3EF7BA216770FF00251869 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6D9BB59024EFDED90099C8B7 /* AuthorizationType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationType.swift; sourceTree = "<group>"; };
+		6D9BB59224F009020099C8B7 /* HTTPHeaders+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTTPHeaders+Equatable.swift"; sourceTree = "<group>"; };
+		6D9BB59524F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLSessionTaskMetrics.swift; sourceTree = "<group>"; };
+		6D9BB59724F016990099C8B7 /* AnyError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyError.swift; sourceTree = "<group>"; };
 		6D9F10AB216BB35700CDB8EE /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
 		6D9F10B1216BBBF200CDB8EE /* UploadEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadEndpoint.swift; sourceTree = "<group>"; };
 		6D9F10B2216BBBF200CDB8EE /* ImageBodyPart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageBodyPart.swift; sourceTree = "<group>"; };
@@ -180,6 +188,7 @@
 		1B5CD0A2B7193818CF6F25C1 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				6D9BB59024EFDED90099C8B7 /* AuthorizationType.swift */,
 				6DBA79C924EE7320006DA280 /* StatusCode.swift */,
 			);
 			path = Common;
@@ -197,6 +206,7 @@
 		1B5CD31BE83EDCE37719D189 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				6D9BB59424F016090099C8B7 /* Common */,
 				1B5CD749CC4D5282092BB6D0 /* RequestAdapters */,
 				1B5CD2741C3AA2590B9F03F5 /* Services */,
 				1B5CD87CEA79F5C0D941F516 /* ErrorHandlers */,
@@ -225,6 +235,7 @@
 			children = (
 				1B5CDBB20F1E02A8C0F306CB /* GeneralRequestError.swift */,
 				6DBA79D524EEC5A7006DA280 /* ErrorPayload.swift */,
+				6D9BB59724F016990099C8B7 /* AnyError.swift */,
 			);
 			path = Errors;
 			sourceTree = "<group>";
@@ -360,6 +371,14 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
+		6D9BB59424F016090099C8B7 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				6D9BB59524F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
 		6D9F10AA216BB35600CDB8EE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -399,6 +418,7 @@
 				93AEDD4923EB3103002CC323 /* URLResponse+TextEncoding.swift */,
 				93AEDD5123EB4B89002CC323 /* ResponseSerializer+TypeErasing.swift */,
 				93AEDD5323EB4BA9002CC323 /* Response+Empty.swift */,
+				6D9BB59224F009020099C8B7 /* HTTPHeaders+Equatable.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -611,6 +631,7 @@
 				6D9F10DB216BBBF200CDB8EE /* URL+Math.swift in Sources */,
 				6D9F10CF216BBBF200CDB8EE /* ImageBodyPart.swift in Sources */,
 				93AEDD4D23EB36F1002CC323 /* ResponseType.swift in Sources */,
+				6D9BB59924F016C60099C8B7 /* AnyError.swift in Sources */,
 				6D9F10D0216BBBF200CDB8EE /* Endpoint.swift in Sources */,
 				6D9F10CE216BBBF200CDB8EE /* UploadEndpoint.swift in Sources */,
 				6D9F10DC216BBBF200CDB8EE /* DecodingError+Description.swift in Sources */,
@@ -624,6 +645,7 @@
 				1B5CD5B64BE6908D33F0D472 /* ErrorHandlingResult.swift in Sources */,
 				93AEDD5023EB3EBC002CC323 /* AnyResponseSerializer.swift in Sources */,
 				1B5CDA6F916DA3750E5DCE5F /* UploadRequest.swift in Sources */,
+				6D9BB59324F009020099C8B7 /* HTTPHeaders+Equatable.swift in Sources */,
 				1B5CD878DC2EB52D3EC446F7 /* NetworkService.swift in Sources */,
 				1B5CD9CA9E1E45D5418619DA /* ErrorHandlingService.swift in Sources */,
 				1B5CD672AB737A8905584921 /* RequestAdaptingService.swift in Sources */,
@@ -637,6 +659,7 @@
 				93AEDD5223EB4B89002CC323 /* ResponseSerializer+TypeErasing.swift in Sources */,
 				1B5CD38DDB73D25FF6435656 /* ReachabilitySubscription.swift in Sources */,
 				1B5CDCD41466AEC70F9EDC01 /* MultipartFormData+Append.swift in Sources */,
+				6D9BB59124EFDED90099C8B7 /* AuthorizationType.swift in Sources */,
 				1B5CDB94DA7123C57DB1571E /* Request.swift in Sources */,
 				93AEDD4A23EB3103002CC323 /* URLResponse+TextEncoding.swift in Sources */,
 				1B5CD4272D027B675FA672A2 /* RequestProtocols.swift in Sources */,
@@ -659,6 +682,7 @@
 				1B5CD6D7EBC12C1802EADC57 /* MockSessionService.swift in Sources */,
 				1B5CDFC9BB48EC0AB93530F3 /* MockErrorHandler.swift in Sources */,
 				1B5CD933A4A540AD51AA4A29 /* MockNetworkService.swift in Sources */,
+				6D9BB59624F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift in Sources */,
 				1B5CDA757256C8D993C935C4 /* MockRequest.swift in Sources */,
 				1B5CDCD6DFD96754D9779A25 /* FailureEndpoint.swift in Sources */,
 				938796F921FCCA26007D655F /* MultipartFormDataTests.swift in Sources */,

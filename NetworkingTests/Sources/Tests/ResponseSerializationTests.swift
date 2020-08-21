@@ -10,7 +10,6 @@ import XCTest
 final class ResponseSerializationTests: XCTestCase {
 
     func testStringResponseSerialization() {
-
         @discardableResult
         func serialize(_ data: Data, encoding: String.Encoding) throws -> String {
             let response = DataResponse(result: data, httpResponse: HTTPURLResponse())
@@ -56,7 +55,7 @@ final class ResponseSerializationTests: XCTestCase {
         let validJSONData = "{ \"name\": \"Test\", \"email\": \"mail@mail.com\" }".data(using: .utf8)!
         let validResponse = DataResponse(result: validJSONData, httpResponse: HTTPURLResponse())
 
-        let serializer: DecodableResponseSerializer<User> = DecodableResponseSerializer()
+        let serializer: Networking.DecodableResponseSerializer<User> = DecodableResponseSerializer()
         XCTAssertThrowsError(try serializer.serialize(invalidResponse))
         XCTAssertNoThrow(try serializer.serialize(validResponse))
     }

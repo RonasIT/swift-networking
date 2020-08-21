@@ -12,7 +12,7 @@ public protocol Endpoint: FailableEndpoint {
     var headers: [RequestHeader] { get }
     var parameters: Parameters? { get }
     var parameterEncoding: ParameterEncoding { get }
-    var requiresAuthorization: Bool { get }
+    var authorizationType: AuthorizationType { get }
 }
 
 public protocol RequestHeader {

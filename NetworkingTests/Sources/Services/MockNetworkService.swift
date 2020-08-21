@@ -37,5 +37,19 @@ final class MockNetworkService: NetworkService {
         return send(request, responseSerializer: responseSerializer, success: success, failure: failure)
     }
 
+    override func uploadRequest(for endpoint: UploadEndpoint,
+                                success: @escaping (Response<Void>) -> Void,
+                                failure: @escaping Failure) -> CancellableRequest {
+        guard let endpoint = endpoint as? MockEndpoint else {
+            XCTFail("Mock endpoint required")
+            fatalError()
+        }
+        let request = MockRequest(endpoint: endpoint)
+        let responseSerializer = AnyResponseSerializer { $0 }
+        return send(request, responseSerializer: responseSerializer, success: {_ in
+            success(Response(result: (), httpResponse: HTTPURLResponse()))
+        }, failure: failure)
+    }
+
     // swiftlint:enable fatal_error_message
 }

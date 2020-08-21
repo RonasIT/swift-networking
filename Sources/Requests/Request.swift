@@ -10,7 +10,6 @@ class Request: BasicRequest, Cancellable, Retryable {
     typealias Completion = (RetryableRequest, Response) -> Void
 
     public final let endpoint: Endpoint
-
     final let session: Alamofire.Session
 
     private(set) final var headers: [RequestHeader]

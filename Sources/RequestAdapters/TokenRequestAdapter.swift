@@ -4,7 +4,6 @@
 //
 
 public final class TokenRequestAdapter: RequestAdapter {
-
     private let accessTokenSupervisor: AccessTokenSupervisor
 
     public init(accessTokenSupervisor: AccessTokenSupervisor) {
@@ -12,12 +11,11 @@ public final class TokenRequestAdapter: RequestAdapter {
     }
 
     public func adapt(_ request: AdaptiveRequest) {
-        guard request.endpoint.requiresAuthorization else {
+        if request.endpoint.authorizationType == .none {
             return
         }
-
         if let accessToken = accessTokenSupervisor.accessToken {
-            request.appendHeader(RequestHeaders.authorization(accessToken))
+            request.appendHeader(RequestHeaders.authorization(request.endpoint.authorizationType, accessToken))
         }
     }
 }
