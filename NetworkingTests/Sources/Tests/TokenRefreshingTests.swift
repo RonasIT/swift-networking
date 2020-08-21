@@ -125,7 +125,7 @@ final class TokenRefreshingTests: XCTestCase {
         let response: Alamofire.DataResponse<Any> = .init(request: nil, response: nil, data: nil, result: .failure(unsupportedError))
         var endpoint = MockEndpoint(result: unsupportedError)
         endpoint.requiresAuthorization = true
-        let requestError = RequestError(endpoint: endpoint, error: unsupportedError, response: response)
+        let requestError = ErrorPayload(endpoint: endpoint, error: unsupportedError, response: response)
 
         let expectation = self.expectation(description: "Expecting continue error handling result")
         expectation.assertForOverFulfill = true
@@ -162,7 +162,7 @@ final class TokenRefreshingTests: XCTestCase {
         var endpoint = MockEndpoint(result: error)
         endpoint.requiresAuthorization = false
 
-        let requestError = RequestError(endpoint: endpoint, error: error, response: response)
+        let requestError = ErrorPayload(endpoint: endpoint, error: error, response: response)
         let errorHandler = UnauthorizedErrorHandler(accessTokenSupervisor: sessionService)
         sessionService.tokenRefreshHandler = { _, _ in
             XCTFail("Token refreshing shouldn't be triggered")

@@ -56,7 +56,7 @@
 		6D9F10E4216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */; };
 		6DBA79CA24EE7320006DA280 /* StatusCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBA79C924EE7320006DA280 /* StatusCode.swift */; };
 		6DBA79D424EEC487006DA280 /* FailableEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBA79D324EEC487006DA280 /* FailableEndpoint.swift */; };
-		6DBA79D624EEC5A7006DA280 /* RequestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBA79D524EEC5A7006DA280 /* RequestError.swift */; };
+		6DBA79D624EEC5A7006DA280 /* ErrorPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBA79D524EEC5A7006DA280 /* ErrorPayload.swift */; };
 		9330EC6323E5C05C007601FE /* .swiftlint.auto.yml in Resources */ = {isa = PBXBuildFile; fileRef = 9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */; };
 		934CEE2821F206EF009C024A /* Networking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D3EF77D21675CFA00251869 /* Networking.framework */; };
 		9360C25B234DF18B00DDEB26 /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = 9360C25A234DF18B00DDEB26 /* Cartfile */; };
@@ -139,7 +139,7 @@
 		6D9F10CD216BBBF200CDB8EE /* ReachabilityServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityServiceProtocol.swift; sourceTree = "<group>"; };
 		6DBA79C924EE7320006DA280 /* StatusCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusCode.swift; sourceTree = "<group>"; };
 		6DBA79D324EEC487006DA280 /* FailableEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailableEndpoint.swift; sourceTree = "<group>"; };
-		6DBA79D524EEC5A7006DA280 /* RequestError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestError.swift; sourceTree = "<group>"; };
+		6DBA79D524EEC5A7006DA280 /* ErrorPayload.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorPayload.swift; sourceTree = "<group>"; };
 		9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.auto.yml; sourceTree = SOURCE_ROOT; };
 		934CEE2321F206EF009C024A /* NetworkingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		934CEE2721F206EF009C024A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
@@ -224,7 +224,7 @@
 			isa = PBXGroup;
 			children = (
 				1B5CDBB20F1E02A8C0F306CB /* GeneralRequestError.swift */,
-				6DBA79D524EEC5A7006DA280 /* RequestError.swift */,
+				6DBA79D524EEC5A7006DA280 /* ErrorPayload.swift */,
 			);
 			path = Errors;
 			sourceTree = "<group>";
@@ -643,7 +643,7 @@
 				1B5CD14F41A31E691E42B339 /* ResponseSerializer.swift in Sources */,
 				936EF63823048B50001C32F0 /* RequestHeaders.swift in Sources */,
 				1B5CD1D665F6679DFD2022FA /* JSONResponseSerializer.swift in Sources */,
-				6DBA79D624EEC5A7006DA280 /* RequestError.swift in Sources */,
+				6DBA79D624EEC5A7006DA280 /* ErrorPayload.swift in Sources */,
 				1B5CD3589F7E2DA902F83F49 /* DecodableResponseSerializer.swift in Sources */,
 				6DBA79D424EEC487006DA280 /* FailableEndpoint.swift in Sources */,
 				1B5CD39FDE7325901FC6FF64 /* NetworkListener.swift in Sources */,

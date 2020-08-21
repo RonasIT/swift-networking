@@ -4,7 +4,7 @@
 //
 
 public protocol ErrorHandlingServiceProtocol {
-    func handleError(_ requestError: RequestError,
+    func handleError(with payload: ErrorPayload,
                      retrying: @escaping () -> Void,
                      failure: @escaping Failure)
 }
@@ -17,16 +17,15 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
         self.errorHandlers = errorHandlers
     }
 
-    public final func handleError(_ requestError: RequestError,
+    public final func handleError(with payload: ErrorPayload,
                                   retrying: @escaping () -> Void,
                                   failure: @escaping Failure) {
         guard let errorHandler = errorHandlers.first else {
-            failure(requestError.error)
+            failure(payload.error)
             return
         }
-
         handleErrorRecursive(
-            requestError,
+            with: payload,
             errorHandler: errorHandler,
             retrying: retrying,
             failure: failure
@@ -35,7 +34,7 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
 
     // MARK: -  Private
 
-    private func handleErrorRecursive(_ requestError: RequestError,
+    private func handleErrorRecursive(with payload: ErrorPayload,
                                       errorHandler: ErrorHandler,
                                       retrying: @escaping () -> Void,
                                       failure: @escaping Failure) {
@@ -47,7 +46,7 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
             }
         }
 
-        errorHandler.handleError(requestError) { [weak self] result in
+        errorHandler.handleError(with: payload) { [weak self] result in
             guard let self = self else {
                 return
             }
@@ -62,13 +61,11 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
                     return
                 }
 
-                // In this case current error handler returns result with new error (error of RequestError)
-                // Which we should be sent to the next error handler
-                let newError = RequestError(endpoint: requestError.endpoint,
-                                            error: error,
-                                            response: requestError.response)
+                // In this case current error handler returns result with new error (error of RequestError),
+                // which should be sent to the next error handler
+                let payload = ErrorPayload(endpoint: payload.endpoint, error: error, response: payload.response)
                 self.handleErrorRecursive(
-                    newError,
+                    with: payload,
                     errorHandler: nextErrorHandler,
                     retrying: retrying,
                     failure: failure

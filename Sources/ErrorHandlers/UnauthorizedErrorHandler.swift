@@ -40,10 +40,10 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         self.accessTokenSupervisor = accessTokenSupervisor
     }
 
-    public func handleError(_ requestError: RequestError,
+    public func handleError(with payload: ErrorPayload,
                             completion: @escaping (ErrorHandlingResult) -> Void) {
-        guard shouldHandleRequestError(requestError) else {
-            completion(.continueErrorHandling(with: requestError.error))
+        guard shouldHandleError(with: payload) else {
+            completion(.continueErrorHandling(with: payload.error))
             return
         }
 
@@ -55,7 +55,7 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
         // Since token was already refreshed, we won't refresh it again for remaining errors.
         switch state {
         case let .errorResolved(tokenRefreshingCompletionDate, isTokenRefreshed):
-            let requestStartDate = requestError.response.metrics?.taskInterval.start
+            let requestStartDate = payload.response.metrics?.taskInterval.start
 
             // Request started before token refreshing (used expired token),
             // but error received after token refreshing
@@ -63,28 +63,28 @@ public final class UnauthorizedErrorHandler: ErrorHandler {
                 if isTokenRefreshed {
                     completion(.retryNeeded)
                 } else {
-                    completion(.continueFailure(with: requestError.error))
+                    completion(.continueFailure(with: payload.error))
                 }
             } else {
-                let failure = Failure(error: requestError.error, completion: completion)
+                let failure = Failure(error: payload.error, completion: completion)
                 enqueueFailure(failure)
             }
         default:
-            let failure = Failure(error: requestError.error, completion: completion)
+            let failure = Failure(error: payload.error, completion: completion)
             enqueueFailure(failure)
         }
     }
 
     // MARK: -  Private
 
-    private func shouldHandleRequestError(_ requestError: RequestError) -> Bool {
+    private func shouldHandleError(with payload: ErrorPayload) -> Bool {
         // Don't handle errors for endpoint without authorization,
         // because we can trigger token refreshing in wrong time
         // For example, on login request (auth is not required) server can respond
         // with 401 status code, when sent password is not valid.
         // We shouldn't trigger token refreshing for this case.
-        return requestError.endpoint.requiresAuthorization &&
-               requestError.statusCode == StatusCode.unauthorised401
+        return payload.endpoint.requiresAuthorization &&
+               payload.statusCode == StatusCode.unauthorised401
     }
 
     private func enqueueFailure(_ failure: Failure) {

@@ -1,11 +1,11 @@
 //
-// Created by Nikita Zatsepilov on 2019-01-17.
-// Copyright (c) 2019 Ronas IT. All rights reserved.
+//  Created by Dmitry Frishbuter on 20.08.2020
+//  Copyright © 2020 Ronas IT. All rights reserved.
 //
 
 import Alamofire
 
-public final class RequestError {
+public final class ErrorPayload {
     public let endpoint: Endpoint
     public let error: Error
     public let response: AFDataResponse<Data>
@@ -26,7 +26,8 @@ public final class RequestError {
 
 // MARK: -  CustomStringConvertible
 
-extension RequestError: CustomStringConvertible {
+extension ErrorPayload: CustomStringConvertible {
+
     public var description: String {
         let pointerString = "\(Unmanaged.passUnretained(self).toOpaque())"
         return """

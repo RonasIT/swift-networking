@@ -139,7 +139,7 @@ final class GeneralErrorHandlerTests: XCTestCase {
                                    completion: @escaping (ErrorHandlingResult) -> Void) {
         let errorHandler = GeneralErrorHandler()
         let response = failureResult.dataResponse
-        let requestError = RequestError(endpoint: endpoint, error: response.error!, response: response)
+        let requestError = ErrorPayload(endpoint: endpoint, error: response.error!, response: response)
         errorHandler.handleError(requestError, completion: completion)
     }
 

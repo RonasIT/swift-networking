@@ -9,13 +9,13 @@ open class GeneralErrorHandler: ErrorHandler {
 
     public init() {}
 
-    open func handleError(_ error: RequestError, completion: @escaping Completion) {
-        completion(.continueErrorHandling(with: map(error)))
+    open func handleError(with payload: ErrorPayload, completion: @escaping Completion) {
+        completion(.continueErrorHandling(with: map(payload)))
     }
 
     // MARK: -  Private
 
-    private func map(_ requestError: RequestError) -> Error {
+    private func map(_ requestError: ErrorPayload) -> Error {
         let endpoint = requestError.endpoint
         let error = requestError.error
 

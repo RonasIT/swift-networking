@@ -340,9 +340,8 @@ open class NetworkService {
             failure(error)
             return
         }
-
-        let requestError = RequestError(endpoint: request.endpoint, error: error, response: response)
-        errorHandlingService.handleError(requestError, retrying: { [weak self] in
+        let payload = ErrorPayload(endpoint: request.endpoint, error: error, response: response)
+        errorHandlingService.handleError(with: payload, retrying: { [weak self] in
             guard let self = self else {
                 return
             }
