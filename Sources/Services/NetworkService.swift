@@ -6,6 +6,8 @@
 import Alamofire
 
 public typealias Progress = Alamofire.DownloadRequest.ProgressHandler
+public typealias ProgressEstimate = Alamofire.Progress
+
 public typealias Success<T> = (T) -> Void
 public typealias Failure = (Error) -> Void
 
