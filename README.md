@@ -110,7 +110,7 @@ Except you are using `GeneralErrorHandler`, which transforms this error to `Gene
 
 ### Endpoint
 
-Each request uses specific endpoint. Endpoint contains information, where and how request should be sent.
+Each request uses specific endpoint. Endpoint contains an information, where and how the request should be sent.
 
 #### Usage
 
@@ -147,8 +147,7 @@ extension Endpoint {
 // Add endpoint
 
 enum ProfileEndpoint: UploadEndpoint {
-    
-    case profile(profileId: String)
+    case fetchProfile(Profile.ID)
     case updateAddress(Address)
     case uploadImage(imageData: Data)
 
@@ -204,14 +203,14 @@ enum ProfileEndpoint: UploadEndpoint {
 
 Notes:
 - By default you should use `Endpoint` protocol. But if you need to use upload requests like in example above, use `UploadEndpoint`, 
-which has additional `imageBodyParts` variable.  
+which has additional `imageBodyParts` property.  
 - Each endpoint provides `requiresAuthorization` variable. If you are using `TokenRequestAdapter` (see [request adapting](#request-adapting) for more),
 access token will be attached only for requests with authorized endpoints.  
 - You can also provide custom errors for endpoints using `GeneralErrorHandler`, see [error handling](#error-handling) for more.
 
 ### Reachability
 
-`Networking` has built-in `ReachabilityService` to observe internet connection.
+`Networking` has built-in `ReachabilityService` to observe internet connection status.
 
 #### Usage
 
@@ -226,12 +225,12 @@ reachabilityService.startMonitoring()
 // Stop monitoring internet connection
 reachabilityService.stopMonitoring()
 
-// Subscribe on internet connection change events
+// Subscribe to internet connection change events
 let subscription = reachabilityService.subscribe { isReachable in
     // Handler will be called while subscription is active
 }
 
-// Use to stop receive internet connection change events in subscription handler
+// Stop receiving the internet connection change events
 subscription.unsubscribe()
 
 // You also can check internet connection directly from service
@@ -241,21 +240,20 @@ let isNetworkConnectionAvailable = reachabilityService.isReachable
 
 ### Request adapting
 
-⚠️ Currently supports only appending headers ⚠️
+⚠️ Currently supports only headers appending ⚠️
 
 Request adapting allows you to provide additional information within request.
 
 Request adapting includes:
-1. `RequestAdapter`s, which provide request adapting logic
-2. `RequestAdaptingService`, which manages request adapting chain for multiple request adapters  
-3. Your `NetworkService`, which notifies request adapting service about request sending/retrying
+1. `RequestAdapter`s, that provide a request adapting logic
+2. `RequestAdaptingService`, that manages a request adapting chain for multiple request adapters  
+3. Your `NetworkService`, that notifies request adapting service about request sending/retrying
 
-If you need to attach access token through request adapter, there is built-in `TokenRequestAdapter`. See [automatic token refreshing](#automatic-token-refreshing-and-request-retrying) for more. 
+If you need to attach an access token through a request adapter, there is built-in `TokenRequestAdapter`. See [automatic token refreshing](#automatic-token-refreshing-and-request-retrying) for more. 
 
 #### Usage
 
 1. Implement your custom request adapter:
-
 ```swift
 import Networking
 import UIKit.UIDevice
@@ -275,14 +273,14 @@ final class GeneralRequestAdapter: RequestAdapter {
 }
 ```
 
-2. Create request adapting service with your request adapter:
+2. Create request adapting service with your request adapter injected:
 ```swift
 lazy var generalRequestAdaptingService: RequestAdaptingServiceProtocol = {
    return RequestAdaptingService(requestAdapters: [GeneralRequestAdapter()]) 
 }()
 ```
 
-3. Create your subclass of `NetworkService` with your request adapting service:
+3. Create your subclass of `NetworkService` with your request adapting service injected:
 ```swift
 lazy var profileService: ProfileServiceProtocol = {
     return ProfileService(requestAdaptingService: generalRequestAdaptingService)  
@@ -296,27 +294,26 @@ This feature provides more efficient error handling for failed requests.
 There are three components of error handling:
 1. `ErrorHandler`s provide error handling logic
 2. `ErrorHandlingService` stores error handlers, manages error handling chain logic
-3. Your `NetworkService`, which notifies `ErrorHandlingService` about an error
+3. Your `NetworkService`, that notifies the `ErrorHandlingService` about an error
 
-Error handlers can be useful in many cases. For example, you can log errors or redirect user to the login screen.
+Error handlers can be useful in many cases. For example, you can log errors or redirect user to a login screen.
 Built-in automatic token refreshing also implemented using custom error handler.
 
 #### Usage  
    
 1. Create your own error handler:
-
 ```swift
 import Networking
 
 final class LoggingErrorHandler: ErrorHandler {
     
-    func handleError<Value, Error: Swift.Error>(_ errorPayload: ErrorPayload<Value, Error>, completion: @escaping (ErrorHandlingResult) -> Void) {
-        print("Request failure at: \(requestError.endpoint.path)")
-        print("Error: \(errorPayload.error)")
-        print("Response: \(errorPayload.response)")
+    func handleError(with payload: ErrorPayload, completion: @escaping (ErrorHandlingResult) -> Void) {
+        print("Request failure at: \(payload.endpoint.path)")
+        print("Error: \(payload.error)")
+        print("Response: \(payload.response)")
         
         // Error payload will be redirected to the next error handler
-        completion(.continueErrorHandling(with: errorPayload.error))
+        completion(.continueErrorHandling(with: payload.error))
     }
 }
 ```
@@ -366,17 +363,17 @@ public enum GeneralRequestError: Error {
 
 With `GeneralErrorHandler` you can also provide custom errors right from `Endpoint`.  
 Just implement `func error(for statusCode: StatusCode) -> Error?` or `func error(for urlError: URLError) -> Error?` like below.  
-If this methods return `nil`, error will be provided by `GeneralErrorHandler`.
+If these methods return `nil`, error will be provided by `GeneralErrorHandler`.
 ```swift
 enum ProfileEndpoint: Endpoint {
     case profile(profileID: String)
     case uploadImage(imageData: Data)
     
     func error(for statusCode: StatusCode) -> Error? {
-        if case let ProfileEndpoint.profile(profileId: let profileId) = self {
+        if case ProfileEndpoint.profile(let profileID) = self {
             switch statusCode {
             case .notFound404:
-                return ProfileError.notFound(profileId: profileId)
+                return ProfileError.notFound(profileID: profileID)
             default:
                 return nil            
             }
@@ -408,12 +405,11 @@ enum ProfileEndpoint: Endpoint {
 There are three components of this feature:
 1. `UnauthorizedErrorHandler` provides error handling logic for "unauthorized" errors with 401 status code
 2. `TokenRequestAdapter` provides access token attaching on request sending/retrying
-3. Your service, which implements `AccessTokenSupervisor` protocol and provides access token and access token refreshing logic
+3. Your service, that implements `AccessTokenSupervisor` protocol, provides access token and access token refreshing logic
 
 #### Usage
 
 1. Create your service and implement `AccessTokenSupervisor` protocol:
-
 ```swift
 import Networking
 
@@ -433,7 +429,6 @@ final class SessionService: SessionServiceProtocol, NetworkService {
             failure()
             return
         }
-        
         let endpoint = AuthorizationEndpoint.refreshAccessToken(with: refreshToken)
         request(for: endpoint, success: { [weak self] (response: RefreshTokenResponse) in
             self?.token = response.accessToken
@@ -448,7 +443,6 @@ final class SessionService: SessionServiceProtocol, NetworkService {
 ```
 
 2. Create `RequestAdaptingService` with `TokenRequestAdapter`:
-
 ```swift
 lazy var sessionService: SessionServiceProtocol = {
     return SessionService()    
@@ -479,17 +473,7 @@ lazy var profileService: ProfileServiceProtocol = {
 If all is correct, you can forget about expired access tokens in your app.
 
 **Note**  
-Unauthorized error handler doesn't handle errors for endpoints, which don't require authorizerion. For this endpoints you still will receive unauthorized errors.
-
-## Logging
-
-For debugging purposes you can enable logging in Networking, just specify:
-```swift
-import Networking
-
-Logging.isEnabled = true
-```
-Once logging is enabled, you able to view logs in XCode console or from Console of macOS.
+Unauthorized error handler doesn't handle errors for endpoints, which don't require authorization. For these endpoints you'll still receive unauthorized errors.
 
 
 To learn more, please check example project.
