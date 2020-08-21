@@ -8,6 +8,7 @@ import Alamofire
 final class UploadRequest: Request {
     private let imageBodyParts: [ImageBodyPart]
 
+    public var progress: Progress?
     private var completion: Completion?
     private var sentRequest: DataRequest?
 
@@ -34,7 +35,12 @@ final class UploadRequest: Request {
             usingThreshold: threshold,
             method: .post,
             headers: headers.httpHeaders
-        ).validate()
+            ).validate()
+
+        if let progress = self.progress {
+            sentRequest?.uploadProgress(closure: progress)
+            self.progress = nil
+        }
 
         sentRequest?.responseData { (response: AFDataResponse<Data>) in
             self.completion?(self, response)

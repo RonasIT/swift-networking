@@ -5,6 +5,7 @@
 
 import Alamofire
 
+public typealias Progress = Alamofire.DownloadRequest.ProgressHandler
 public typealias Success<T> = (T) -> Void
 public typealias Failure = (Error) -> Void
 
@@ -84,10 +85,13 @@ open class NetworkService {
 
     public func uploadRequest<Response>(for endpoint: UploadEndpoint,
                                         responseSerializer: AnyResponseSerializer<Response>,
+                                        progress: Progress? = nil,
                                         success: @escaping Success<Response>,
                                         failure: @escaping Failure) -> CancellableRequest {
+        let request = UploadRequest(session: session, endpoint: endpoint)
+        request.progress = progress
         return send(
-            UploadRequest(session: session, endpoint: endpoint),
+            request,
             responseSerializer: responseSerializer,
             success: success,
             failure: failure
@@ -120,12 +124,14 @@ open class NetworkService {
 
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
+                                    progress: Progress? = nil,
                                     success: @escaping Success<DataResponse>,
                                     failure: @escaping Failure) -> CancellableRequest {
         let responseSerializer = AnyResponseSerializer { $0 }
         return uploadRequest(
             for: endpoint,
             responseSerializer: responseSerializer,
+            progress: progress,
             success: success,
             failure: failure
         )
@@ -314,9 +320,10 @@ open class NetworkService {
 
     @discardableResult
     public func uploadRequest(for endpoint: UploadEndpoint,
+                              progress: Progress? = nil,
                               success: @escaping (EmptyResponse) -> Void,
                               failure: @escaping Failure) -> CancellableRequest {
-        return uploadRequest(for: endpoint, success: { (response: DataResponse) in
+        return uploadRequest(for: endpoint, progress: progress, success: { (response: DataResponse) in
             success(response.empty)
         }, failure: failure)
     }
