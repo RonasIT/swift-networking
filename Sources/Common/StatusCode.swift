@@ -10,7 +10,7 @@ public enum StatusCode: Int {
     case switchingProtocols101 = 101
     case processing102 = 102
 
-    // MARK: -  Success
+    // MARK: -  Acceptable
     case ok200 = 200
     case created201 = 201
     case accepted202 = 202

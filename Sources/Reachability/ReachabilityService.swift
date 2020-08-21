@@ -4,8 +4,20 @@
 //
 
 import Alamofire
+import Combine
 
-typealias NetworkReachabilityStatus = NetworkReachabilityManager.NetworkReachabilityStatus
+protocol NetworkListener: AnyObject {
+    typealias Listener = NetworkReachabilityManager.Listener
+
+    var isReachable: Bool { get }
+
+    @discardableResult
+    func startListening(onQueue queue: DispatchQueue,
+                        onUpdatePerforming listener: @escaping Listener) -> Bool
+    func stopListening()
+}
+
+public typealias NetworkReachabilityStatus = NetworkReachabilityManager.NetworkReachabilityStatus
 
 public final class ReachabilityService: ReachabilityServiceProtocol {
 
@@ -13,8 +25,9 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
         return networkListener.isReachable
     }
 
+    public let reachabilityStatusSubject: PassthroughSubject<NetworkReachabilityStatus, Never> = .init()
+
     private let networkListener: NetworkListener
-    private var subscriptions: [String: NetworkReachabilitySubscription] = [:]
 
     init(networkListener: NetworkListener) {
         self.networkListener = networkListener
@@ -28,37 +41,20 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
         stopMonitoring()
     }
 
-    public func subscribe(with handler: @escaping (Bool) -> Void) -> ReachabilitySubscription {
-        let subscription = NetworkReachabilitySubscription(unsubscribeHandler: { [weak self] subscriptionId in
-            self?.subscriptions[subscriptionId] = nil
-        }, notificationHandler: handler)
-        subscriptions[subscription.id] = subscription
-        return subscription
-    }
-
     public func startMonitoring() {
         networkListener.startListening(onQueue: .main) { [weak self] reachabilityStatus in
-            self?.notifySubscribers(with: reachabilityStatus)
+            self?.reachabilityStatusSubject.send(reachabilityStatus)
         }
     }
 
     public func stopMonitoring() {
         networkListener.stopListening()
     }
-
-    // MARK: -  Private
-
-    private func notifySubscribers(with reachabilityStatus: NetworkReachabilityStatus) {
-        let isReachable = reachabilityStatus.isReachable
-        subscriptions.keys.forEach { key in
-            subscriptions[key]?.notificationHandler(isReachable)
-        }
-    }
 }
 
 extension NetworkReachabilityManager: NetworkListener {}
 
-private extension NetworkReachabilityStatus {
+public extension NetworkReachabilityStatus {
 
     var isReachable: Bool {
         switch self {
