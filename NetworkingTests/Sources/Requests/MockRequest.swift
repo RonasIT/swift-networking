@@ -36,7 +36,7 @@ final class MockRequest: Networking.Request {
                     statusCode: .unauthorised401,
                     error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 401))
                 )
-                completion(self, response)
+                completion(self, response as! Alamofire.DataResponse<Data, AFError>) // swiftlint:disable:this force_cast
                 return
             }
 
@@ -47,7 +47,7 @@ final class MockRequest: Networking.Request {
                     statusCode: .badRequest400,
                     error: AFError.responseValidationFailed(reason: .unacceptableStatusCode(code: 400))
                 )
-                completion(self, response)
+                completion(self, response as! Alamofire.DataResponse<Data, AFError>) // swiftlint:disable:this force_cast
                 return
             }
 
@@ -56,7 +56,7 @@ final class MockRequest: Networking.Request {
                 requestEndTime: requestEndTime,
                 statusCode: Constants.successStatusCode
             )
-            completion(self, response)
+            completion(self, response as! Alamofire.DataResponse<Data, AFError>) // swiftlint:disable:this force_cast
         }
     }
 

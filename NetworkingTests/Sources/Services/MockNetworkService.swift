@@ -26,6 +26,7 @@ final class MockNetworkService: NetworkService {
 
     override func uploadRequest<Response>(for endpoint: UploadEndpoint,
                                           responseSerializer: AnyResponseSerializer<Response>,
+                                          progress: Networking.Progress? = nil,
                                           success: @escaping Success<Response>,
                                           failure: @escaping Failure) -> CancellableRequest {
         guard let endpoint = endpoint as? MockEndpoint else {
@@ -38,6 +39,7 @@ final class MockNetworkService: NetworkService {
     }
 
     override func uploadRequest(for endpoint: UploadEndpoint,
+                                progress: Networking.Progress? = nil,
                                 success: @escaping (Response<Void>) -> Void,
                                 failure: @escaping Failure) -> CancellableRequest {
         guard let endpoint = endpoint as? MockEndpoint else {

@@ -139,7 +139,8 @@ final class GeneralErrorHandlerTests: XCTestCase {
                                    completion: @escaping (ErrorHandlingResult) -> Void) {
         let errorHandler = GeneralErrorHandler()
         let response = failureResult.dataResponse
-        let errorPayload = ErrorPayload(endpoint: endpoint, error: response.error!, response: response)
+        // swiftlint:disable:next force_cast
+        let errorPayload = ErrorPayload(endpoint: endpoint, error: response.error!, response: response as! Alamofire.DataResponse<Data, AFError>)
         errorHandler.handleError(with: errorPayload, completion: completion)
     }
 
