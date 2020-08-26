@@ -42,7 +42,7 @@
 		1B5CDF334AC96DBE0B86A0C5 /* GeneralRequestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CDBB20F1E02A8C0F306CB /* GeneralRequestError.swift */; };
 		1B5CDFC9BB48EC0AB93530F3 /* MockErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD9495D92F0A0147E99F2 /* MockErrorHandler.swift */; };
 		1B5CDFF31A0B8E498FAABB23 /* ResponseSerializationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD3AE31475F6BBDB0EDE1 /* ResponseSerializationTests.swift */; };
-		6D3EF7BD2167710E00251869 /* Networking.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D3EF7B9216770FF00251869 /* Networking.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6D0513AE24F6A8030042FF2A /* Networking.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D0513AC24F6A8030042FF2A /* Networking.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6D9BB59124EFDED90099C8B7 /* AuthorizationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59024EFDED90099C8B7 /* AuthorizationType.swift */; };
 		6D9BB59324F009020099C8B7 /* HTTPHeaders+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59224F009020099C8B7 /* HTTPHeaders+Equatable.swift */; };
 		6D9BB59624F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59524F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift */; };
@@ -125,9 +125,9 @@
 		1B5CDF6556780A94672B5CE4 /* GeneralErrorHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneralErrorHandler.swift; sourceTree = "<group>"; };
 		1B5CDF97536DE98FC96F1427 /* MockRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockRequest.swift; sourceTree = "<group>"; };
 		1B5CDFC8DCB798D977077B49 /* MockEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockEndpoint.swift; sourceTree = "<group>"; };
+		6D0513AB24F6A8030042FF2A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6D0513AC24F6A8030042FF2A /* Networking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Networking.h; sourceTree = "<group>"; };
 		6D3EF77D21675CFA00251869 /* Networking.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Networking.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6D3EF7B9216770FF00251869 /* Networking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Networking.h; sourceTree = "<group>"; };
-		6D3EF7BA216770FF00251869 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6D9BB59024EFDED90099C8B7 /* AuthorizationType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationType.swift; sourceTree = "<group>"; };
 		6D9BB59224F009020099C8B7 /* HTTPHeaders+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTTPHeaders+Equatable.swift"; sourceTree = "<group>"; };
 		6D9BB59524F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLSessionTaskMetrics.swift; sourceTree = "<group>"; };
@@ -338,6 +338,8 @@
 		6D3EF7AC21676AE100251869 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				6D0513AB24F6A8030042FF2A /* Info.plist */,
+				6D0513AC24F6A8030042FF2A /* Networking.h */,
 				1B5CD0A2B7193818CF6F25C1 /* Common */,
 				6D9F10B0216BBBF200CDB8EE /* Endpoints */,
 				6D9F10C3216BBBF200CDB8EE /* ErrorHandlers */,
@@ -361,8 +363,6 @@
 				9360C25C234DF24800DDEB26 /* .swiftlint.yml */,
 				9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */,
 				9360C25A234DF18B00DDEB26 /* Cartfile */,
-				6D3EF7B9216770FF00251869 /* Networking.h */,
-				6D3EF7BA216770FF00251869 /* Info.plist */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -472,7 +472,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6D3EF7BD2167710E00251869 /* Networking.h in Headers */,
+				6D0513AE24F6A8030042FF2A /* Networking.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -841,7 +841,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = "$(SRCROOT)/Networking/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -873,7 +873,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = "$(SRCROOT)/Networking/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
