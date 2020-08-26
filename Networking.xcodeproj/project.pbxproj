@@ -320,7 +320,7 @@
 			children = (
 				6D9F10AA216BB35600CDB8EE /* Frameworks */,
 				6D3EF7B8216770FF00251869 /* Networking */,
-				934CEE2421F206EF009C024A /* NetworkingTests */,
+				934CEE2421F206EF009C024A /* Tests */,
 				6D3EF77E21675CFA00251869 /* Products */,
 				6D3EF7AC21676AE100251869 /* Sources */,
 			);
@@ -439,13 +439,13 @@
 			path = Reachability;
 			sourceTree = "<group>";
 		};
-		934CEE2421F206EF009C024A /* NetworkingTests */ = {
+		934CEE2421F206EF009C024A /* Tests */ = {
 			isa = PBXGroup;
 			children = (
 				934CEE2721F206EF009C024A /* Info.plist */,
 				1B5CD31BE83EDCE37719D189 /* Sources */,
 			);
-			path = NetworkingTests;
+			path = Tests;
 			sourceTree = "<group>";
 		};
 		939BECF323EB170A00354056 /* Headers */ = {
@@ -899,8 +899,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = NetworkingTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				INFOPLIST_FILE = Tests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -923,8 +923,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = NetworkingTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				INFOPLIST_FILE = Tests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
