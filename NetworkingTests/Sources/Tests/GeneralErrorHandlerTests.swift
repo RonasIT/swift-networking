@@ -139,8 +139,9 @@ final class GeneralErrorHandlerTests: XCTestCase {
                                    completion: @escaping (ErrorHandlingResult) -> Void) {
         let errorHandler = GeneralErrorHandler()
         let response = failureResult.dataResponse
-        let requestError = RequestError(endpoint: endpoint, error: response.error!, response: response)
-        errorHandler.handleError(requestError, completion: completion)
+        // swiftlint:disable:next force_cast
+        let errorPayload = ErrorPayload(endpoint: endpoint, error: response.error!, response: response as! Alamofire.DataResponse<Data, AFError>)
+        errorHandler.handleError(with: errorPayload, completion: completion)
     }
 
     private func testErrorHandling(withExpectedErrors expectedErrors: [GeneralRequestError],
@@ -169,14 +170,28 @@ private enum RequestFailureResult {
     case responseWithStatusCode(Int, error: Error)
     case errorWithoutResponse(error: Error)
 
-    var dataResponse: Alamofire.DataResponse<Any> {
+    var dataResponse: Alamofire.DataResponse<Data, AnyError> {
         switch self {
         case let .responseWithStatusCode(statusCode, error):
             let url = URL(string: "https://apple.com")!
             let response = HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)
-            return DataResponse(request: nil, response: response, data: nil, result: .failure(error))
+            return DataResponse(
+                request: nil,
+                response: response,
+                data: nil,
+                metrics: nil,
+                serializationDuration: 0,
+                result: .failure(AnyError(error))
+            )
         case .errorWithoutResponse(let error):
-            return DataResponse(request: nil, response: nil, data: nil, result: .failure(error))
+            return DataResponse(
+                request: nil,
+                response: nil,
+                data: nil,
+                metrics: nil,
+                serializationDuration: 0,
+                result: .failure(AnyError(error))
+            )
         }
     }
 }

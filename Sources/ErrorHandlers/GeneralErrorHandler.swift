@@ -9,13 +9,13 @@ open class GeneralErrorHandler: ErrorHandler {
 
     public init() {}
 
-    open func handleError<T>(_ error: RequestError<T>, completion: @escaping Completion) {
-        completion(.continueErrorHandling(with: map(error)))
+    open func handleError(with payload: ErrorPayload, completion: @escaping Completion) {
+        completion(.continueErrorHandling(with: map(payload)))
     }
 
-    // MARK: - Private
+    // MARK: -  Private
 
-    private func map<T>(_ requestError: RequestError<T>) -> Error {
+    private func map(_ requestError: ErrorPayload) -> Error {
         let endpoint = requestError.endpoint
         let error = requestError.error
 
@@ -31,17 +31,17 @@ open class GeneralErrorHandler: ErrorHandler {
         }
     }
 
-    private func map(_ error: Error, statusCode: Int, endpoint: Endpoint) -> Error {
-        if let error = endpoint.error(forStatusCode: statusCode) {
+    private func map(_ error: Error, statusCode: StatusCode, endpoint: Endpoint) -> Error {
+        if let error = endpoint.error(for: statusCode) {
             return error
         }
 
         switch statusCode {
-        case 401:
+        case .unauthorised401:
             return GeneralRequestError.noAuth
-        case 403:
+        case .forbidden403:
             return GeneralRequestError.forbidden
-        case 404:
+        case .notFound404:
             return GeneralRequestError.notFound
         default:
             return error

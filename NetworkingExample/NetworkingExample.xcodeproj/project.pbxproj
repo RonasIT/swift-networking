@@ -462,6 +462,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = NetworkingExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"@executable_path/Frameworks",
 					"$(inherited)",
@@ -485,6 +486,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = NetworkingExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"@executable_path/Frameworks",
 					"$(inherited)",

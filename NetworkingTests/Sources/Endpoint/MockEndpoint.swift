@@ -23,7 +23,7 @@ struct MockEndpoint: UploadEndpoint {
     var headers: [RequestHeader] = []
     var parameters: Parameters?
     var parameterEncoding: ParameterEncoding = URLEncoding.default
-    var requiresAuthorization: Bool = false
+    var authorizationType: AuthorizationType = .none
     var imageBodyParts: [ImageBodyPart] = []
 
     var errorForStatusCode: Error?
@@ -58,7 +58,7 @@ struct MockEndpoint: UploadEndpoint {
         return errorForURLErrorCode
     }
 
-    func error(forStatusCode statusCode: Int) -> Error? {
+    func error(for statusCode: StatusCode) -> Error? {
         return errorForStatusCode
     }
 }

@@ -5,14 +5,20 @@
 
 import Alamofire
 
-public protocol Endpoint: EndpointError {
+public typealias HTTPMethod = Alamofire.HTTPMethod
+public typealias Parameters = Alamofire.Parameters
+public typealias ParameterEncoding = Alamofire.ParameterEncoding
+public typealias URLEncoding = Alamofire.URLEncoding
+public typealias JSONEncoding = Alamofire.JSONEncoding
+
+public protocol Endpoint: FailableEndpoint {
     var baseURL: URL { get }
     var path: String { get }
     var method: HTTPMethod { get }
     var headers: [RequestHeader] { get }
     var parameters: Parameters? { get }
     var parameterEncoding: ParameterEncoding { get }
-    var requiresAuthorization: Bool { get }
+    var authorizationType: AuthorizationType { get }
 }
 
 public protocol RequestHeader {
@@ -26,7 +32,7 @@ public extension Endpoint {
         return baseURL + path
     }
 
-    func error(forStatusCode statusCode: Int) -> Error? {
+    func error(for statusCode: StatusCode) -> Error? {
         return nil
     }
 

@@ -6,84 +6,75 @@
 import Alamofire
 
 class Request: BasicRequest, Cancellable, Retryable {
-
-    typealias Response = Alamofire.DataResponse<Data>
+    typealias Response = AFDataResponse<Data>
     typealias Completion = (RetryableRequest, Response) -> Void
 
     public final let endpoint: Endpoint
-
-    final let sessionManager: SessionManager
+    final let session: Alamofire.Session
 
     private(set) final var headers: [RequestHeader]
 
     private var sentRequest: DataRequest?
     private var completion: Completion?
 
-    init(sessionManager: SessionManager, endpoint: Endpoint) {
+    init(session: Alamofire.Session, endpoint: Endpoint) {
         self.endpoint = endpoint
-        self.sessionManager = sessionManager
+        self.session = session
         headers = endpoint.headers
     }
 
     func response(completion: @escaping Completion) {
         self.completion = completion
-        sentRequest = sessionManager.request(
+        sentRequest = session.request(
             endpoint.url,
             method: endpoint.method,
             parameters: endpoint.parameters,
             encoding: endpoint.parameterEncoding,
             headers: headers.httpHeaders
         ).validate()
-        Logging.log(type: .debug, category: .request, "\(self) - Sending")
-        sentRequest?.responseData { response in
-            Logging.log(type: .debug, category: .request, "\(self) - Finished")
+        sentRequest?.responseData { (response: AFDataResponse<Data>) in
             self.completion?(self, response)
         }
     }
 
-    // MARK: - Cancellable
+    // MARK: -  Cancellable
 
     @discardableResult
     func cancel() -> Bool {
         guard let request = sentRequest else {
-            Logging.log(type: .fault, category: .request, "\(self) - Couldn't cancel request: request hasn't started yet")
             return false
         }
         request.cancel()
-        Logging.log(type: .debug, category: .request, "\(self) - Cancelling")
         sentRequest = nil
         return true
     }
 
-    // MARK: - Retryable
+    // MARK: -  Retryable
 
     @discardableResult
     func retry() -> Bool {
         guard let completion = completion else {
-            Logging.log(type: .fault, category: .request, "\(self) - Couldn't retry request: request hasn't started yet")
             return false
         }
-        Logging.log(type: .debug, category: .request, "\(self) - Retrying")
         response(completion: completion)
         return true
     }
 }
 
-// MARK: - MutableRequest
+// MARK: -  MutableRequest
 
 extension Request: MutableRequest {
 
     func appendHeader(_ header: RequestHeader) {
         let indexOrNil = headers.firstIndex { $0.key == header.key }
         if let index = indexOrNil {
-            Logging.log(type: .debug, category: .request, "\(self) - Overriding header `\(header.key)`")
             headers.remove(at: index)
         }
         headers.append(header)
     }
 }
 
-// MARK: - CustomStringConvertible
+// MARK: -  CustomStringConvertible
 
 extension Request: CustomStringConvertible {
 

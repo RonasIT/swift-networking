@@ -26,12 +26,12 @@ final class EndpointTests: XCTestCase {
             var headers: [RequestHeader] { return [] }
             var parameters: Parameters? { return nil }
             var parameterEncoding: ParameterEncoding { return URLEncoding.default }
-            var requiresAuthorization: Bool { return false }
+            var authorizationType: AuthorizationType { return .none }
         }
 
         let endpoint = TestEndpoint()
         XCTAssertNil(endpoint.error(for: .cancelled))
-        XCTAssertNil(endpoint.error(forStatusCode: 400))
+        XCTAssertNil(endpoint.error(for: .badRequest400))
     }
 
     // MARK: - Headers
@@ -57,11 +57,11 @@ final class EndpointTests: XCTestCase {
             Header(key: "key1", value: "overriddenValue1")
         ]
 
-        XCTAssertEqual(headers.httpHeaders, expectedHTTPHeaders)
+        XCTAssertEqual(headers.httpHeaders, HTTPHeaders(expectedHTTPHeaders))
     }
 
     func testCommonHeaders() {
-        var header = RequestHeaders.authorization("token")
+        var header = RequestHeaders.authorization(.bearer, "token")
         XCTAssertEqual(header.key, "Authorization")
         XCTAssertEqual(header.value, "Bearer token")
 

@@ -5,6 +5,9 @@
 
 import Alamofire
 
+public typealias Progress = Alamofire.DownloadRequest.ProgressHandler
+public typealias ProgressEstimate = Alamofire.Progress
+
 public typealias Success<T> = (T) -> Void
 public typealias Failure = (Error) -> Void
 
@@ -21,14 +24,14 @@ open class NetworkService {
         }
     }
 
-    private let sessionManager: SessionManager
+    private let session: Alamofire.Session
     private let requestAdaptingService: RequestAdaptingServiceProtocol?
     private let errorHandlingService: ErrorHandlingServiceProtocol?
 
-    public init(sessionManager: SessionManager = .default,
+    public init(session: Alamofire.Session = .default,
                 requestAdaptingService: RequestAdaptingServiceProtocol? = nil,
                 errorHandlingService: ErrorHandlingServiceProtocol? = nil) {
-        self.sessionManager = sessionManager
+        self.session = session
         self.requestAdaptingService = requestAdaptingService
         self.errorHandlingService = errorHandlingService
     }
@@ -68,14 +71,14 @@ open class NetworkService {
         return request
     }
 
-    // MARK: - Requests with custom response serializer
+    // MARK: -  Requests with custom response serializer
 
     public func request<Response>(for endpoint: Endpoint,
                                   responseSerializer: AnyResponseSerializer<Response>,
                                   success: @escaping Success<Response>,
                                   failure: @escaping Failure) -> CancellableRequest {
         return send(
-            Request(sessionManager: sessionManager, endpoint: endpoint),
+            Request(session: session, endpoint: endpoint),
             responseSerializer: responseSerializer,
             success: success,
             failure: failure
@@ -84,17 +87,20 @@ open class NetworkService {
 
     public func uploadRequest<Response>(for endpoint: UploadEndpoint,
                                         responseSerializer: AnyResponseSerializer<Response>,
+                                        progress: Progress? = nil,
                                         success: @escaping Success<Response>,
                                         failure: @escaping Failure) -> CancellableRequest {
+        let request = UploadRequest(session: session, endpoint: endpoint)
+        request.progress = progress
         return send(
-            UploadRequest(sessionManager: sessionManager, endpoint: endpoint),
+            request,
             responseSerializer: responseSerializer,
             success: success,
             failure: failure
         )
     }
 
-    // MARK: - Data
+    // MARK: -  Data
 
     @discardableResult
     public func request(for endpoint: Endpoint,
@@ -120,12 +126,14 @@ open class NetworkService {
 
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
+                                    progress: Progress? = nil,
                                     success: @escaping Success<DataResponse>,
                                     failure: @escaping Failure) -> CancellableRequest {
         let responseSerializer = AnyResponseSerializer { $0 }
         return uploadRequest(
             for: endpoint,
             responseSerializer: responseSerializer,
+            progress: progress,
             success: success,
             failure: failure
         )
@@ -140,7 +148,7 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - String
+    // MARK: -  String
 
     @discardableResult
     public final func request(for endpoint: Endpoint,
@@ -190,7 +198,7 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - Decodable
+    // MARK: -  Decodable
 
     @discardableResult
     public final func request<Result>(for endpoint: Endpoint,
@@ -240,7 +248,7 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - JSON
+    // MARK: -  JSON
 
     @discardableResult
     public final func request(for endpoint: Endpoint,
@@ -290,7 +298,7 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - Empty
+    // MARK: -  Empty
 
     @discardableResult
     public final func request(for endpoint: Endpoint,
@@ -313,10 +321,11 @@ open class NetworkService {
     }
 
     @discardableResult
-    public final func uploadRequest(for endpoint: UploadEndpoint,
-                                    success: @escaping (EmptyResponse) -> Void,
-                                    failure: @escaping Failure) -> CancellableRequest {
-        return uploadRequest(for: endpoint, success: { (response: DataResponse) in
+    public func uploadRequest(for endpoint: UploadEndpoint,
+                              progress: Progress? = nil,
+                              success: @escaping (EmptyResponse) -> Void,
+                              failure: @escaping Failure) -> CancellableRequest {
+        return uploadRequest(for: endpoint, progress: progress, success: { (response: DataResponse) in
             success(response.empty)
         }, failure: failure)
     }
@@ -330,19 +339,18 @@ open class NetworkService {
         }, failure: failure)
     }
 
-    // MARK: - Private
+    // MARK: -  Private
 
-    private func handleError<Result>(_ error: Swift.Error,
-                                     response: Alamofire.DataResponse<Result>,
-                                     request: RetryableRequest,
-                                     failure: @escaping Failure) {
+    private func handleError(_ error: Swift.Error,
+                             response: AFDataResponse<Data>,
+                             request: RetryableRequest,
+                             failure: @escaping Failure) {
         guard let errorHandlingService = errorHandlingService else {
             failure(error)
             return
         }
-
-        let requestError = RequestError(endpoint: request.endpoint, error: error, response: response)
-        errorHandlingService.handleError(requestError, retrying: { [weak self] in
+        let payload = ErrorPayload(endpoint: request.endpoint, error: error, response: response)
+        errorHandlingService.handleError(with: payload, retrying: { [weak self] in
             guard let self = self else {
                 return
             }

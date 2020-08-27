@@ -5,6 +5,7 @@
 
 import UIKit
 import Networking
+import Combine
 
 final class SlideshowViewController: UIViewController {
 
@@ -15,13 +16,14 @@ final class SlideshowViewController: UIViewController {
     private let reachabilityService: ReachabilityServiceProtocol = Services.reachabilityService
 
     private weak var request: CancellableRequest?
-    private var reachabilitySubscription: ReachabilitySubscription?
+
+    private var subscriptions: Set<AnyCancellable> = []
 
     private var slideshow: Slideshow?
 
     deinit {
         request?.cancel()
-        reachabilitySubscription?.unsubscribe()
+        subscriptions.forEach { $0.cancel() }
     }
 
     override func viewDidLoad() {
@@ -36,14 +38,16 @@ final class SlideshowViewController: UIViewController {
             presentNoConnectionAlert()
         }
 
-        reachabilitySubscription = reachabilityService.subscribe { [weak self] isReachable in
-            guard let self = self else {
-                return
+        reachabilityService.reachabilityStatusSubject
+            .sink { [weak self] status in
+                guard let self = self else {
+                    return
+                }
+                if status.isReachable, self.slideshow == nil {
+                    self.loadSlideshow()
+                }
             }
-            if isReachable, self.slideshow == nil {
-                self.loadSlideshow()
-            }
-        }
+            .store(in: &subscriptions)
     }
 
     private func loadSlideshow() {
