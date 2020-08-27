@@ -52,7 +52,6 @@ dependencies: [
       - [`GeneralErrorHandler`](#generalerrorhandler)
     - [Automatic token refreshing and request retrying](#automatic-token-refreshing-and-request-retrying)
       - [Usage](#usage-4)
-  - [Logging](#logging)
 
 ## Usage 🔨
 
