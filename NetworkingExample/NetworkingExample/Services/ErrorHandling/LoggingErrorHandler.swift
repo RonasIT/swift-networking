@@ -4,12 +4,11 @@
 //
 
 import Networking
-import Alamofire
 
 final class LoggingErrorHandler: ErrorHandler {
 
-    func handleError<T>(_ requestError: ErrorPayload<T>, completion: @escaping Completion) {
-        print("Received request failure: \(requestError.error)")
-        completion(.continueErrorHandling(with: requestError.error))
+    func handleError(with payload: ErrorPayload, completion: @escaping Completion) {
+        print("Received request failure: \(payload.error)")
+        completion(.continueErrorHandling(with: payload.error))
     }
 }

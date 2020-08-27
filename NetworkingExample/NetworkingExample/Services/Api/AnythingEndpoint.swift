@@ -3,8 +3,6 @@
 //  Copyright © 2018 Ronas IT. All rights reserved.
 //
 
-import Foundation
-import Alamofire
 import Networking
 
 enum AnythingEndpoint: Endpoint {
@@ -48,7 +46,7 @@ enum AnythingEndpoint: Endpoint {
         return URLEncoding.default
     }
 
-    var requiresAuthorization: Bool {
-        return true
+    var authorizationType: AuthorizationType {
+        return .bearer
     }
 }
