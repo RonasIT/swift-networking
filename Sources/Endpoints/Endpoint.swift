@@ -5,6 +5,12 @@
 
 import Alamofire
 
+public typealias HTTPMethod = Alamofire.HTTPMethod
+public typealias Parameters = Alamofire.Parameters
+public typealias ParameterEncoding = Alamofire.ParameterEncoding
+public typealias URLEncoding = Alamofire.URLEncoding
+public typealias JSONEncoding = Alamofire.JSONEncoding
+
 public protocol Endpoint: FailableEndpoint {
     var baseURL: URL { get }
     var path: String { get }
