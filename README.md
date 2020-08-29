@@ -1,4 +1,6 @@
-# ⚡ Networking
+<img src="Assets/icon.png" alt="Networking" width=200/> 
+
+# Networking
 
 Networking is a network abstraction layer built on top of
 [Alamofire](https://github.com/Alamofire/Alamofire).
