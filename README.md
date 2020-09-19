@@ -94,7 +94,7 @@ final class MediaService: NetworkService, MediaServiceProtocol {
 
     @discardableResult
     func uploadMedia(with data: Data,
-                     progress: @escaping ProgressHandler,
+                     progress: @escaping Progress,
                      success: @escaping (Media) -> Void,
                      failure: @escaping (Error) -> Void) -> CancellableRequest {
         uploadRequest(

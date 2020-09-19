@@ -12,7 +12,7 @@ final class UploadRequest: Request {
     private var completion: Completion?
     private var sentRequest: DataRequest?
 
-    var progress: ProgressHandler?
+    var progress: Progress?
 
     init(session: Alamofire.Session, endpoint: UploadEndpoint) {
         imageBodyParts = endpoint.imageBodyParts
