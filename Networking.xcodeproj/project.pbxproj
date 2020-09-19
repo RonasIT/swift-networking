@@ -60,7 +60,6 @@
 		6DBA79D624EEC5A7006DA280 /* ErrorPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBA79D524EEC5A7006DA280 /* ErrorPayload.swift */; };
 		9330EC6323E5C05C007601FE /* .swiftlint.auto.yml in Resources */ = {isa = PBXBuildFile; fileRef = 9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */; };
 		934CEE2821F206EF009C024A /* Networking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D3EF77D21675CFA00251869 /* Networking.framework */; };
-		9360C25B234DF18B00DDEB26 /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = 9360C25A234DF18B00DDEB26 /* Cartfile */; };
 		9360C25D234DF24800DDEB26 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 9360C25C234DF24800DDEB26 /* .swiftlint.yml */; };
 		936EF63823048B50001C32F0 /* RequestHeaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936EF63723048B50001C32F0 /* RequestHeaders.swift */; };
 		938796F921FCCA26007D655F /* MultipartFormDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD9AEFCBD2CA6811FD701 /* MultipartFormDataTests.swift */; };
@@ -147,7 +146,6 @@
 		9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.auto.yml; sourceTree = SOURCE_ROOT; };
 		934CEE2321F206EF009C024A /* NetworkingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		934CEE2721F206EF009C024A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
-		9360C25A234DF18B00DDEB26 /* Cartfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
 		9360C25C234DF24800DDEB26 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
 		936EF63723048B50001C32F0 /* RequestHeaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHeaders.swift; sourceTree = "<group>"; };
 		93AEDD4623EB300D002CC323 /* StringResponseSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringResponseSerializer.swift; sourceTree = "<group>"; };
@@ -362,7 +360,6 @@
 				93E72FBC2403C5CA0017A9F2 /* README.md */,
 				9360C25C234DF24800DDEB26 /* .swiftlint.yml */,
 				9330EC6223E5C05C007601FE /* .swiftlint.auto.yml */,
-				9360C25A234DF18B00DDEB26 /* Cartfile */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -569,7 +566,6 @@
 				9330EC6323E5C05C007601FE /* .swiftlint.auto.yml in Resources */,
 				9360C25D234DF24800DDEB26 /* .swiftlint.yml in Resources */,
 				93E72FBD2403C5CA0017A9F2 /* README.md in Resources */,
-				9360C25B234DF18B00DDEB26 /* Cartfile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
