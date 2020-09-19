@@ -3,8 +3,8 @@
 //  Copyright © 2018 Ronas IT. All rights reserved.
 //
 
+import Foundation
 import Alamofire
-import UIKit.UIImage
 
 extension Alamofire.MultipartFormData {
 

@@ -3,6 +3,7 @@
 // Copyright (c) 2019 Ronas IT. All rights reserved.
 //
 
+import Foundation
 import Alamofire
 
 final class DecodableResponseSerializer<Result: Decodable>: ResponseSerializer {

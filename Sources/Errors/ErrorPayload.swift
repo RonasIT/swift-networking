@@ -3,6 +3,7 @@
 //  Copyright © 2020 Ronas IT. All rights reserved.
 //
 
+import Foundation
 import Alamofire
 
 public final class ErrorPayload {

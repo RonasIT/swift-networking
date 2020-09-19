@@ -3,6 +3,7 @@
 // Copyright (c) 2018 Ronas IT. All rights reserved.
 //
 
+import Foundation
 import Alamofire
 
 final class UploadRequest: Request {

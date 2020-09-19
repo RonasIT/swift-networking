@@ -3,7 +3,7 @@
 //  Copyright © 2019 Ronas IT. All rights reserved.
 //
 
-import UIKit.UIDevice
+import Foundation
 
 public enum RequestHeaders: RequestHeader {
     case authorization(AuthorizationType, String)
