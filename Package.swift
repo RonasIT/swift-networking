@@ -17,10 +17,6 @@ let package = Package(
         .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.0.0"))
     ],
     targets: [
-        .target(
-            name: "Networking",
-            dependencies: ["Alamofire"],
-            path: "Sources"
-        )
+        .target(name: "Networking", dependencies: ["Alamofire"], path: "Sources")
     ]
 )
