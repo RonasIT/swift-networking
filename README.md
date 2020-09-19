@@ -28,7 +28,7 @@ Once you have your Swift package set up, adding Networking as a dependency is as
 
 ```swift
 dependencies: [
-    .package(url: "https://projects.ronasit.com/ronas-it/ios/networking.git", .upToNextMajor(from: "2.0.0"))
+    .package(url: "https://projects.ronasit.com/ronas-it/ios/networking.git", .branch("swift-package"))
 ]
 ```
 
