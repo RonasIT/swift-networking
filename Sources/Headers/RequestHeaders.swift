@@ -10,7 +10,6 @@ public enum RequestHeaders: RequestHeader {
     case contentType(String)
     case accept(String)
     case userAgent(osVersion: String, appVersion: String)
-    case dpi(scale: CGFloat)
     case custom(key: String, value: String)
 
     public var key: String {
@@ -23,8 +22,6 @@ public enum RequestHeaders: RequestHeader {
             return "Accept"
         case .userAgent:
             return "User-Agent"
-        case .dpi:
-            return "dpi"
         case let .custom(key, _):
             return key
         }
@@ -40,8 +37,6 @@ public enum RequestHeaders: RequestHeader {
             return value
         case let .userAgent(osVersion, appVersion):
             return "iOS \(osVersion) version \(appVersion)"
-        case let .dpi(scale):
-            return "@\(Int(scale))x"
         case let .custom(_, value):
             return value
         }
