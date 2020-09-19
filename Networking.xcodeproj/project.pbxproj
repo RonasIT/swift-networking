@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -47,7 +47,6 @@
 		6D9BB59324F009020099C8B7 /* HTTPHeaders+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59224F009020099C8B7 /* HTTPHeaders+Equatable.swift */; };
 		6D9BB59624F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59524F0161A0099C8B7 /* MockURLSessionTaskMetrics.swift */; };
 		6D9BB59924F016C60099C8B7 /* AnyError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB59724F016990099C8B7 /* AnyError.swift */; };
-		6D9F10AC216BB35700CDB8EE /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D9F10AB216BB35700CDB8EE /* Alamofire.framework */; };
 		6D9F10CE216BBBF200CDB8EE /* UploadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10B1216BBBF200CDB8EE /* UploadEndpoint.swift */; };
 		6D9F10CF216BBBF200CDB8EE /* ImageBodyPart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10B2216BBBF200CDB8EE /* ImageBodyPart.swift */; };
 		6D9F10D0216BBBF200CDB8EE /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9F10B3216BBBF200CDB8EE /* Endpoint.swift */; };
@@ -65,6 +64,7 @@
 		9360C25D234DF24800DDEB26 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 9360C25C234DF24800DDEB26 /* .swiftlint.yml */; };
 		936EF63823048B50001C32F0 /* RequestHeaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936EF63723048B50001C32F0 /* RequestHeaders.swift */; };
 		938796F921FCCA26007D655F /* MultipartFormDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5CD9AEFCBD2CA6811FD701 /* MultipartFormDataTests.swift */; };
+		9394FCEB2515129900767437 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 9394FCEA2515129900767437 /* Alamofire */; };
 		93AEDD4723EB300D002CC323 /* StringResponseSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AEDD4623EB300D002CC323 /* StringResponseSerializer.swift */; };
 		93AEDD4A23EB3103002CC323 /* URLResponse+TextEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AEDD4923EB3103002CC323 /* URLResponse+TextEncoding.swift */; };
 		93AEDD4D23EB36F1002CC323 /* ResponseType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AEDD4C23EB36F1002CC323 /* ResponseType.swift */; };
@@ -165,7 +165,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6D9F10AC216BB35700CDB8EE /* Alamofire.framework in Frameworks */,
+				9394FCEB2515129900767437 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -494,6 +494,9 @@
 			dependencies = (
 			);
 			name = Networking;
+			packageProductDependencies = (
+				9394FCEA2515129900767437 /* Alamofire */,
+			);
 			productName = Networking;
 			productReference = 6D3EF77D21675CFA00251869 /* Networking.framework */;
 			productType = "com.apple.product-type.framework";
@@ -545,6 +548,9 @@
 				Base,
 			);
 			mainGroup = 6D3EF77321675CFA00251869;
+			packageReferences = (
+				9394FCE92515129900767437 /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			productRefGroup = 6D3EF77E21675CFA00251869 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -969,6 +975,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9394FCE92515129900767437 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9394FCEA2515129900767437 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9394FCE92515129900767437 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6D3EF77421675CFA00251869 /* Project object */;
 }
