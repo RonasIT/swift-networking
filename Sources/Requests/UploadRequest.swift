@@ -3,14 +3,16 @@
 // Copyright (c) 2018 Ronas IT. All rights reserved.
 //
 
+import Foundation
 import Alamofire
 
 final class UploadRequest: Request {
     private let imageBodyParts: [ImageBodyPart]
 
-    public var progress: Progress?
     private var completion: Completion?
     private var sentRequest: DataRequest?
+
+    var progress: Progress?
 
     init(session: Alamofire.Session, endpoint: UploadEndpoint) {
         imageBodyParts = endpoint.imageBodyParts
@@ -35,9 +37,9 @@ final class UploadRequest: Request {
             usingThreshold: threshold,
             method: .post,
             headers: headers.httpHeaders
-            ).validate()
+        ).validate()
 
-        if let progress = self.progress {
+        if let progress = progress {
             sentRequest?.uploadProgress(closure: progress)
             self.progress = nil
         }

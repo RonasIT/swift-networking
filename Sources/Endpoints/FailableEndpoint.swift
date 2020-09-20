@@ -3,6 +3,8 @@
 //  Copyright © 2020 Ronas IT. All rights reserved.
 //
 
+import Foundation
+
 public protocol FailableEndpoint {
     func error(for statusCode: StatusCode) -> Error?
     func error(for urlErrorCode: URLError.Code) -> Error?

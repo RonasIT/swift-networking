@@ -3,7 +3,7 @@
 //  Copyright © 2018 Ronas IT. All rights reserved.
 //
 
-import UIKit.UIImage
+import Foundation
 
 public struct ImageBodyPart {
 

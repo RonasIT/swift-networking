@@ -3,6 +3,7 @@
 //  Copyright © 2019 Ronas IT. All rights reserved.
 //
 
+import Foundation
 import Alamofire
 
 public typealias DataResponse = Response<Data>

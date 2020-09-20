@@ -3,11 +3,10 @@
 //  Copyright © 2018 Ronas IT. All rights reserved.
 //
 
+import Foundation
 import Alamofire
 
 public typealias Progress = Alamofire.DownloadRequest.ProgressHandler
-public typealias ProgressEstimate = Alamofire.Progress
-
 public typealias Success<T> = (T) -> Void
 public typealias Failure = (Error) -> Void
 
@@ -177,12 +176,14 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
                                     encoding: StringResponseSerializer.Encoding = .automatic,
+                                    progress: Progress? = nil,
                                     success: @escaping Success<StringResponse>,
                                     failure: @escaping Failure) -> CancellableRequest {
         let responseSerializer = StringResponseSerializer(encoding: encoding).typeErased()
         return uploadRequest(
             for: endpoint,
             responseSerializer: responseSerializer,
+            progress: progress,
             success: success,
             failure: failure
         )
@@ -191,11 +192,18 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
                                     encoding: StringResponseSerializer.Encoding = .automatic,
+                                    progress: Progress? = nil,
                                     success: @escaping Success<String>,
                                     failure: @escaping Failure) -> CancellableRequest {
-        return uploadRequest(for: endpoint, encoding: encoding, success: { response in
-            success(response.result)
-        }, failure: failure)
+        return uploadRequest(
+            for: endpoint,
+            encoding: encoding,
+            progress: progress,
+            success: { response in
+                success(response.result)
+            },
+            failure: failure
+        )
     }
 
     // MARK: -  Decodable
@@ -227,12 +235,14 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest<Result>(for endpoint: UploadEndpoint,
                                             decoder: JSONDecoder = JSONDecoder(),
+                                            progress: Progress? = nil,
                                             success: @escaping Success<DecodableResponse<Result>>,
                                             failure: @escaping Failure) -> CancellableRequest {
         let responseSerializer = DecodableResponseSerializer<Result>(decoder: decoder).typeErased()
         return uploadRequest(
             for: endpoint,
             responseSerializer: responseSerializer,
+            progress: progress,
             success: success,
             failure: failure
         )
@@ -241,11 +251,18 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest<Result: Decodable>(for endpoint: UploadEndpoint,
                                                        decoder: JSONDecoder = JSONDecoder(),
+                                                       progress: Progress? = nil,
                                                        success: @escaping Success<Result>,
                                                        failure: @escaping Failure) -> CancellableRequest {
-        return uploadRequest(for: endpoint, decoder: decoder, success: { response in
-            success(response.result)
-        }, failure: failure)
+        return uploadRequest(
+            for: endpoint,
+            decoder: decoder,
+            progress: progress,
+            success: { response in
+                success(response.result)
+            },
+            failure: failure
+        )
     }
 
     // MARK: -  JSON

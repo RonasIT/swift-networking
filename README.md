@@ -13,13 +13,12 @@ Networking is a network abstraction layer built on top of
 
 ## Installation 🎬
 
-### Carthage
+### Xcode project or workspace
 
-To integrate Networking into your Xcode project, specify it in your Cartfile:
-
-```typescript
-git "https://projects.ronasit.com/ronas-it/ios/networking.git" "1.3.0"
-```
+To integrate Networking into your Xcode project as Swift Package:
+1. Select "File -> Swift Packages -> Add Package Dependency..."
+2. Select project if you are using workspace
+3. Enter "https://projects.ronasit.com/ronas-it/ios/networking"
 
 ### Swift Package Manager
 
@@ -32,6 +31,8 @@ dependencies: [
     .package(url: "https://projects.ronasit.com/ronas-it/ios/networking.git", .upToNextMajor(from: "2.0.0"))
 ]
 ```
+
+To integrate to XCode project, 
 
 ## Features ✔️
 
@@ -93,10 +94,12 @@ final class MediaService: NetworkService, MediaServiceProtocol {
 
     @discardableResult
     func uploadMedia(with data: Data,
+                     progress: @escaping Progress,
                      success: @escaping (Media) -> Void,
                      failure: @escaping (Error) -> Void) -> CancellableRequest {
         uploadRequest(
             for: MediaEndpoint.upload(data: data),
+            progress: progress,
             success: success,
             failure: failure
         )
