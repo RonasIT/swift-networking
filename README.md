@@ -32,8 +32,6 @@ dependencies: [
 ]
 ```
 
-To integrate to XCode project, 
-
 ## Features ✔️
 
 - [⚡ Networking](#%e2%9a%a1-networking)
