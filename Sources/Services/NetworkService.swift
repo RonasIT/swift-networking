@@ -6,9 +6,9 @@
 import Foundation
 import Alamofire
 
-public typealias Progress = Alamofire.DownloadRequest.ProgressHandler
-public typealias Success<T> = (T) -> Void
-public typealias Failure = (Error) -> Void
+public typealias ProgressHandler = Alamofire.DownloadRequest.ProgressHandler
+public typealias SuccessHandler<T> = (T) -> Void
+public typealias FailureHandler = (Error) -> Void
 
 open class NetworkService {
 
@@ -37,8 +37,8 @@ open class NetworkService {
 
     final func send<Response>(_ request: Request,
                               responseSerializer: AnyResponseSerializer<Response>,
-                              success: @escaping Success<Response>,
-                              failure: @escaping Failure) -> CancellableRequest {
+                              success: @escaping SuccessHandler<Response>,
+                              failure: @escaping FailureHandler) -> CancellableRequest {
         requestAdaptingService?.adapt(request)
         request.response { [weak self] request, response in
             guard let self = self else {
@@ -74,8 +74,8 @@ open class NetworkService {
 
     public func request<Response>(for endpoint: Endpoint,
                                   responseSerializer: AnyResponseSerializer<Response>,
-                                  success: @escaping Success<Response>,
-                                  failure: @escaping Failure) -> CancellableRequest {
+                                  success: @escaping SuccessHandler<Response>,
+                                  failure: @escaping FailureHandler) -> CancellableRequest {
         return send(
             Request(session: session, endpoint: endpoint),
             responseSerializer: responseSerializer,
@@ -86,9 +86,9 @@ open class NetworkService {
 
     public func uploadRequest<Response>(for endpoint: UploadEndpoint,
                                         responseSerializer: AnyResponseSerializer<Response>,
-                                        progress: Progress? = nil,
-                                        success: @escaping Success<Response>,
-                                        failure: @escaping Failure) -> CancellableRequest {
+                                        progress: ProgressHandler? = nil,
+                                        success: @escaping SuccessHandler<Response>,
+                                        failure: @escaping FailureHandler) -> CancellableRequest {
         let request = UploadRequest(session: session, endpoint: endpoint)
         request.progress = progress
         return send(
@@ -103,8 +103,8 @@ open class NetworkService {
 
     @discardableResult
     public func request(for endpoint: Endpoint,
-                        success: @escaping Success<DataResponse>,
-                        failure: @escaping Failure) -> CancellableRequest {
+                        success: @escaping SuccessHandler<DataResponse>,
+                        failure: @escaping FailureHandler) -> CancellableRequest {
         let responseSerializer = AnyResponseSerializer { $0 }
         return request(
             for: endpoint,
@@ -116,8 +116,8 @@ open class NetworkService {
 
     @discardableResult
     public func request(for endpoint: Endpoint,
-                        success: @escaping Success<Data>,
-                        failure: @escaping Failure) -> CancellableRequest {
+                        success: @escaping SuccessHandler<Data>,
+                        failure: @escaping FailureHandler) -> CancellableRequest {
         return request(for: endpoint, success: { (response: DataResponse) in
             success(response.result)
         }, failure: failure)
@@ -125,9 +125,9 @@ open class NetworkService {
 
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
-                                    progress: Progress? = nil,
-                                    success: @escaping Success<DataResponse>,
-                                    failure: @escaping Failure) -> CancellableRequest {
+                                    progress: ProgressHandler? = nil,
+                                    success: @escaping SuccessHandler<DataResponse>,
+                                    failure: @escaping FailureHandler) -> CancellableRequest {
         let responseSerializer = AnyResponseSerializer { $0 }
         return uploadRequest(
             for: endpoint,
@@ -140,8 +140,8 @@ open class NetworkService {
 
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
-                                    success: @escaping Success<Data>,
-                                    failure: @escaping Failure) -> CancellableRequest {
+                                    success: @escaping SuccessHandler<Data>,
+                                    failure: @escaping FailureHandler) -> CancellableRequest {
         return uploadRequest(for: endpoint, success: { (response: DataResponse) in
             success(response.result)
         }, failure: failure)
@@ -152,8 +152,8 @@ open class NetworkService {
     @discardableResult
     public final func request(for endpoint: Endpoint,
                               encoding: StringResponseSerializer.Encoding = .automatic,
-                              success: @escaping Success<StringResponse>,
-                              failure: @escaping Failure) -> CancellableRequest {
+                              success: @escaping SuccessHandler<StringResponse>,
+                              failure: @escaping FailureHandler) -> CancellableRequest {
         let responseSerializer = StringResponseSerializer(encoding: encoding).typeErased()
         return request(
             for: endpoint,
@@ -166,8 +166,8 @@ open class NetworkService {
     @discardableResult
     public final func request(for endpoint: Endpoint,
                               encoding: StringResponseSerializer.Encoding = .automatic,
-                              success: @escaping Success<String>,
-                              failure: @escaping Failure) -> CancellableRequest {
+                              success: @escaping SuccessHandler<String>,
+                              failure: @escaping FailureHandler) -> CancellableRequest {
         return request(for: endpoint, encoding: encoding, success: { response in
             success(response.result)
         }, failure: failure)
@@ -176,9 +176,9 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
                                     encoding: StringResponseSerializer.Encoding = .automatic,
-                                    progress: Progress? = nil,
-                                    success: @escaping Success<StringResponse>,
-                                    failure: @escaping Failure) -> CancellableRequest {
+                                    progress: ProgressHandler? = nil,
+                                    success: @escaping SuccessHandler<StringResponse>,
+                                    failure: @escaping FailureHandler) -> CancellableRequest {
         let responseSerializer = StringResponseSerializer(encoding: encoding).typeErased()
         return uploadRequest(
             for: endpoint,
@@ -192,9 +192,9 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
                                     encoding: StringResponseSerializer.Encoding = .automatic,
-                                    progress: Progress? = nil,
-                                    success: @escaping Success<String>,
-                                    failure: @escaping Failure) -> CancellableRequest {
+                                    progress: ProgressHandler? = nil,
+                                    success: @escaping SuccessHandler<String>,
+                                    failure: @escaping FailureHandler) -> CancellableRequest {
         return uploadRequest(
             for: endpoint,
             encoding: encoding,
@@ -211,8 +211,8 @@ open class NetworkService {
     @discardableResult
     public final func request<Result>(for endpoint: Endpoint,
                                       decoder: JSONDecoder = JSONDecoder(),
-                                      success: @escaping Success<DecodableResponse<Result>>,
-                                      failure: @escaping Failure) -> CancellableRequest {
+                                      success: @escaping SuccessHandler<DecodableResponse<Result>>,
+                                      failure: @escaping FailureHandler) -> CancellableRequest {
         let responseSerializer = DecodableResponseSerializer<Result>(decoder: decoder).typeErased()
         return request(
             for: endpoint,
@@ -225,8 +225,8 @@ open class NetworkService {
     @discardableResult
     public final func request<Result: Decodable>(for endpoint: Endpoint,
                                                  decoder: JSONDecoder = JSONDecoder(),
-                                                 success: @escaping Success<Result>,
-                                                 failure: @escaping Failure) -> CancellableRequest {
+                                                 success: @escaping SuccessHandler<Result>,
+                                                 failure: @escaping FailureHandler) -> CancellableRequest {
         return request(for: endpoint, decoder: decoder, success: { response in
             success(response.result)
         }, failure: failure)
@@ -235,9 +235,9 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest<Result>(for endpoint: UploadEndpoint,
                                             decoder: JSONDecoder = JSONDecoder(),
-                                            progress: Progress? = nil,
-                                            success: @escaping Success<DecodableResponse<Result>>,
-                                            failure: @escaping Failure) -> CancellableRequest {
+                                            progress: ProgressHandler? = nil,
+                                            success: @escaping SuccessHandler<DecodableResponse<Result>>,
+                                            failure: @escaping FailureHandler) -> CancellableRequest {
         let responseSerializer = DecodableResponseSerializer<Result>(decoder: decoder).typeErased()
         return uploadRequest(
             for: endpoint,
@@ -251,9 +251,9 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest<Result: Decodable>(for endpoint: UploadEndpoint,
                                                        decoder: JSONDecoder = JSONDecoder(),
-                                                       progress: Progress? = nil,
-                                                       success: @escaping Success<Result>,
-                                                       failure: @escaping Failure) -> CancellableRequest {
+                                                       progress: ProgressHandler? = nil,
+                                                       success: @escaping SuccessHandler<Result>,
+                                                       failure: @escaping FailureHandler) -> CancellableRequest {
         return uploadRequest(
             for: endpoint,
             decoder: decoder,
@@ -270,8 +270,8 @@ open class NetworkService {
     @discardableResult
     public final func request(for endpoint: Endpoint,
                               readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                              success: @escaping Success<JSONResponse>,
-                              failure: @escaping Failure) -> CancellableRequest {
+                              success: @escaping SuccessHandler<JSONResponse>,
+                              failure: @escaping FailureHandler) -> CancellableRequest {
         let responseSerializer = JSONResponseSerializer(readingOptions: readingOptions).typeErased()
         return request(
             for: endpoint,
@@ -284,8 +284,8 @@ open class NetworkService {
     @discardableResult
     public final func request(for endpoint: Endpoint,
                               readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                              success: @escaping Success<[String: Any]>,
-                              failure: @escaping Failure) -> CancellableRequest {
+                              success: @escaping SuccessHandler<[String: Any]>,
+                              failure: @escaping FailureHandler) -> CancellableRequest {
         return request(for: endpoint, readingOptions: readingOptions, success: { response in
             success(response.result)
         }, failure: failure)
@@ -294,8 +294,8 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
                                     readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                                    success: @escaping Success<JSONResponse>,
-                                    failure: @escaping Failure) -> CancellableRequest {
+                                    success: @escaping SuccessHandler<JSONResponse>,
+                                    failure: @escaping FailureHandler) -> CancellableRequest {
         let responseSerializer = JSONResponseSerializer(readingOptions: readingOptions).typeErased()
         return uploadRequest(
             for: endpoint,
@@ -308,8 +308,8 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
                                     readingOptions: JSONSerialization.ReadingOptions = .allowFragments,
-                                    success: @escaping Success<[String: Any]>,
-                                    failure: @escaping Failure) -> CancellableRequest {
+                                    success: @escaping SuccessHandler<[String: Any]>,
+                                    failure: @escaping FailureHandler) -> CancellableRequest {
         return uploadRequest(for: endpoint, readingOptions: readingOptions, success: { response in
             success(response.result)
         }, failure: failure)
@@ -320,7 +320,7 @@ open class NetworkService {
     @discardableResult
     public final func request(for endpoint: Endpoint,
                               success: @escaping (EmptyResponse) -> Void,
-                              failure: @escaping Failure) -> CancellableRequest {
+                              failure: @escaping FailureHandler) -> CancellableRequest {
         return request(for: endpoint, success: { (response: DataResponse) in
             success(response.empty)
         }, failure: { error in
@@ -331,7 +331,7 @@ open class NetworkService {
     @discardableResult
     public final func request(for endpoint: Endpoint,
                               success: @escaping () -> Void,
-                              failure: @escaping Failure) -> CancellableRequest {
+                              failure: @escaping FailureHandler) -> CancellableRequest {
         return request(for: endpoint, success: { (_: DataResponse) in
             success()
         }, failure: failure)
@@ -339,9 +339,9 @@ open class NetworkService {
 
     @discardableResult
     public func uploadRequest(for endpoint: UploadEndpoint,
-                              progress: Progress? = nil,
+                              progress: ProgressHandler? = nil,
                               success: @escaping (EmptyResponse) -> Void,
-                              failure: @escaping Failure) -> CancellableRequest {
+                              failure: @escaping FailureHandler) -> CancellableRequest {
         return uploadRequest(for: endpoint, progress: progress, success: { (response: DataResponse) in
             success(response.empty)
         }, failure: failure)
@@ -350,7 +350,7 @@ open class NetworkService {
     @discardableResult
     public final func uploadRequest(for endpoint: UploadEndpoint,
                                     success: @escaping () -> Void,
-                                    failure: @escaping Failure) -> CancellableRequest {
+                                    failure: @escaping FailureHandler) -> CancellableRequest {
         return uploadRequest(for: endpoint, success: { (_: DataResponse) in
             success()
         }, failure: failure)
@@ -361,7 +361,7 @@ open class NetworkService {
     private func handleError(_ error: Swift.Error,
                              response: AFDataResponse<Data>,
                              request: RetryableRequest,
-                             failure: @escaping Failure) {
+                             failure: @escaping FailureHandler) {
         guard let errorHandlingService = errorHandlingService else {
             failure(error)
             return
