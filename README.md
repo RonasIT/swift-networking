@@ -19,7 +19,6 @@ To integrate Networking into your Xcode project as Swift Package:
 1. Select "File -> Swift Packages -> Add Package Dependency..."
 2. Select project if you are using workspace
 3. Enter "https://projects.ronasit.com/ronas-it/ios/networking"
-4. Select branch "swift-package"
 
 ### Swift Package Manager
 
@@ -29,7 +28,7 @@ Once you have your Swift package set up, adding Networking as a dependency is as
 
 ```swift
 dependencies: [
-    .package(url: "https://projects.ronasit.com/ronas-it/ios/networking.git", .branch("swift-package"))
+    .package(url: "https://projects.ronasit.com/ronas-it/ios/networking.git", .upToNextMajor(from: "2.0.0"))
 ]
 ```
 
