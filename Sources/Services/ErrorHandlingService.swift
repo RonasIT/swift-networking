@@ -6,7 +6,7 @@
 public protocol ErrorHandlingServiceProtocol {
     func handleError(with payload: ErrorPayload,
                      retrying: @escaping () -> Void,
-                     failure: @escaping Failure)
+                     failure: @escaping FailureHandler)
 }
 
 open class ErrorHandlingService: ErrorHandlingServiceProtocol {
@@ -19,7 +19,7 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
 
     public final func handleError(with payload: ErrorPayload,
                                   retrying: @escaping () -> Void,
-                                  failure: @escaping Failure) {
+                                  failure: @escaping FailureHandler) {
         guard let errorHandler = errorHandlers.first else {
             failure(payload.error)
             return
@@ -37,7 +37,7 @@ open class ErrorHandlingService: ErrorHandlingServiceProtocol {
     private func handleErrorRecursive(with payload: ErrorPayload,
                                       errorHandler: ErrorHandler,
                                       retrying: @escaping () -> Void,
-                                      failure: @escaping Failure) {
+                                      failure: @escaping FailureHandler) {
         var nextErrorHandler: ErrorHandler?
         if errorHandler !== errorHandlers.last {
             let errorHandlerIndexOrNil = errorHandlers.firstIndex { $0 === errorHandler }
