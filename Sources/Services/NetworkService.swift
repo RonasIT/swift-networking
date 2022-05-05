@@ -10,7 +10,7 @@ public typealias ProgressHandler = Alamofire.DownloadRequest.ProgressHandler
 public typealias SuccessHandler<T> = (T) -> Void
 public typealias FailureHandler = (Error) -> Void
 
-open class NetworkService {
+open class NetworkService: NSObject {
 
     private enum Error: LocalizedError {
         case invalidHTTPResponse
