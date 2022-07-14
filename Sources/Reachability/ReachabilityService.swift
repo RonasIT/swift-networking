@@ -30,12 +30,12 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
 
     private let networkListener: NetworkListener
 
-    public init(networkListener: NetworkListener) {
+    init(networkListener: NetworkListener) {
         self.networkListener = networkListener
     }
 
-    convenience public init() {
-        self.init(networkListener: NetworkReachabilityManager()!)
+    convenience public init(networkListener: NetworkListener = NetworkReachabilityManager()!) {
+        self.init(networkListener: networkListener)
     }
 
     deinit {
