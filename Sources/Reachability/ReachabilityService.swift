@@ -34,12 +34,12 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
         self.networkListener = networkListener
     }
 
-    convenience public init() {
-        self.init(networkListener: NetworkReachabilityManager()!)
-    }
-
-    convenience public init(networkListener: NetworkListener) {
-        self.init(networkListener: networkListener)
+    convenience public init(host: String? = nil) {
+        if let host = host {
+            self.init(networkListener: NetworkReachabilityManager(host: host)!)
+        } else {
+            self.init(networkListener: NetworkReachabilityManager()!)
+        }
     }
 
     deinit {
