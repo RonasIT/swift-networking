@@ -34,7 +34,11 @@ public final class ReachabilityService: ReachabilityServiceProtocol {
         self.networkListener = networkListener
     }
 
-    convenience public init(networkListener: NetworkListener = NetworkReachabilityManager()!) {
+    convenience public init() {
+        self.init(networkListener: NetworkReachabilityManager()!)
+    }
+
+    convenience public init(networkListener: NetworkListener) {
         self.init(networkListener: networkListener)
     }
 
